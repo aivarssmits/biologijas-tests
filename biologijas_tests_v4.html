@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bioloģijas tests (iOS inline v2) – pa vienam jautājumam</title>
+<style>
+  :root { --muted:#94a3b8; --text:#e5e7eb; --ok:#22c55e; --bad:#ef4444; --b:#1f2937; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,Noto Sans,sans-serif;background:#0b1020;color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+  .app{width:100%;max-width:860px;background:#0f162b;border:1px solid #1f2937;border-radius:16px;padding:20px 16px 24px;position:relative}
+  .header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .title{font-size:20px;font-weight:700}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+  .badge{background:#0b1220;border:1px solid #1f2937;padding:6px 10px;border-radius:999px}
+  .progress{width:100%;height:8px;background:#0b1220;border-radius:999px;overflow:hidden;border:1px solid #1f2937;margin:12px 0 14px}
+  .progress>div{height:100%;background:#22c55e;width:0%}
+  .card{background:#0b1220;border:1px solid #1f2937;border-radius:14px;padding:16px;position:relative;z-index:1}
+  .question{font-size:18px;font-weight:600;line-height:1.4}
+  .options{display:grid;gap:10px;margin-top:14px}
+  .btn{border:1px solid var(--b);background:#1f2937;color:var(--text);padding:12px 16px;border-radius:12px;font-weight:700}
+  .btn.primary{background:#16a34a;border-color:#15803d}
+  .btn.ghost{background:transparent}
+  .option-btn{display:block;width:100%;text-align:left;padding:14px 14px;border-radius:12px;border:1px solid var(--b);background:#0e1526;color:var(--text);font-weight:600;font-size:16px;-webkit-tap-highlight-color:transparent}
+  .feedback{font-weight:800}
+  .feedback.ok{color:var(--ok)}
+  .feedback.bad{color:var(--bad)}
+  .footer{margin-top:12px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  * { pointer-events: auto; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title">Bioloģijas tests – šūna, organoīdi un vielu transports</div>
+      <div class="meta">
+        <div class="badge" id="progressLabel">0 / 50</div>
+        <div class="badge" id="scoreLabel">Punkti: 0</div>
+      </div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+
+    <div class="card">
+      <div class="question" id="questionText">Nospiediet “Sākt testu”.</div>
+      <div class="options" id="options"></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap">
+        <div>
+          <a id="startBtn" class="btn primary" href="#" onclick="startQuiz();return false;" ontouchstart="startQuiz();return false;" role="button">Sākt testu</a>
+          <a id="restartBtn" class="btn ghost" href="#" style="display:none" onclick="restartQuiz();return false;" ontouchstart="restartQuiz();return false;" role="button">Restartēt</a>
+        </div>
+        <div>
+          <span id="feedback" class="feedback"></span>
+          <a id="nextBtn" class="btn" href="#" style="display:none" onclick="nextQ();return false;" ontouchstart="nextQ();return false;" role="button">Nākamais</a>
+          <a id="showAnswerBtn" class="btn ghost" href="#" style="display:none" onclick="showAnswer();return false;" ontouchstart="showAnswer();return false;" role="button">Parādīt pareizo</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Secība tiek sajaukta katru reizi (gan jautājumi, gan atbilžu varianti).</div>
+      <div style="font-size:12px">Pamats: mācību materiāls par šūnu uzbūvi un vielu transportu.</div>
+    </div>
+  </div>
+
+<script>
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+var BANK=[
+  {q:"Kādas ir galvenās šūnu funkcijas?",a:"vielu transports, olbaltumvielu sintēze, enerģijas ieguve, signālu pārraide, šūnu cikls, diferenciācija un nāve",wrong:["tikai vielu transports un elpošana","tikai dalīšanās un sekrēcija"]},
+  {q:"No kā ir atkarīgas šūnu funkcijas?",a:"no organoīdu uzbūves un daudzuma šūnā",wrong:["no organisma asinsgrupas","tikai no šūnas izmēra"]},
+  {q:"Ar ko atšķiras prokariotu šūnas no eikariotu šūnām?",a:"prokariotiem nav kodola, DNS ir gredzenveida; ir ribosomas, šūnapvalks un plazmatiskā membrāna",wrong:["prokariotiem ir lieli mitohondriji un kodols","prokariotos vispār nav DNS"]},
+  {q:"Kas raksturīgs eikariotu šūnām?",a:"ir kodols un organoīdi (mitohondriji, ET, Goldži komplekss u.c.), lielāks izmērs",wrong:["nav ribosomu un nav membrānu","DNS vienmēr ir gredzenveida"]},
+  {q:"Kādas struktūras piemīt visām šūnām?",a:"plazmatiskā membrāna, citoplazma un ribosomas",wrong:["kodols, lizosomas un centriolas","vakuola, hloroplasti un kodoliņš"]},
+  {q:"Kas ir būtiskākā vīrusu uzbūves īpatnība?",a:"vīrusiem nav šūnas; tie sastāv no nukleīnskābes (DNS vai RNS) un kapsīdas",wrong:["vīrusi ir vienšūnas organismi ar kodolu","vīrusiem ir šūnapvalks un mitohondriji"]},
+  {q:"Kāda ir kodola galvenā funkcija?",a:"glabā ģenētisko materiālu un regulē šūnas darbību, kontrolē olbaltumvielu sintēzi",wrong:["uzkrāj taukus un glikozi","ražo ATP oksidatīvajā fosforilēšanā"]},
+  {q:"Kas ir hromatīns?",a:"DNS un olbaltumvielu komplekss kodolā",wrong:["RNS un lipīdu komplekss citoplazmā","tikai DNS bez olbaltumvielām"]},
+  {q:"Kādas var būt hromatīna noviržu sekas?",a:"sirds, asinsvadu un muskuļu traucējumi vai pat bojāeja",wrong:["neietekmē organismu","izraisa tikai ādas krāsas izmaiņas"]},
+  {q:"Kāda ir kodoliņa galvenā funkcija?",a:"ribosomu subvienību veidošana",wrong:["lipīdu sintēze","ATP sintēze"]},
+  {q:"Atšķirība starp hromatīnu un hromosomām:",a:"hromatīns ir atritināta DNS forma; hromosomas – kondensēts hromatīns pirms dalīšanās",wrong:["hromosomas ir olbaltumi, hromatīns – lipīdi","nav atšķirības – tie sinonīmi"]},
+  {q:"Ribosomu uzbūve:",a:"lielā (60S) un mazā (40S) subvienība no rRNS un olbaltumvielām",wrong:["viena 100S subvienība no lipīdiem","trīs subvienības no DNS pavedieniem"]},
+  {q:"Ribosomu galvenā funkcija:",a:"aminoskābju polimerizācija olbaltumvielu sintēzē (translācija)",wrong:["glikogēna noārdīšana","ATP sintēze elpošanas ķēdē"]},
+  {q:"Graudainais ET (RER) pilda:",a:"olbaltumvielu sintēzi un modificēšanu",wrong:["piemaisījumu detoksikāciju vienīgi","DNS replikāciju"]},
+  {q:"Gludais ET (SER) pilda:",a:"lipīdu sintēzi, glikogēna noārdīšanu, detoksikāciju, steroīdu hormonu sintēzi",wrong:["olbaltumvielu translāciju","hromosomu sadali mitozē"]},
+  {q:"Goldži kompleksa funkcija:",a:"uzņem, pārveido olbaltumvielas/lipīdus, veido glikoproteīnus, sekretoros pūslīšus, lizosomas, atjauno membrānas",wrong:["sintezē DNS un RNS","veic tikai skābekļa transportu"]},
+  {q:"Kas var būt saistīts ar mitohondriju bojājumiem?",a:"nervu, muskuļu, sirds, aknu, nieru slimības, diabēts, redzes/dzirdes problēmas, infekciju jutība",wrong:["tikai matu krāsas maiņa","absolūti nekādas sekas"]},
+  {q:"Lizosomu nozīme šūnā:",a:"iekššūnas sagremošana; organisko savienojumu šķelšana līdz monomēriem",wrong:["proteīnu translācija","DNS replikācija"]},
+  {q:"Autofāgija nozīmē:",a:"bojātu struktūru selektīvu noārdīšanu organoīdu atjaunošanai",wrong:["šūnas nekontrolētu pašsadalīšanos","glikozes uzkrāšanu vakuolās"]},
+  {q:"Autolīze nozīmē:",a:"šūnas pašsadalīšanos, kad fermenti izplūst citoplazmā",wrong:["membrānas glikokaliksa veidošanu","ribosomu subvienību salikšanu"]},
+  {q:"Peroksisomu funkcijas:",a:"garo taukskābju sadalīšana, detoksikācija, H₂O₂ noārdīšana ar katalāzi",wrong:["hromosomu pārvietošana mitozē","proteīnu glikozilēšana Goldži kompleksā"]},
+  {q:"Centrosomu loma dalīšanās laikā:",a:"organizē dalīšanās vārpstas pavedienus hromatīdu sadalei",wrong:["veic olbaltumvielu sintēzi","ražo ATP mitohondriju vietā"]},
+  {q:"Citoskeleta galvenās sastāvdaļas:",a:"mikrofilamenti, mikrocaurulītes, starpfilamenti",wrong:["vakuolas, ribosomas, lizosomas","ET, Goldži, peroksisomas"]},
+  {q:"Mikrofilamentu funkcijas:",a:"kustības un kontrakcijas",wrong:["ATP sintēze","DNS transkripcija kodolā"]},
+  {q:"Mikrocaurulīšu funkcijas:",a:"hromosomu pārvietošana, organoīdu transports",wrong:["glikogēna uzkrāšana","lipīdu šķelšana ar lipāzēm"]},
+  {q:"Starpfilamentu funkcija:",a:"šūnas mehāniskais balsts",wrong:["signālu pārraide sinapsēs","skābekļa saistīšana"]},
+  {q:"Šūnu membrānu galvenās funkcijas:",a:"norobežošana, transports, signālu uztvere/transdukcija, saķere un sasaistīšana ar ārpusšūnas matrici",wrong:["DNS sintēze","hematopoēze"]},
+  {q:"Aktīvais transports:",a:"pretēji koncentrācijas gradientam; izmanto ATP",wrong:["pa gradientu bez ATP","vienmēr ar vezikulām"]},
+  {q:"Pasīvais transports:",a:"pa koncentrācijas gradientu; enerģija nav vajadzīga",wrong:["pret gradientu ar ATP","vienmēr prasa membrānas receptoru fosforilēšanu"]},
+  {q:"Kas ir difūzija?",a:"vielu pārvietošana no augstākas uz zemāku koncentrāciju",wrong:["ūdens pārvietošanās pret osmotisko spiedienu","elektronu pārnese elpošanas ķēdē"]},
+  {q:"Kas nosaka difūzijas ātrumu?",a:"molekulas lielums, šķīdība lipīdos, membrānas caurlaidība",wrong:["asinsspiediens vienīgi","šūnas kodola izmērs"]},
+  {q:"Kas ir osmoze?",a:"ūdens difūzija caur puscaurlaidīgu membrānu",wrong:["Na⁺ aktīvs sūknis ar ATP","proteīnu translācija ribosomā"]},
+  {q:"Hipotoniskā vidē šūna:",a:"piebriest",wrong:["saraujas","nekādi nemainās jebkuros apstākļos"]},
+  {q:"Hipertoniskā vidē šūna:",a:"saraujas",wrong:["piebriest","dalās ātrāk"]},
+  {q:"Ar kādiem procesiem saistīts vezikulārais transports?",a:"endocitoze (fago-, pino-, mikropino-) un eksocitoze",wrong:["tikvien kā difūzija","tikai aktīvais transports caur sūkņiem"]},
+  {q:"Kādi faktori ietekmē vielu iekļūšanu caur ādu?",a:"molekulmasa, lipofilitāte, koncentrācija, preparāta forma, ādas barjeras stāvoklis",wrong:["organisma asinsgrupa","matu garums"]},
+  {q:"Kas ir glikokalikss?",a:"membrānas ārējais glikoproteīnu un glikopeptīdu slānis",wrong:["DNS dubultspirāles ārējais slānis","ribosomas iekšējais kanāls"]},
+  {q:"Glikokaliksa funkcijas:",a:"aizsardzība, imunitāte, šūnu atpazīšana, transplantācijas saderība, saķere, apaugļošanās",wrong:["ATP sintēze","gāzu apmaiņa alveolās"]},
+  {q:"Mikrobārkstiņu funkcija:",a:"palielina virsmu uzsūkšanai (zarnas, nieres), veicina sekrēciju",wrong:["pārvieto gļotas elpceļos","kondensē hromatīnu mitozē"]},
+  {q:"Skropstiņas nodrošina:",a:"vielu pārvietošanu (elpceļos, olvados)",wrong:["olbaltumvielu sintēzi","glikogēna uzkrāšanu hepatocītos"]},
+  {q:"Kas notiek skropstiņām iekaisuma gadījumā?",a:"tās nekustas, radot elpošanas un auglības problēmas",wrong:["kustas ātrāk nekā parasti","pārvēršas mikrobārkstiņās"]},
+  {q:"Kas ir ārpusšūnas matrice?",a:"šūnu sekretēto molekulu tīkls starp šūnām",wrong:["kodola iekšējā membrāna","ribosomu kopa ET lūmenā"]},
+  {q:"Galvenie ārpusšūnas matrices komponenti:",a:"glikozaminoglikāni, proteoglikāni, kolagēns, elastīns, fibronektīns, laminīns",wrong:["DNS, RNS, ribosomas","hemoglobīns, insulīns, aktīns"]},
+  {q:"Ūdens nozīme organismā:",a:"reakciju vide, temperatūras uzturēšana, gremošana, skābekļa transports, aizsardzība, atkritumvielu izvadīšana",wrong:["ATP tieša sintēze","tikai termoregulācija bez citām lomām"]},
+  {q:"Dehidratācija ~1% izraisa:",a:"slāpes",wrong:["samaņas zudumu","krampjus un paralīzi"]},
+  {q:"Dehidratācija ~2% izraisa:",a:"ēstgribas zudumu, diskomfortu",wrong:["eiforiju","asinsspiediena strauju kāpumu"]},
+  {q:"Dehidratācija ~3% izraisa:",a:"fizisko spēju kritumu",wrong:["redzes uzlabošanos","tikai temperatūras pazemināšanos"]},
+  {q:"Dehidratācija 4–5% izraisa:",a:"miegainību, galvassāpes",wrong:["tūlītēju samaņas zudumu","nekādas izmaiņas"]},
+  {q:"Dehidratācija ~6% izraisa:",a:"tirpšanu",wrong:["kaulu lūzumus","tūlītēju muskuļu hipertrofiju"]},
+  {q:"Dehidratācija ~7% izraisa:",a:"samaņas zudumu",wrong:["lielāku izturību","glikogēna krājumu pieaugumu"]},
+  {q:"Dehidratācija ~10% izraisa:",a:"dzīvības briesmas",wrong:["nelielu reiboni","tikai ādas sausumu"]},
+  {q:"Kāpēc minerālvielas ir būtiskas šūnām?",a:"nodrošina osmotisko spiedienu, pH līdzsvaru, enzīmu aktivāciju; piedalās audu veidošanā, vielmaiņā un aizsargreakcijās",wrong:["tikai pigmentu veidošanai","tikai enerģijas uzkrāšanai lipīdos"]},
+  {q:"Kas ir glikolīze?",a:"anaerobs process, kur glikoze noārdās līdz pienskābei, iegūstot ATP",wrong:["aerobs process mitohondriju matricā","proteīnu šķelšana līdz aminoskābēm lizososmās"]},
+  {q:"Kad notiek glikolīze pastiprināti?",a:"kad trūkst skābekļa, piemēram, muskuļos pie intensīvas slodzes",wrong:["tikai miegā","tikai aknās pēc ēšanas"]},
+  {q:"Oksidatīvās fosforilēšanās galvenais rezultāts:",a:"liela ATP daudzuma sintēze (ap 36 ATP no glikozes)",wrong:["NADPH veidošanās fotosintēzē","pienskābes sintēze citoplazmā"]},
+  {q:"Kur notiek oksidatīvā fosforilēšanās?",a:"mitohondriju iekšējā membrānā (elpošanas ķēdē)",wrong:["citolpazmas ribosomās","Goldži kompleksā"]},
+  {q:"Olbaltumvielu funkcijas organismā:",a:"enzīmi, hormoni, antivielas, struktūras un transporta proteīni",wrong:["galvenais enerģijas krājums ilgtermiņā","glikogēna sintēze kā pamatfunkcija"]},
+  {q:"Lipīdu funkcijas organismā:",a:"enerģijas avots, membrānu sastāvdaļa, hormonu un vitamīnu sastāvdaļa",wrong:["DNS veidošana","skābekļa piesaiste asinīs"]},
+  {q:"Ogļhidrātu funkcijas organismā:",a:"enerģijas avots (glikoze, glikogēns), strukturālās funkcijas, šūnu atpazīšana (glikoproteīni)",wrong:["ATP sintēze mitohondriju matricā","enzīmu kofaktoru veidošana kā primārā loma"]}
+];
+
+var questions=[],current=0,score=0,locked=false;
+var qText=document.getElementById('questionText'), optionsEl=document.getElementById('options');
+var startBtn=document.getElementById('startBtn'), restartBtn=document.getElementById('restartBtn');
+var nextBtn=document.getElementById('nextBtn'), showAnswerBtn=document.getElementById('showAnswerBtn');
+var feedback=document.getElementById('feedback'), progressLabel=document.getElementById('progressLabel');
+var scoreLabel=document.getElementById('scoreLabel'), progressBar=document.getElementById('progressBar');
+
+function updateHUD(){progressLabel.textContent=Math.min(current,questions.length)+" / "+questions.length;scoreLabel.textContent="Punkti: "+score;progressBar.style.width=((current/questions.length)*100)+"%";}
+function resetState(){optionsEl.innerHTML="";feedback.textContent="";feedback.className="feedback";nextBtn.style.display="none";showAnswerBtn.style.display="none";locked=false;}
+
+function startQuiz(){
+  questions=shuffle(BANK.slice());
+  current=0;score=0;
+  startBtn.style.display="none";restartBtn.style.display="inline-block";
+  updateHUD();renderQuestion();window.scrollTo(0,0);
+}
+
+function restartQuiz(){startQuiz();}
+function nextQ(){current++;updateHUD();renderQuestion();}
+function showAnswer(){
+  var q=questions[current];
+  var btns=optionsEl.querySelectorAll('.option-btn');
+  for(var i=0;i<btns.length;i++){
+    if((btns[i].textContent||"").trim()===q.a){
+      btns[i].style.borderColor="#16a34a";
+      btns[i].style.boxShadow="0 0 0 2px rgba(22,163,74,0.3) inset";
+    }
+  }
+}
+
+function renderQuestion(){
+  resetState();
+  if(current>=questions.length){
+    qText.textContent="Tests pabeigts. Jūsu rezultāts: "+score+" / "+questions.length+".";
+    var again=document.createElement('a');again.className="btn primary";again.href="#";again.textContent="Aizpildīt atkārtoti";again.setAttribute('onclick','restartQuiz();return false;');again.setAttribute('ontouchstart','restartQuiz();return false;');optionsEl.appendChild(again);
+    updateHUD();return;
+  }
+  var q=questions[current];
+  qText.textContent=q.q;
+  var opts=shuffle([q.a].concat(q.wrong));
+  for(var i=0;i<opts.length;i++){
+    var btn=document.createElement('a');
+    btn.className='option-btn'; btn.href='#'; btn.textContent=opts[i]; btn.setAttribute('role','button');
+    btn.setAttribute('onclick','selectAnswer(this);return false;');
+    btn.setAttribute('ontouchstart','selectAnswer(this);return false;');
+    optionsEl.appendChild(btn);
+  }
+}
+
+function selectAnswer(el){
+  if(locked) return;
+  locked=true; nextBtn.style.display="inline-block"; showAnswerBtn.style.display="inline-block";
+  var q=questions[current]; var choice=(el.textContent||"").trim();
+  if(choice===q.a){score++;feedback.textContent="Pareizi!";feedback.className="feedback ok";el.style.borderColor="#15803d";}
+  else{feedback.textContent="Nepareizi.";feedback.className="feedback bad";el.style.borderColor="#b91c1c";}
+  updateHUD();
+}
+</script>
+</body>
+</html>
