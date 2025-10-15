@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Latīņu valodas tests — 30 nejauši jautājumi (med. maldinātāji)</title>
+<style>
+  :root { --muted:#94a3b8; --text:#e5e7eb; --ok:#22c55e; --bad:#ef4444; --b:#1f2937; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,Noto Sans,sans-serif;background:#0b1020;color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+  .app{width:100%;max-width:900px;background:#0f162b;border:1px solid #1f2937;border-radius:16px;padding:20px 16px 24px}
+  .header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .title{font-size:20px;font-weight:700}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+  .badge{background:#0b1220;border:1px solid #1f2937;padding:6px 10px;border-radius:999px}
+  .progress{width:100%;height:8px;background:#0b1220;border-radius:999px;overflow:hidden;border:1px solid #1f2937;margin:12px 0 14px}
+  .progress>div{height:100%;background:#22c55e;width:0%}
+  .card{background:#0b1220;border:1px solid #1f2937;border-radius:14px;padding:16px}
+  .question{font-size:18px;font-weight:600;line-height:1.4}
+  .prompt{font-size:18px;font-weight:800;margin-top:6px}
+  .options{display:grid;gap:10px;margin-top:14px}
+  .btn{border:1px solid var(--b);background:#1f2937;color:var(--text);padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none}
+  .btn.primary{background:#16a34a;border-color:#15803d}
+  .btn.ghost{background:transparent}
+  .option-btn{display:block;width:100%;text-align:left;padding:14px 14px;border-radius:12px;border:1px solid var(--b);background:#0e1526;color:var(--text);font-weight:600;font-size:16px;-webkit-tap-highlight-color:transparent;text-decoration:none}
+  .feedback{font-weight:800}
+  .feedback.ok{color:var(--ok)}
+  .feedback.bad{color:var(--bad)}
+  .footer{margin-top:12px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title">Latīņu valodas tests — 30 no 98 pāriem</div>
+      <div class="meta">
+        <div class="badge" id="progressLabel">0 / 30</div>
+        <div class="badge" id="scoreLabel">Punkti: 0</div>
+      </div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+
+    <div class="card">
+      <div class="question" id="questionText">Nospiediet “Sākt testu”. Jautājumi būs gan latviski, gan latīniski.</div>
+      <div class="prompt" id="promptText"></div>
+      <div class="options" id="options"></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap">
+        <div>
+          <a id="startBtn" class="btn primary" href="#" onclick="startQuiz();return false;" ontouchstart="startQuiz();return false;" role="button">Sākt testu</a>
+          <a id="restartBtn" class="btn ghost" href="#" style="display:none" onclick="restartQuiz();return false;" ontouchstart="restartQuiz();return false;" role="button">Restartēt</a>
+        </div>
+        <div>
+          <span id="feedback" class="feedback"></span>
+          <a id="nextBtn" class="btn" href="#" style="display:none" onclick="nextQ();return false;" ontouchstart="nextQ();return false;" role="button">Nākamais</a>
+          <a id="showAnswerBtn" class="btn ghost" href="#" style="display:none" onclick="showAnswer();return false;" ontouchstart="showAnswer();return false;" role="button">Parādīt pareizo</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Katru reizi tiek izvēlēti 30 nejauši pāri no visas datubāzes; virziens (LV→LA vai LA→LV) tiek jaukts. Maldinātāji saglabā medicīnas tematiku.</div>
+      <div style="font-size:12px">Pareizās atbildes no tabulas; nepareizie varianti — medicīniski radniecīgi.</div>
+    </div>
+  </div>
+
+<script>
+var PAIRS = [{"lv": "Pirksta lūzums", "la": "Factura digiti"}, {"lv": "Plakstiņa forma", "la": "Forma palbpebrae"}, {"lv": "Slimības forma", "la": "Forma morbi"}, {"lv": "Aknes pazīme", "la": "Signum acnes"}, {"lv": "Slimības vakcīna", "la": "Vaccīnum morbi"}, {"lv": "Acs dibens", "la": "Fundus oculi"}, {"lv": "Kuņģa spazms", "la": "Spasmus ventriculi"}, {"lv": "Slimības ārstēšana", "la": "Therapia morbi"}, {"lv": "Dzemdes vēzis", "la": "Cancer uteri"}, {"lv": "Cinka ziede", "la": "Unguetum zinci"}, {"lv": "Priedes mikstūra", "la": "Mixtura pini"}, {"lv": " Vēža forma", "la": "Forma cancri "}, {"lv": "Smaržīga roze", "la": "Rosa aromatica"}, {"lv": "Dzemdes anomālija", "la": "Anomalia uteri"}, {"lv": "Muskuļa plīsums", "la": "Ruptura musculi"}, {"lv": "Balta roze", "la": "Rosa alba"}, {"lv": "Rozes ūdens", "la": "Aqua rosarum"}, {"lv": "Alvejas ziede", "la": "Unguentum aloes"}, {"lv": " Kumelītes mikstūra", "la": "Mixtura chamomillae"}, {"lv": "Kliņģerītes tinktūra", "la": "Tinctura chamomillae "}, {"lv": " Diabēta ārstēšana", "la": "Therapia diabetae"}, {"lv": " Aknes ārstēšana", "la": "Therapia acnes"}, {"lv": " Mēles vēna", "la": "Vena linguae"}, {"lv": "Rīcina eļļa", "la": "Oleum ricini"}, {"lv": "Rozes eļļa", "la": "Oleum rosae"}, {"lv": "Tīrs ūdens ", "la": "Aqua pura"}, {"lv": " Destilēts ūdens", "la": "Aqua destillata"}, {"lv": "Plata saite", "la": "Ligamentum latum"}, {"lv": "Īss muskulis", "la": "Musculus brevis"}, {"lv": " Kakao sviests", "la": "Butyrum cacao"}, {"lv": "Zeltainais stafilokoks", "la": "Staphylococcus aureus"}, {"lv": " Pneimonijas streptokoks", "la": "Streptococcus pneumoniae"}, {"lv": " Kreisais muskulis", "la": "Musculus sinister"}, {"lv": "Labā saite", "la": "Ligamentum dextrum"}, {"lv": "Akūta slimība", "la": "Morbus acutus"}, {"lv": "Hroniska pneimonija", "la": "Pneumonia chronica"}, {"lv": " Lūpas plīsums", "la": "Ruptura labii"}, {"lv": "Nekustīgs bacilis", "la": "Bacilius immobilis"}, {"lv": "Urīna pūslis", "la": "Vesica urinaria"}, {"lv": " Dzīvības forma", "la": "Forma vitae"}, {"lv": "Kumelītes laksts (zaļā daļa, stublājs)", "la": "Forma immobile"}, {"lv": "Iedzimta slimība", "la": "Morbus congenitus"}, {"lv": "Alerģijas izcelsme", "la": "Aetologia allergical "}, {"lv": " Bullas  iemesls", "la": "Causa bullae"}, {"lv": "Deguna starpsiena", "la": "Septum nasi"}, {"lv": "Starpsienas lūzums", "la": "Fractura septi"}, {"lv": "Sterils medikaments", "la": "Medicamentum sterile"}, {"lv": "Tīra forma", "la": "Forma pura"}, {"lv": " Strutains pūslis (bulla)", "la": "Bullla purulenta"}, {"lv": "Trūces iemesls", "la": "Cause herniae"}, {"lv": "Alerģiska pazīme", "la": "Signum allergicum"}, {"lv": "Ļaundabīga slimība", "la": "Morbus malignus"}, {"lv": " Specifiska pazīme", "la": "Signum specificum"}, {"lv": "Toksisks medikaments", "la": "Medicamentum toxicum"}, {"lv": "Traumatisks lūzums", "la": "Fractura traumatica"}, {"lv": "Maza forma", "la": "Forma parva"}, {"lv": "Liels augs, stāds", "la": "Planta magna"}, {"lv": "Dzeltena ziede", "la": "Unguentum flavum"}, {"lv": " Smarzīga kumelīte", "la": "Chamomille arotmatica"}, {"lv": "Gļotāda", "la": "Tunica mucosa"}, {"lv": "Sausa zvīņa", "la": "Squama sicca"}, {"lv": "Plats muskulis", "la": "Musculus latus"}, {"lv": "Smaga slimība", "la": "Morbus molestus"}, {"lv": "Hroniska slimība", "la": "Morbus chronicus"}, {"lv": "Šķērsais muskulis", "la": "Musculus transversus"}, {"lv": "Laba metode", "la": "Metodus bona "}, {"lv": "Dobā vēna", "la": "Vena cava"}, {"lv": "Šķērsā artērija", "la": "Arteria transversus"}, {"lv": "Iegarenās smadzenes", "la": "Medulla oblongāta"}, {"lv": "Zemādas artērija", "la": "Arteria subcutanea "}, {"lv": "Injekcija ādā", "la": "Intracutaneus"}, {"lv": "Zemādas injekcija", "la": "Subcutaneus"}, {"lv": "Mēles muskulis", "la": "Musculus linguae"}, {"lv": "Lokzarna", "la": "Colon"}, {"lv": "Taisns muskulis", "la": "Musculus rectus"}, {"lv": "Šķērsā lokzarna", "la": "Colon transversum"}, {"lv": "Kritisks periods", "la": "Periodus critica"}, {"lv": "Resnā zarna", "la": "Intestinum crassum"}, {"lv": "Nekustīgs", "la": "Immobilis"}, {"lv": "Strutains", "la": "Purulentus"}, {"lv": "Mazs", "la": "Parvus"}, {"lv": "Liels ", "la": "Magnus"}, {"lv": "Smags", "la": "Molestus"}, {"lv": "Ļaundabīgs", "la": "Malignums"}, {"lv": "Izcelsme", "la": "Aetologia"}, {"lv": "Derīgs", "la": "Utilis"}, {"lv": "Mīksts", "la": "Mollis"}, {"lv": "Sterils", "la": "Sterilis"}, {"lv": "Muguras virsmas", "la": "Dorsalis"}, {"lv": "Tuvāk ķermeņa centram", "la": "Proximalis"}, {"lv": "Vēdera pusei piederošs", "la": "Ventralis"}, {"lv": "Virspusējs", "la": "Superficialis"}, {"lv": "Pieres, priekšējais", "la": "Frontalis"}, {"lv": "lejup vērsts", "la": "Caudalis"}, {"lv": "tuvāk vidus līnijai", "la": "Medialis"}, {"lv": "no priekšpuses uz mugurpusi", "la": "Sagittalis"}, {"lv": "tālāk no ķermeņa centra", "la": "Distalis"}, {"lv": "galvas kausa virziens", "la": "Cranialis"}];
+var LATIN_KEYS = ["morbus", "fractura", "ruptura", "cancer", "vena", "arteria", "musculus", "ligamentum", "aqua", "oleum", "unguentum", "tinctura", "mixtura", "signum", "causa", "forma", "pneumonia", "vesica", "tunica", "squama", "medulla", "intestinum", "colon", "steril", "purul", "allerg", "toxic", "chron", "acut", "diabet", "uter", "oculi", "linguae", "cava", "ventriculi", "vitae", "cancri", "herni", "fundus", "septum"];
+var LATVIAN_KEYS = ["slimība", "lūzums", "plīsums", "vēzis", "vēna", "artērija", "muskulis", "saite", "ūdens", "eļļa", "ziede", "tinktūra", "mikstūra", "pazīme", "iemesls", "forma", "pneimonija", "pūslis", "gļotāda", "zarna", "smadzenes", "sterils", "strutains", "alerģ", "toksisks", "hroniska", "akūta", "diabēt", "dzemde", "acs", "mēles", "lokzarna", "resnā", "kritisks", "urīna", "starpsiena"];
+
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+function containsAny(s, arr){ s=(s||"").toLowerCase(); for(var i=0;i<arr.length;i++){ if(s.indexOf(arr[i])>-1) return true; } return false; }
+
+function themedCandidates(correct, pool, keywords){
+  var cands = pool.filter(function(x){ return (x||"").trim() !== (correct||"").trim(); });
+  var first = (correct||"").trim().split(" ")[0] || "";
+  var group1 = cands.filter(function(x){ return first && x.trim().indexOf(first+" ")===0; });
+  var group2 = cands.filter(function(x){ return containsAny(x, keywords); });
+  var added = {}, ordered = [];
+  function pushUnique(list){ for(var i=0;i<list.length;i++){ var v=list[i]; if(!added[v]){ ordered.push(v); added[v]=1; } } }
+  pushUnique(group1); pushUnique(group2);
+  for(var i=0;i<cands.length;i++){ if(!added[cands[i]]) ordered.push(cands[i]); }
+  return ordered;
+}
+
+var questions=[], current=0, score=0, locked=false;
+var qText=document.getElementById('questionText'),
+    promptText=document.getElementById('promptText'),
+    optionsEl=document.getElementById('options');
+var startBtn=document.getElementById('startBtn'),
+    restartBtn=document.getElementById('restartBtn'),
+    nextBtn=document.getElementById('nextBtn'),
+    showAnswerBtn=document.getElementById('showAnswerBtn');
+var feedback=document.getElementById('feedback'),
+    progressLabel=document.getElementById('progressLabel'),
+    scoreLabel=document.getElementById('scoreLabel'),
+    progressBar=document.getElementById('progressBar');
+
+var QUIZ_LEN = 30;
+
+function buildQuiz(){
+  var pool = shuffle(PAIRS.slice());
+  var chosen = pool.slice(0, Math.min(QUIZ_LEN, pool.length));
+  var allLV = PAIRS.map(function(p){return p.lv;});
+  var allLA = PAIRS.map(function(p){return p.la;});
+  var qs = [];
+  for (var i=0;i<chosen.length;i++){ 
+    var p = chosen[i];
+    var dir = Math.random() < 0.5 ? 0 : 1;
+    var prompt, correct, distractSource, qdir, themedPool;
+    if (dir===0){ prompt=p.lv; correct=p.la; distractSource=allLA; qdir="LV→LA"; themedPool = themedCandidates(correct, distractSource, LATIN_KEYS); }
+    else { prompt=p.la; correct=p.lv; distractSource=allLV; qdir="LA→LV"; themedPool = themedCandidates(correct, distractSource, LATVIAN_KEYS); }
+    var wrong = themedPool.slice(0,2);
+    while (wrong.length < 2){ 
+      var rnd = distractSource[Math.floor(Math.random()*distractSource.length)];
+      if (wrong.indexOf(rnd)===-1 && (rnd||"").trim() !== (correct||"").trim()) wrong.push(rnd);
+    }
+    qs.push({ prompt: prompt, correct: correct, wrong: wrong, dir: qdir });
+  }
+  return qs;
+}
+
+function updateHUD(){ progressLabel.textContent = Math.min(current, questions.length) + " / " + questions.length;
+  scoreLabel.textContent = "Punkti: " + score;
+  progressBar.style.width = ((current / questions.length) * 100) + "%"; }
+function resetState(){ optionsEl.innerHTML=""; feedback.textContent=""; feedback.className="feedback"; nextBtn.style.display="none"; showAnswerBtn.style.display="none"; locked=false; }
+
+function startQuiz(){ questions=buildQuiz(); current=0; score=0; startBtn.style.display="none"; restartBtn.style.display="inline-block"; updateHUD(); renderQuestion(); window.scrollTo(0,0); }
+function restartQuiz(){ startQuiz(); }
+function nextQ(){ current++; updateHUD(); renderQuestion(); }
+function showAnswer(){ var q=questions[current]; var btns=optionsEl.querySelectorAll('.option-btn'); for(var i=0;i<btns.length;i++){ if((btns[i].textContent||"").trim()===(q.correct||"").trim()){ btns[i].style.borderColor="#16a34a"; btns[i].style.boxShadow="0 0 0 2px rgba(22,163,74,0.3) inset"; } } }
+
+function renderQuestion(){
+  resetState();
+  if(current>=questions.length){ qText.textContent="Tests pabeigts. Jūsu rezultāts: "+score+" / "+questions.length+"."; promptText.textContent=""; var again=document.createElement('a'); again.className="btn primary"; again.href="#"; again.textContent="Aizpildīt atkārtoti"; again.setAttribute('onclick','restartQuiz();return false;'); again.setAttribute('ontouchstart','restartQuiz();return false;'); optionsEl.appendChild(again); updateHUD(); return; }
+  var q=questions[current];
+  qText.textContent = q.dir==="LV→LA" ? "Kā ir latīniski:" : "Ko nozīmē latviski:";
+  promptText.textContent = "“"+ q.prompt +"”";
+  var opts=[q.correct].concat(q.wrong.slice()); shuffle(opts);
+  for(var i=0;i<opts.length;i++){ var btn=document.createElement('a'); btn.className='option-btn'; btn.href='#'; btn.textContent=opts[i]; btn.setAttribute('role','button'); btn.setAttribute('onclick','selectAnswer(this);return false;'); btn.setAttribute('ontouchstart','selectAnswer(this);return false;'); optionsEl.appendChild(btn); }
+}
+
+function selectAnswer(el){ if(locked) return; locked=true; nextBtn.style.display="inline-block"; showAnswerBtn.style.display="inline-block";
+  var q=questions[current]; var choice=(el.textContent||"").trim();
+  if(choice===(q.correct||"").trim()){ score++; feedback.textContent="Pareizi!"; feedback.className="feedback ok"; el.style.borderColor = "#15803d"; }
+  else{ feedback.textContent="Nepareizi."; feedback.className="feedback bad"; el.style.borderColor = "#b91c1c"; }
+  updateHUD();
+}
+</script>
+</body>
+</html>
