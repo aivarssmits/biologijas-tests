@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kosmētiskā ķīmija — Tests</title>
+<style>
+  :root{--bg:#0b1020;--card:#0f162b;--muted:#94a3b8;--text:#e5e7eb;--ok:#22c55e;--bad:#ef4444;--b:#1f2937}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial}
+  .w{max-width:900px;margin:0 auto;padding:16px}
+  .card{background:#0f162b;border:1px solid #1f2937;border-radius:16px;padding:16px}
+  h1{font-size:20px;margin:8px 0 12px}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:8px}
+  .btn{display:inline-block;border:1px solid var(--b);background:#1f2937;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;text-decoration:none}
+  .btn.primary{background:#16a34a;border-color:#15803d}
+  .options{display:grid;gap:10px;margin-top:12px}
+  .opt{display:block;text-align:left;padding:12px 12px;border-radius:12px;border:1px solid var(--b);background:#0e1526;color:var(--text);font-weight:600;text-decoration:none}
+  .opt.ok{border-color:#15803d} .opt.bad{border-color:#b91c1c}
+  .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+  .badge{background:#0b1220;border:1px solid var(--b);padding:6px 10px;border-radius:999px}
+  .progress{width:100%;height:8px;background:#0b1220;border:1px solid var(--b);border-radius:999px;overflow:hidden;margin:10px 0}
+  .progress>div{height:100%;background:#22c55e;width:0%}
+  .q{font-weight:700} .p{font-size:18px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="card">
+    <div class="top">
+      <h1>Kosmētiskā ķīmija — Interaktīvais tests</h1>
+      <div>
+        <span class="badge" id="lblProg">0 / 25</span>
+        <span class="badge" id="lblScore">Punkti: 0</span>
+      </div>
+    </div>
+    <div class="meta">Jautājumi no DOCX; pareizās atbildes no 3 PDF failiem; maldinātāji ir tematiski.</div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="q" id="q">Nospiediet “Sākt testu”.</div>
+    <div class="p" id="p"></div>
+    <div id="opts" class="options"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <a href="#" class="btn primary" id="btnStart" onclick="start();return false;" ontouchstart="start();return false;" role="button">Sākt testu</a>
+      <a href="#" class="btn" id="btnNext" style="display:none" onclick="nextQ();return false;" ontouchstart="nextQ();return false;" role="button">Nākamais</a>
+      <a href="#" class="btn" id="btnRestart" style="display:none" onclick="restart();return false;" ontouchstart="restart();return false;" role="button">Restartēt</a>
+    </div>
+    <div id="fb" class="p" style="font-weight:800"></div>
+  </div>
+</div>
+<script>
+const DATA = [{"q": "No kā sastāv kosmētikas līdzekļi – kas ir aktīvās un kas ir palīgvielas?", "a": "Aktīvās vielas (piem., virsmas aktīvās vielas, emolienti, mitrinātāji, SPF) un palīgvielas (emulgatori, konservanti, nesējvielas, smaržvielas, krāsvielas, biezinātāji, pH regulētāji u.c.).", "d": ["Tikai aktīvās vielas un ūdens, pārējais ir marķējums.", "Tikai palīgvielas (emulgatori un konservanti), aktīvās vielas netiek norādītas."]}, {"q": "Kas ir emulgators un kāda ir tā darbība?", "a": "Viela, kas stabilizē emulsiju, samazina virsmas spriegumu un apvieno ūdens un lipīdu fāzes homogēnā sistēmā.", "d": ["Skābe, kas palielina produkta pH un paātrina iztvaikošanu.", "Pigments, kas piešķir emulsijai vēlamo krāsu."]}, {"q": "Kas nozīmē lipofīls (hidrofobs) un kas – hidrofil(s)?", "a": "Lipofīls šķīst taukos/lipīdos, hidrofil(s) šķīst ūdenī un citos hidrofilos šķīdinātājos.", "d": ["Lipofīls šķīst tikai spirta šķīdumos, hidrofil(s) – tikai eļļās.", "Lipofīls un hidrofil(s) apzīmē vienu un to pašu īpašību."]}, {"q": "Kuras no zemāk minētajām ir virsmas aktīvo vielu (VAV) piemēri?", "a": "Sodium lauryl sulfate, Sodium laureth sulfate, Coco Betaine, Cocamidopropyl Betaine.", "d": ["Hialuronskābe, kolagēns, elastīns, pantenols.", "Titāna dioksīds, dzelzs oksīdi, vizla, karbomeris."]}, {"q": "Atzīmējiet VAV pamatfunkcijas kosmētikā:", "a": "Samazina virsmas spriegumu, mitrina virsmu (wetting), veicina attīrīšanu un emulsifikāciju, palīdz citām vielām penetrēt ādā.", "d": ["Palielina lipīdu barjeras integritāti, samazinot jebkādu penetrāciju.", "Vienīgā funkcija ir piešķirt smaržu un krāsu."]}, {"q": "Kura apgalvojuma kombinācija par anjonu tipa virsmaktīvajām vielām ir pareiza?", "a": "Disociējot veido negatīvi lādētas daļiņas; pie šīs grupas pieder ziepes, SLS, SLES; lielāka putošana, var izsausēt ādu.", "d": ["Tās neveido jonus un parasti ir bez putošanās; pie tām pieskaita hialuronskābi.", "Tās ir tikai smaržvielas, kas uzlabo produkta aromātu."]}, {"q": "Ko nozīmē emulsijas tipi w/o, o/w un w/o/w?", "a": "w/o – ūdens eļļā; o/w – eļļa ūdenī; w/o/w – multipla emulsija (ūdens pilītes eļļā, kas disperģētas ūdens fāzē).", "d": ["w/o – eļļa ūdenī; o/w – ūdens eļļā; w/o/w – trīskāršs lipīdu slānis bez ūdens.", "w/o – tikai želejas; o/w – tikai aerosoli; w/o/w – tikai serumi."]}, {"q": "Kāpēc kosmētiskajiem produktiem pievieno konservantus?", "a": "Lai nepieļautu mikroorganismu (baktēriju, sēņu) vairošanos produktā.", "d": ["Lai palielinātu produkta viskozitāti un nodrošinātu SPF aizsardzību.", "Lai uzlabotu aromātu un krāsu bez ietekmes uz drošumu."]}, {"q": "Kādas īpašības raksturo labu konservantu?", "a": "Plaša spektra aktivitāte pie nelielas koncentrācijas, nekaitīgums, šķīdība ūdens fāzē, saderība ar sastāvdaļām, stabilitāte dažādos pH un temperatūrās.", "d": ["Augsta toksicitāte un nešķīdība ūdenī, lai nekontaktētos ar mikroorganismiem.", "Stipri krāsojošs, smaržīgs, lai paslēptu oksidācijas smaku."]}, {"q": "Nosauciet amfotērās virsmas aktīvās vielas un to funkciju īsumā:", "a": "Coco Betaine, Cocamidopropyl Betaine – maigas VAV, putošana/attīrīšana ar mazāku kairinājumu.", "d": ["Sodium lauryl sulfate, Sodium laureth sulfate – pigmenti ar fotoprotekciju.", "Dimethicone, petrolatum – nejonu VAV ar spēcīgu antibakteriālu iedarbību."]}, {"q": "Kas ir GAG (glikozaminoglikāni)?", "a": "Lielas ogļhidrātu molekulas, kas veido proteoglikānus; nodrošina ūdens saistīšanu, turgoru un atbalstu dermā.", "d": ["Lipīdu klase, kas nostiprina matu kutikulu un samazina ūdens saistīšanu.", "Peptīdu grupa, kas samazina svīšanu un bloķē sviedru kanālus."]}, {"q": "Kurš ir pazīstamākais GAG?", "a": "Hialuronskābe.", "d": ["Sodium lauryl sulfate.", "Karbomeris."]}, {"q": "Vai ingredienti var būt multifunkcionāli?", "a": "Jā. Piem., salicilskābe (aktīvā viela, konservants, pH buferis), pienskābe (AHA, struktūras normalizēšana, kolagēna/HA stimulācija).", "d": ["Nē, katram ingredientam drīkst būt tikai viena funkcija.", "Tikai smaržvielas ir multifunkcionālas; aktīvās vielas – nekad."]}, {"q": "Kā tiek norādīta sastāvdaļu kārtība produkta marķējumā?", "a": "Dilstoši pēc koncentrācijas līdz 1%; zem 1% – var uzrādīt jebkurā secībā.", "d": ["Alfabētiskā secībā neatkarīgi no koncentrācijas.", "Nejaušā secībā, lai aizsargātu ražotāja noslēpumu."]}, {"q": "Ko nozīmē marķējums “Alcohol free”?", "a": "Nesatur etilspirtu (etanolu/denaturētu spirtu); var saturēt taukspirta tipa sastāvdaļas (cetyl/stearyl alcohol).", "d": ["Produkts nesatur nekādus spirtus vai hidroksilgrupas saturošas vielas.", "Attiecas tikai uz iztvaikojošiem šķīdinātājiem, bet etanolu drīkst saturēt."]}, {"q": "Kas ir emolients?", "a": "Viela, kas mīkstina/mitrina ādu un stiprina lipīdu barjeru, mazinot transepidermālā ūdens zudumu.", "d": ["Skābe, kas momentā pazemina pH zem 1.", "Abrazīva viela mehāniskai eksfoliācijai."]}, {"q": "Kas ir humektants?", "a": "Mitrinātājs, kas piesaista ūdeni (piem., glicerīns, hialuronskābe, urīnviela).", "d": ["Eļļa, kas neveicina ūdens piesaisti, bet absorbē taukus no ādas.", "Pigments, kas nodrošina krāsu toņu noturību."]}, {"q": "Kas ir okluzīvās vielas?", "a": "Veido hidrofobu plēvi uz ādas un mazina mitruma zudumu (piem., minerāleļļas, vaski, silikoni).", "d": ["Ātri iztvaikojošas vielas, kas pastiprina ūdens iztvaikošanu no ādas.", "Fermenti, kas šķeļ raga slāņa lipīdus."]}, {"q": "Kas ir NaOH un KOH kosmētikā?", "a": "Spēcīgi sārmi/hidroksīdi; izmanto ziepju gatavošanā un pH pielāgošanai.", "d": ["Organiskās skābes, kas samazina produkta skābumu līdz pH 2.", "Krāsvielas, kas stabilizē pigmentus ūdens fāzē."]}, {"q": "Kā darbojas pH skala?", "a": "pH 0–6,9 skābs; 7 neitrāls; 7,1–14 sārms. Skābā vidē ↑H+, sārmainā vidē ↑OH−.", "d": ["pH 1–3 sārms, pH 7–14 skābs; ūdens pH nav saistīts ar joniem.", "pH 0–14 attiecas tikai uz organiskām skābēm, nevis šķīdumiem."]}, {"q": "Kas maina šķīduma pH līmeni?", "a": "Skābes palielina H+ jonu daudzumu; bāzes (sārmi) palielina OH− jonu daudzumu.", "d": ["Smaržvielas un krāsvielas, neatkarīgi no koncentrācijas.", "Tikai temperatūra; ķīmiskajām vielām nav ietekmes."]}, {"q": "Kuri joni dominē, ādai kļūstot skābākai?", "a": "H+ (ūdeņraža) joni.", "d": ["OH− (hidroksil) joni.", "Na+ (nātrija) joni."]}, {"q": "Kuri joni dominē, ādai kļūstot sārmainākai?", "a": "OH− (hidroksil) joni.", "d": ["H+ (ūdeņraža) joni.", "Cl− (hlorīda) joni."]}, {"q": "Kas ir buferšķīdums un tā darbības princips?", "a": "Sistēma (vāja skābe + tās sāls), kas pretojas pH izmaiņām, pievienojot nelielu daudzumu skābes vai bāzes.", "d": ["Spēcīgas skābes šķīdums, kas vienmēr pazemina pH zem 2.", "Neorganisks pigments, kas padara šķīdumu neitrālu bez reakcijām."]}, {"q": "Kurā produktā tipiski lieto alumīnija hlorīdu (AlCl3) un kāpēc?", "a": "Antiperspirantos – Al sāļi veido kristālus sviedru kanālos un samazina sviedru izdalīšanos.", "d": ["Tonālos krēmos – AlCl3 ir galvenais krāsvielu saistītājs.", "Šampūnos – AlCl3 ir galvenais putojošais līdzeklis."]}];
+let qs = [], idx = 0, score = 0, locked = false;
+const elQ = document.getElementById('q'), elP = document.getElementById('p'), elOpts = document.getElementById('opts');
+const elProg = document.getElementById('lblProg'), elScore = document.getElementById('lblScore'), elBar = document.getElementById('bar');
+const btnStart = document.getElementById('btnStart'), btnNext = document.getElementById('btnNext'), btnRestart = document.getElementById('btnRestart');
+const fb = document.getElementById('fb');
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function build(){
+  qs = DATA.map(q => ({q:q.q, a:q.a, options: shuffle([q.a, ...shuffle(q.d).slice(0,2)])}));
+  qs = shuffle(qs);
+}
+function render(){
+  if(idx>=qs.length){
+    elQ.textContent = "Tests pabeigts!";
+    elP.textContent = "Jūsu rezultāts: " + score + " / " + qs.length + ".";
+    elOpts.innerHTML = "";
+    btnNext.style.display = "none";
+    btnRestart.style.display = "inline-block";
+    fb.textContent = "";
+    elProg.textContent = qs.length + " / " + qs.length;
+    elBar.style.width = "100%";
+    return;
+  }
+  const item = qs[idx];
+  elQ.textContent = "Jautājums " + (idx+1) + " no " + qs.length;
+  elP.textContent = item.q;
+  elOpts.innerHTML = "";
+  item.options.forEach(opt => {
+    const a = document.createElement('a');
+    a.href="#"; a.className="opt"; a.textContent = opt; a.setAttribute('role','button');
+    a.onclick = (e)=>{e.preventDefault(); choose(a, item);}; a.ontouchstart = (e)=>{e.preventDefault(); choose(a, item);};
+    elOpts.appendChild(a);
+  });
+  elProg.textContent = idx + " / " + qs.length;
+  elBar.style.width = ((idx/qs.length)*100) + "%";
+  fb.textContent = "";
+  btnNext.style.display = "none";
+}
+function choose(el, item){
+  if(locked) return; locked = true;
+  const chosen = (el.textContent||"").trim();
+  if(chosen === (item.a||"").trim()){ score++; el.classList.add('ok'); fb.textContent = "Pareizi!"; fb.style.color = "var(--ok)"; }
+  else{ el.classList.add('bad'); fb.textContent = "Nepareizi."; fb.style.color = "var(--bad)";
+    [...document.querySelectorAll('.opt')].forEach(o=>{ if((o.textContent||'').trim() === (item.a||'').trim()) o.classList.add('ok'); });
+  }
+  elScore.textContent = "Punkti: " + score;
+  btnNext.style.display = "inline-block";
+  elProg.textContent = (idx+1) + " / " + qs.length;
+  elBar.style.width = (((idx+1)/qs.length)*100) + "%";
+}
+function nextQ(){ idx++; locked=false; render(); }
+function start(){ build(); idx=0; score=0; locked=false; btnStart.style.display="none"; btnRestart.style.display="inline-block"; render(); window.scrollTo(0,0); }
+function restart(){ start(); }
+</script>
+</body>
+</html>
