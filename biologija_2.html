@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Bioloģija 2. daļa — tests</title>
+  <style>
+    :root {
+      --bg:#0b1020;
+      --card:#0f162b;
+      --muted:#94a3b8;
+      --text:#e5e7eb;
+      --ok:#22c55e;
+      --bad:#ef4444;
+      --border:#1f2937;
+    }
+    * { box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      margin:0;
+      font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+    }
+    .app {
+      width:100%;
+      max-width:900px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px 16px 24px;
+    }
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .title {
+      font-size:20px;
+      font-weight:700;
+    }
+    .meta {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .badge {
+      background:#0b1220;
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+    .progress {
+      width:100%;
+      height:8px;
+      background:#0b1220;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      margin:12px 0 14px;
+    }
+    .progress > div {
+      height:100%;
+      background:var(--ok);
+      width:0%;
+      transition:width 0.2s ease;
+    }
+    .card {
+      background:#0b1220;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+    }
+    .question-label {
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .question-text {
+      font-size:18px;
+      font-weight:600;
+      line-height:1.4;
+    }
+    .options {
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+    .btn,
+    .option-btn {
+      border:1px solid var(--border);
+      background:#1f2937;
+      color:var(--text);
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:600;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:flex-start;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn.primary {
+      background:#16a34a;
+      border-color:#15803d;
+      font-weight:700;
+    }
+    .btn.ghost {
+      background:transparent;
+    }
+    .option-btn {
+      width:100%;
+      background:#0e1526;
+      font-size:16px;
+    }
+    .option-btn.correct {
+      border-color:#16a34a;
+      box-shadow:0 0 0 2px rgba(22,163,74,0.22) inset;
+    }
+    .option-btn.wrong {
+      border-color:#b91c1c;
+      box-shadow:0 0 0 1px rgba(185,28,28,0.35) inset;
+    }
+    .feedback {
+      font-weight:800;
+      margin-top:10px;
+      min-height:20px;
+    }
+    .feedback.ok { color:var(--ok); }
+    .feedback.bad { color:var(--bad); }
+    .controls {
+      display:flex;
+      gap:8px;
+      margin-top:14px;
+      flex-wrap:wrap;
+    }
+    .footer {
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title">Bioloģija 2. daļa — tests</div>
+      <div class="meta">
+        <div class="badge" id="progressLabel">0 / 0</div>
+        <div class="badge" id="scoreLabel">Punkti: 0</div>
+      </div>
+    </div>
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div class="card">
+      <div class="question-label" id="qLabel">Nospiediet “Sākt testu”, lai uzsāktu.</div>
+      <div class="question-text" id="questionText">
+        Jautājumi no DOCX; pareizās atbildes no 2 PDF failiem; maldinošie varianti — tematiski atbilstoši.
+      </div>
+      <div class="options" id="options"></div>
+
+      <div class="controls">
+        <button id="startBtn" class="btn primary" onclick="startQuiz()" ontouchstart="startQuiz()">Sākt testu</button>
+        <button id="nextBtn" class="btn" style="display:none" onclick="nextQuestion()" ontouchstart="nextQuestion()">Nākamais</button>
+        <button id="restartBtn" class="btn ghost" style="display:none" onclick="restartQuiz()" ontouchstart="restartQuiz()">Restartēt</button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="footer">
+      <div>Jautājumi pamatoti ar “Bioloģija 2 daļa” un “Bioloģija 2 daļa A”.</div>
+      <div>Pēc katras atbildes redzams “Pareizi/Nepareizi”, beigās — kopsummas rezultāts.</div>
+    </div>
+  </div>
+
+<script>
+  // Jautājumu kopums: 1 pareiza + 2–3 tematiski maldinoši varianti
+  const QUESTION_DATA = [
+    {
+      q: "Kādas ir šūnas dzīves cikla galvenās divas daļas?",
+      a: "Interfāze un dalīšanās fāze.",
+      d: [
+        "G1 fāze un S fāze.",
+        "Mitoze un mejoze.",
+        "Profāze un metafāze."
+      ]
+    },
+    {
+      q: "Kādas fāzes ietver interfāze un kas tajās notiek?",
+      a: "G1 – augšana un RNS/olbaltumvielu sintēze; S – DNS replikācija; G2 – augšana un sagatavošanās dalīšanai.",
+      d: [
+        "G1 – DNS replikācija; S – šūnu dalīšanās; G2 – atpūtas periods.",
+        "G1 – mejoze; S – mitozi; G2 – apoptozi."
+      ]
+    },
+    {
+      q: "Kas ir DNS replikācija un kurā fāzē tā notiek?",
+      a: "DNS dubultošanās S fāzē pirms šūnas dalīšanās.",
+      d: [
+        "DNS sadrupināšana M fāzē, lai veidotu jaunus kodolus.",
+        "DNS pārnešana uz citoplazmu G2 fāzē."
+      ]
+    },
+    {
+      q: "Kāda ir dalīšanās vārpstas loma mitozē?",
+      a: "Nodrošina hromatīdu atvilkšanu uz šūnas poliem.",
+      d: [
+        "Nodrošina DNS replikāciju S fāzē.",
+        "Veido kodola apvalku ap meitšūnām."
+      ]
+    },
+    {
+      q: "Kā atšķiras mitoze no mejozes?",
+      a: "Mitozē veidojas divas diploīdas, ģenētiski identiskas šūnas; mejozē – četras haploīdas, ģenētiski atšķirīgas šūnas.",
+      d: [
+        "Mitoze notiek tikai dzimumšūnās, mejoze – tikai somatiskajās šūnās.",
+        "Mitozē vienmēr notiek krosingovers, mejozē nekad."
+      ]
+    },
+    {
+      q: "Kāds ir mejozes mērķis un rezultāts?",
+      a: "Haploīdu gametu veidošana no diploīdām šūnām un ģenētiskās daudzveidības nodrošināšana.",
+      d: [
+        "Audu atjaunošana un bojāto šūnu aizstāšana.",
+        "Daudz identisku somatisko šūnu veidošana."
+      ]
+    },
+    {
+      q: "Kāpēc mejozē ir divi dalīšanās cikli, bet tikai viena DNS replikācija?",
+      a: "Lai no diploīda genoma pēc replikācijas pakāpeniski iegūtu haploīdu genomu, nepalielinot hromosomu skaitu.",
+      d: [
+        "Lai dubultotu hromosomu skaitu gametās.",
+        "Lai nodrošinātu DNS replikāciju katrā dalīšanās ciklā."
+      ]
+    },
+    {
+      q: "Kas ir hromosomu krosingovers?",
+      a: "Homologo hromosomu hromatīdu fragmentu apmaiņa mejozes profāzē I.",
+      d: [
+        "Hromosomu sadalīšanās hromatīdās mitozes anafāzē.",
+        "DNS replikācijas kļūda S fāzē."
+      ]
+    },
+    {
+      q: "Kas notiek mejozes I metafāzē?",
+      a: "Bivalenti izkārtojas šūnas ekvatoriālajā plaknē.",
+      d: [
+        "Hromatīdas atvelk uz poliem.",
+        "Notiek DNS replikācija."
+      ]
+    },
+    {
+      q: "Kā atšķiras spermatoģenēze un ooģenēze?",
+      a: "Spermatoģenēzē veidojas četri spermatozoīdi, ooģenēzē – viena olšūna un polārie ķermenīši.",
+      d: [
+        "Spermatoģenēzē veidojas viena spermatozoīdu šūna, ooģenēzē – četras olšūnas.",
+        "Abi procesi dod vienādu skaitu gametu."
+      ]
+    },
+    {
+      q: "Cik šūnas veidojas no vienas diploīdas šūnas spermatoģenēzē un cik – ooģenēzē?",
+      a: "Četri spermatozoīdi un viena olšūna.",
+      d: [
+        "Četri spermatozoīdi un četras olšūnas.",
+        "Divi spermatozoīdi un divas olšūnas."
+      ]
+    },
+    {
+      q: "Kas ir gēns?",
+      a: "DNS posms, kas satur informāciju konkrēta proteīna vai RNS sintēzei.",
+      d: [
+        "Atsevišķa hromosoma, kas nosaka visu organismu.",
+        "Olbaltumviela, kas pārvada signālus sinapsēs."
+      ]
+    },
+    {
+      q: "Kā notiek ar dzimumu saistītā iedzimtība?",
+      a: "Gēni atrodas dzimumhromosomās, tādēļ īpašības izpaužas atšķirīgi sievietēm un vīriešiem.",
+      d: [
+        "Gēni atrodas tikai autosomās.",
+        "Ar dzimumu saistītas īpašības vienmēr ir dominantas."
+      ]
+    },
+    {
+      q: "Kāpēc hemofīlija biežāk skar vīriešus?",
+      a: "Tā ir recesīva X-saistīta slimība, un vīriešiem ir tikai viena X hromosoma.",
+      d: [
+        "Vīriešiem ir divas X hromosomas.",
+        "Hemofīlija ir tikai Y-saistīta slimība."
+      ]
+    },
+    {
+      q: "Kas ir nepilnīgā dominēšana?",
+      a: "Heterozigotam fenotips ir starpdominants starp homozigotu fenotipiem.",
+      d: [
+        "Dominantā alēle pilnībā nomāc recesīvo.",
+        "Recesīvā alēle vienmēr izpaužas."
+      ]
+    },
+    {
+      q: "Kas ir kodominēšana? Piemērs cilvēkiem.",
+      a: "Abas alēles heterozigotā izpaužas pilnīgi; piemērs – AB asinsgrupa.",
+      d: [
+        "Dominantā alēle pilnībā nomāc recesīvo; piemērs – brūnas acis.",
+        "Tikai recesīvās alēles izpaužas; piemērs – hemofīlija."
+      ]
+    },
+    {
+      q: "Kas ir Rh faktors un kādas sekas var būt Rh nesaderībai?",
+      a: "Eritrocītu virsmas D antigēns; Rh nesaderība var izraisīt jaundzimušā hemolītisko slimību.",
+      d: [
+        "Plazmas olbaltumviela bez saistības ar grūtniecību.",
+        "Tikai trombocītu marķieris."
+      ]
+    },
+    {
+      q: "Kas ir pleiotropija?",
+      a: "Situācija, kad viens gēns ietekmē vairākas pazīmes.",
+      d: [
+        "Vienu pazīmi nosaka vairāki nealēlie gēni.",
+        "Gēna translokācija starp hromosomām."
+      ]
+    },
+    {
+      q: "Kas ir polimērija?",
+      a: "Vienu pazīmi nosaka vairāki nealēlie gēni ar summējošu efektu.",
+      d: [
+        "Viens gēns nosaka vairākas pazīmes.",
+        "Vienas alēles pilnīga dominance pār citu."
+      ]
+    },
+    {
+      q: "Kas ir Bombejas asinsgrupa?",
+      a: "Reta asinsgrupa ar H antigēna trūkumu; fenotipiski kā 0 grupa, bet ar ierobežotām pārliešanas iespējām.",
+      d: [
+        "Asinsgrupa ar ļoti augstu Rh faktoru.",
+        "Asinsgrupa, kas satur tikai AB antigēnus."
+      ]
+    },
+    {
+      q: "Kā atšķiras gēnu, hromosomu un genoma mutācijas?",
+      a: "Gēnu – nukleotīdu izmaiņas; hromosomu – struktūras izmaiņas; genoma – hromosomu skaita izmaiņas.",
+      d: [
+        "Visos gadījumos mainās tikai hromosomu skaits.",
+        "Atšķirību nav, tie ir sinonīmi."
+      ]
+    },
+    {
+      q: "Kāds ir Dauna sindroma cēlonis un saistība ar mātes vecumu?",
+      a: "21. hromosomas trisomija; risks palielinās līdz ar mātes vecumu.",
+      d: [
+        "13. hromosomas monosomija; risks samazinās ar vecumu.",
+        "X hromosomas trisomija; risks nav atkarīgs no vecuma."
+      ]
+    },
+    {
+      q: "Kādas ir četras pamatstruktūrmutāciju formas?",
+      a: "Delēcija, duplikācija, inversija, translokācija.",
+      d: [
+        "Replikācija, transkripcija, translācija, degradācija.",
+        "Aneuploidija, poliploidija, mitoze, mejoze."
+      ]
+    },
+    {
+      q: "Kas ir translokācija?",
+      a: "Hromosomas fragmenta pārvietošanās uz citu hromosomu vai citu vietu.",
+      d: [
+        "Hromosomas pilnīga pazušana.",
+        "DNS replikācijas mehānisms."
+      ]
+    },
+    {
+      q: "Kas ir cilmes šūna?",
+      a: "Nediferencēta šūna, kas spēj pašatjaunoties un diferencēties citos šūnu tipos.",
+      d: [
+        "Pilnībā diferencēta šūna ar īsu mūžu.",
+        "Šūna, kas veido tikai audzējus."
+      ]
+    },
+    {
+      q: "Kā raksturo totipotentas, pluripotentas, multipotentas un unipotentas šūnas?",
+      a: "Totipotentas – viss organisms; pluripotentas – gandrīz visi tipi; multipotentas – vairāki radniecīgi; unipotentas – viens tips.",
+      d: [
+        "Pluripotentas – ierobežotas, multipotentas – neierobežotas.",
+        "Unipotentas – veido jebkuru šūnu tipu."
+      ]
+    },
+    {
+      q: "Kādos virzienos izmanto cilmes šūnas medicīnā?",
+      a: "Asinsrades slimībās, onkoloģijā, audu atjaunošanā un reģeneratīvajā medicīnā.",
+      d: [
+        "Tikai kosmētikas līdzekļu sastāvā bez medicīniskas nozīmes.",
+        "Tikai sporta dopinga preparātu izstrādē."
+      ]
+    },
+    {
+      q: "Kā atšķiras nekroze un apoptoze?",
+      a: "Nekroze – nekontrolēta, ar iekaisumu; apoptoze – programmēta, kontrolēta bez iekaisuma.",
+      d: [
+        "Abi procesi ir identiski.",
+        "Apoptoze vienmēr izraisa plašu audu iekaisumu."
+      ]
+    }
+  ];
+
+  // Stāvoklis un elementi
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let locked = false;
+
+  const qLabel = document.getElementById('qLabel');
+  const questionText = document.getElementById('questionText');
+  const optionsEl = document.getElementById('options');
+  const progressLabel = document.getElementById('progressLabel');
+  const scoreLabel = document.getElementById('scoreLabel');
+  const progressBar = document.getElementById('progressBar');
+  const feedbackEl = document.getElementById('feedback');
+  const startBtn = document.getElementById('startBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildQuiz() {
+    const cloned = QUESTION_DATA.map(q => {
+      const opts = [q.a, ...q.d];
+      shuffle(opts);
+      return {
+        q: q.q,
+        a: q.a,
+        options: opts.slice(0, 4) // līdz 4 variantu robežai, ja ir 3 maldinošie
+      };
+    });
+    questions = shuffle(cloned);
+  }
+
+  function updateHUD() {
+    const total = questions.length;
+    const done = Math.min(currentIndex, total);
+    progressLabel.textContent = done + " / " + total;
+    scoreLabel.textContent = "Punkti: " + score;
+    const percent = total ? (done / total) * 100 : 0;
+    progressBar.style.width = percent + "%";
+  }
+
+  function resetState() {
+    optionsEl.innerHTML = "";
+    feedbackEl.textContent = "";
+    feedbackEl.className = "feedback";
+    nextBtn.style.display = "none";
+    locked = false;
+  }
+
+  function renderQuestion() {
+    resetState();
+    const total = questions.length;
+
+    if (currentIndex >= total) {
+      qLabel.textContent = "Tests pabeigts.";
+      questionText.textContent = "Jūsu rezultāts: " + score + " / " + total + ".";
+      const again = document.createElement('button');
+      again.className = "btn primary";
+      again.textContent = "Aizpildīt atkārtoti";
+      again.onclick = restartQuiz;
+      again.ontouchstart = restartQuiz;
+      optionsEl.appendChild(again);
+      updateHUD();
+      return;
+    }
+
+    const q = questions[currentIndex];
+    qLabel.textContent = "Jautājums " + (currentIndex + 1) + " no " + total;
+    questionText.textContent = q.q;
+
+    const shuffledOpts = shuffle(q.options.slice());
+    shuffledOpts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = "button";
+      btn.className = "option-btn";
+      btn.textContent = opt;
+      btn.onclick = function() { selectAnswer(btn, q.a); };
+      btn.ontouchstart = function(e) { e.preventDefault(); selectAnswer(btn, q.a); };
+      optionsEl.appendChild(btn);
+    });
+
+    updateHUD();
+  }
+
+  function selectAnswer(el, correct) {
+    if (locked) return;
+    locked = true;
+
+    const chosen = (el.textContent || "").trim();
+    const isCorrect = chosen === (correct || "").trim();
+
+    if (isCorrect) {
+      score++;
+      el.classList.add("correct");
+      feedbackEl.textContent = "Pareizi!";
+      feedbackEl.classList.add("ok");
+    } else {
+      el.classList.add("wrong");
+      feedbackEl.textContent = "Nepareizi.";
+      feedbackEl.classList.add("bad");
+      // Iezīmē pareizo
+      const buttons = optionsEl.querySelectorAll(".option-btn");
+      buttons.forEach(b => {
+        if ((b.textContent || "").trim() === (correct || "").trim()) {
+          b.classList.add("correct");
+        }
+      });
+    }
+
+    nextBtn.style.display = "inline-flex";
+    updateHUD();
+  }
+
+  function nextQuestion() {
+    if (!locked) return;
+    currentIndex++;
+    renderQuestion();
+  }
+
+  function startQuiz() {
+    buildQuiz();
+    currentIndex = 0;
+    score = 0;
+    startBtn.style.display = "none";
+    restartBtn.style.display = "inline-flex";
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }
+
+  function restartQuiz() {
+    buildQuiz();
+    currentIndex = 0;
+    score = 0;
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
