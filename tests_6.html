@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>Fizioloģijas Tests</title>
 
 <style>
@@ -103,6 +104,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
+  contain: layout style;
 }
 
 .question-label {
@@ -143,6 +145,14 @@ body {
   font-weight: 700;
 }
 
+.btn.primary:hover {
+  background: #15803d;
+}
+
+.btn:hover:not(.primary) {
+  background: #374151;
+}
+
 .btn.ghost {
   background: transparent;
 }
@@ -158,6 +168,16 @@ body {
   width: 100%;
   background: #0e1526;
   font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) {
+  background: #1a2744;
+}
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
 }
 
 .option-btn.correct {
@@ -955,13 +975,15 @@ function renderQuestion() {
   qLabel.textContent = `Jautājums ${currentIndex + 1} no ${questions.length}`;
   questionText.textContent = q.q;
 
+  const fragment = document.createDocumentFragment();
   q.options.forEach(opt => {
     const btn = document.createElement('button');
     btn.type = "button";
     btn.className = "option-btn";
     btn.textContent = opt;
-    optionsEl.appendChild(btn);
+    fragment.appendChild(btn);
   });
+  optionsEl.appendChild(fragment);
 
   updateHUD();
 }
@@ -1026,7 +1048,7 @@ function startQuiz() {
   startBtn.style.display = "none";
   restartBtn.style.display = "inline-flex";
   renderQuestion();
-  window.scrollTo(0, 0);
+  scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function restartQuiz() {
@@ -1034,7 +1056,7 @@ function restartQuiz() {
   currentIndex = 0;
   score = 0;
   renderQuestion();
-  window.scrollTo(0, 0);
+  scrollTo({ top: 0, behavior: 'instant' });
 }
 
 </script>
