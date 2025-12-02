@@ -4,13 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Fizioloģijas Tests</title>
+<title>Fizioloģijas Tests - 58 Jautājumi</title>
 
 <style>
-/* ---------------------- */
-/*  TUMŠĀ TĒMA / GLOBALI  */
-/* ---------------------- */
-
 :root {
   --bg: #0b1020;
   --card: #0f162b;
@@ -35,10 +31,6 @@ body {
   align-items: flex-start;
   padding: 16px;
 }
-
-/* ---------------------- */
-/*       LAYOUT           */
-/* ---------------------- */
 
 .app {
   width: 100%;
@@ -88,16 +80,13 @@ body {
   border: 1px solid var(--border);
   margin: 12px 0 14px;
 }
+
 .progress > div {
   height: 100%;
   background: var(--ok);
   width: 0%;
   transition: width 0.2s ease;
 }
-
-/* ---------------------- */
-/*        CARD            */
-/* ---------------------- */
 
 .card {
   background: #0b1220;
@@ -119,12 +108,7 @@ body {
   line-height: 1.4;
 }
 
-/* ---------------------- */
-/*       BUTTONS          */
-/* ---------------------- */
-
-.btn,
-.option-btn {
+.btn, .option-btn {
   border: 1px solid var(--border);
   background: #1f2937;
   color: var(--text);
@@ -145,17 +129,9 @@ body {
   font-weight: 700;
 }
 
-.btn.primary:hover {
-  background: #15803d;
-}
-
-.btn:hover:not(.primary) {
-  background: #374151;
-}
-
-.btn.ghost {
-  background: transparent;
-}
+.btn.primary:hover { background: #15803d; }
+.btn:hover:not(.primary) { background: #374151; }
+.btn.ghost { background: transparent; }
 
 .options {
   display: flex;
@@ -169,25 +145,20 @@ body {
   background: #0e1526;
   font-size: 16px;
   transition: background-color 0.15s, border-color 0.15s;
+  text-align: left;
 }
 
-.option-btn:hover:not(.correct):not(.wrong) {
-  background: #1a2744;
-}
-
-.option-btn:focus-visible {
-  outline: 2px solid var(--ok);
-  outline-offset: 2px;
-}
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+.option-btn:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; }
 
 .option-btn.correct {
   border-color: #16a34a;
-  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+  background: rgba(22, 163, 74, 0.15);
 }
 
 .option-btn.wrong {
   border-color: #b91c1c;
-  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+  background: rgba(185, 28, 28, 0.15);
 }
 
 .feedback {
@@ -220,7 +191,6 @@ body {
 
 <body>
 <div class="app">
-
   <div class="header">
     <div class="title">Fizioloģijas tests</div>
     <div class="meta">
@@ -234,9 +204,9 @@ body {
   </div>
 
   <div class="card">
-    <div class="question-label" id="qLabel">Nospiediet “Sākt testu”, lai uzsāktu.</div>
+    <div class="question-label" id="qLabel">Nospiediet "Sākt testu", lai uzsāktu.</div>
     <div class="question-text" id="questionText">
-      Jautājumi no Fizioloģija_jautājumi.docx.
+      58 jautājumi par cilvēka fizioloģiju. Katrā testā tiek atlasīti 30 nejauši jautājumi.
     </div>
 
     <div class="options" id="options"></div>
@@ -251,652 +221,663 @@ body {
   </div>
 
   <div class="footer">
-    <div>Balstīts uz 9 fizioloģijas dokumentiem.</div>
-    <div>Katru testu veido 30 nejauši jautājumi.</div>
+    <div>Balstīts uz fizioloģijas mācību materiāliem.</div>
+    <div>Katru testu veido 30 nejauši jautājumi no 58.</div>
   </div>
-
 </div>
 
-<!-- ========================= -->
-<!--      START OF PART 2      -->
-<!--     (QUESTION DATA)       -->
-<!-- ========================= -->
 <script>
-/* ========= QUESTION DATA (Part 2.1) ========= */
 const QUESTION_DATA = [
 
+// 1. Kāda ir ādas funkcija?
 {
-q: "Kas ir homeostāze?",
-a: "Organisma spēja uzturēt relatīvi nemainīgu iekšējo vidi, neatkarīgi no ārējās vides svārstībām.",
-d: [
-  "Šūnu specializācijas process embrija attīstības laikā.",
-  "Organisma spēja paaugstināt ķermeņa temperatūru neierobežoti.",
-  "Procesu kopums, kas nodrošina tikai nervu sistēmas stabilitāti."
-]
+  q: "Kāda ir ādas funkcija?",
+  a: "Aizsargbarjera, termoregulācija, taustes uztvere, vitamīna D sintēze un izdalīšanās funkcija.",
+  d: [
+    "Tikai mehāniska aizsardzība pret ārējiem bojājumiem.",
+    "Gremošanas fermentu ražošana un barības vielu uzsūkšana.",
+    "Asins šūnu veidošana un imūnglobulīnu sintēze."
+  ]
 },
 
+// 2. Kas ir melanīns?
 {
-q: "Kas raksturīgs parasimpātiskajai nervu sistēmai?",
-a: "Tā veicina atslābināšanos, gremošanas procesus un enerģijas uzkrāšanu (‘rest and digest’).",
-d: [
-  "Tā aktivizē organismu stresa situācijās (‘fight or flight’).",
-  "Tā palielina adrenalīna un noradrenalīna izdalīšanos.",
-  "Tā nomāc gremošanas aktivitāti un zarnu peristaltiku."
-]
+  q: "Kas ir melanīns?",
+  a: "Pigments, ko ražo melanocīti ādā, kas aizsargā pret UV starojumu un nosaka ādas krāsu.",
+  d: [
+    "Hormons, kas regulē miega-nomoda ciklu.",
+    "Ferments, kas piedalās gremošanas procesos.",
+    "Olbaltumviela, kas transportē skābekli asinīs."
+  ]
 },
 
+// 3. Kāda ir baktericīda funkcija?
 {
-q: "Kura struktūra regulē ķermeņa temperatūru?",
-a: "Hipotalams, kas darbojas kā termoregulatoru centrs.",
-d: [
-  "Epifīze, kas galvenokārt regulē miega–nomoda ciklu.",
-  "Smadzenītes, kas koordinē kustības un līdzsvaru.",
-  "Varolija tilts, kas regulē impulsu pārvadi starp smadzeņu daļām."
-]
+  q: "Kāda ir baktericīda funkcija?",
+  a: "Baktēriju iznīcināšana – to nodrošina lizocīms siekalās, asarās un citās ķermeņa šķidrumās.",
+  d: [
+    "Baktēriju vairošanās veicināšana gremošanas traktā.",
+    "Vīrusu transportēšana pa asinsriti.",
+    "Ūdens līdzsvara uzturēšana organismā."
+  ]
 },
 
+// 4. Kas ir imunitāte un kā tā iedalās?
 {
-q: "Kas ir aktīvais transports šūnā?",
-a: "Vielu pārvietošana pret to koncentrācijas gradientu, izmantojot ATP.",
-d: [
-  "Vielu difūzija caur membrānu bez enerģijas patēriņa.",
-  "Ūdens pārvietošanās osmozes ceļā.",
-  "Mikrotubu veidota vielu plūsma citoplazmā bez enerģijas izmantošanas."
-]
+  q: "Kas ir imunitāte un kā tā iedalās?",
+  a: "Organisma aizsardzības sistēma pret patogēniem. Iedalās nespecifiskā (iedzimtā) un specifiskā (iegūtā) imunitātē.",
+  d: [
+    "Nervu sistēmas spēja vadīt impulsus. Iedalās centrālajā un perifērajā.",
+    "Muskuļu spēja savilkties. Iedalās ātrā un lēnā kontrakcijā.",
+    "Gremošanas process. Iedalās mehāniskajā un ķīmiskajā apstrādē."
+  ]
 },
 
+// 5. Kas ir regulācija un kā tā iedalās?
 {
-q: "Kas notiek plaušās gāzu apmaiņas laikā?",
-a: "Skābeklis difūzijas ceļā nonāk asinīs, bet oglekļa dioksīds difundē alveolās.",
-d: [
-  "Skābeklis aktīvā transportā tiek sūknēts alveolās, CO₂ – artērijās.",
-  "Abas gāzes pārvietojas pretēji to daļējo spiedienu gradientiem.",
-  "Gāzes apmainās tikai bronhos, nevis alveolās."
-]
+  q: "Kas ir regulācija un kā tā iedalās?",
+  a: "Organisma funkciju vadīšana un kontrole. Iedalās nervu regulācijā (ātra) un humorālajā regulācijā (lēna, ar hormoniem).",
+  d: [
+    "Asins recēšanas process. Iedalās iekšējā un ārējā ceļā.",
+    "Barības vielu šķelšana. Iedalās kuņģa un zarnu fāzēs.",
+    "Elpošanas process. Iedalās ieelpā un izelpā."
+  ]
 },
 
+// 6. Kādas ir nervu sistēmas, kāda ir to funkcija?
 {
-q: "Kam paredzēts hemoglobīns?",
-a: "Skābekļa un oglekļa dioksīda transportēšanai asinīs.",
-d: [
-  "Gremošanas fermentu aktivēšanai.",
-  "Nervu impulsu pārvadei sinapsēs.",
-  "Asins recēšanas procesa sākšanai."
-]
+  q: "Kādas ir nervu sistēmas, kāda ir to funkcija?",
+  a: "Centrālā NS (smadzenes, muguras smadzenes) – informācijas apstrāde; Perifērā NS – impulsu vadīšana; Autonomā NS – iekšējo orgānu regulācija.",
+  d: [
+    "Tikai viena nervu sistēma, kas kontrolē visas ķermeņa funkcijas vienādi.",
+    "Gremošanas NS un elpošanas NS – katrai savs organs.",
+    "Skeleta NS un sirds NS – abas kontrolē tikai muskuļus."
+  ]
 },
 
+// 7. Ko inervē, kura nervu sistēma?
 {
-q: "Kas nosaka sirds ritmiskumu?",
-a: "Sinusa mezgls, kas ģenerē automātiskus elektriskos impulsus.",
-d: [
-  "AV mezgls ir vienīgais ritma ģenerators visos apstākļos.",
-  "His kūlītis veido impulsus neatkarīgi no citām struktūrām.",
-  "Koronārās artērijas regulē sirdsdarbības impulsu veidošanos."
-]
+  q: "Ko inervē kura nervu sistēma?",
+  a: "Somatiskā NS inervē skeleta muskuļus (apzināti); Autonomā NS inervē iekšējos orgānus, dziedzierus, asinsvadus (neapzināti).",
+  d: [
+    "Somatiskā NS inervē tikai sirdi, bet autonomā – tikai muskuļus.",
+    "Abas sistēmas inervē vienādus orgānus bez atšķirībām.",
+    "Centrālā NS inervē ādu, bet perifērā – tikai kaulus."
+  ]
 },
 
+// 8. Kādas ir muskuļu grupas?
 {
-q: "Kas ir peristaltika?",
-a: "Ritmiska gludo muskuļu kontrakcija, kas virza barības mases gremošanas traktā.",
-d: [
-  "Tīri fermentatīvs process, kas notiek tikai kuņģī.",
-  "Reflekss, kas aktivizējas tikai norijot šķidrumu.",
-  "Nervu impulsu pārvade starp enterālās sistēmas neironiem."
-]
+  q: "Kādas ir muskuļu grupas?",
+  a: "Skeleta muskuļi (šķērssvītrotie), gludie muskuļi un sirds muskulis (kardiomiocīti).",
+  d: [
+    "Tikai viens muskuļu tips – šķērssvītrotie muskuļi visā organismā.",
+    "Kaulu muskuļi, ādas muskuļi un asinsvadu muskuļi.",
+    "Ātrie muskuļi, lēnie muskuļi un vidējie muskuļi."
+  ]
 },
 
+// 9. Kura muskuļu grupa pakļaujas kurai gribai?
 {
-q: "Kura viela ir galvenais enerģijas avots nervu šūnām?",
-a: "Glikoze, kas tiek oksidēta aerobi.",
-d: [
-  "Taukskābes, kuras nervu šūnas primāri izmanto ātrai enerģijas iegūšanai.",
-  "Pienskābe, kas vienmēr ir galvenais degvielas avots CNS.",
-  "Ketonu ķermeņi, kas dominē normālos fizioloģiskos apstākļos."
-]
+  q: "Kura muskuļu grupa pakļaujas kurai gribai?",
+  a: "Skeleta muskuļi pakļaujas gribai (apzināti vadāmi); gludie muskuļi un sirds muskulis – neapzināti (autonomā NS).",
+  d: [
+    "Visi muskuļi pakļaujas gribai un ir apzināti vadāmi.",
+    "Sirds muskulis pakļaujas gribai, bet skeleta muskuļi – nē.",
+    "Gludie muskuļi ir apzināti vadāmi, skeleta muskuļi – neapzināti."
+  ]
 },
 
+// 10. No kā sastāv muskuļi, kādām šķiedrvielām?
 {
-q: "Kas nodrošina muskuļu kontrakciju molekulārā līmenī?",
-a: "Aktīna un miozīna mijiedarbība, veidojoties šķērstiltiņiem Ca²⁺ klātbūtnē.",
-d: [
-  "Tropomiozīna saraušanās un proteīnu denaturācija.",
-  "ATP sintēze ribosomās kontrakcijas laikā.",
-  "Kolagēna šķiedru savelkoša darbība miofibrillās."
-]
+  q: "No kā sastāv muskuļi, kādām šķiedrvielām?",
+  a: "Muskuļu šķiedras satur miofibrillas ar aktīna (plānajiem) un miozīna (resnajiem) pavedieniem.",
+  d: [
+    "Muskuļi sastāv tikai no kolagēna un elastīna šķiedrām.",
+    "Muskuļu šķiedras satur hemoglobīnu un fibrinogēnu.",
+    "Muskuļi veidoti no keratīna un melanīna pavedieniem."
+  ]
+},
+
+// 11. Kas nodrošina muskuļu spēku?
+{
+  q: "Kas nodrošina muskuļu spēku?",
+  a: "Muskuļu šķiedru skaits, šķērsgriezuma laukums, aktīna-miozīna šķērstiltiņu veidošanās un ATP nodrošinājums.",
+  d: [
+    "Tikai muskuļa garums – jo garāks, jo spēcīgāks.",
+    "Kaulu blīvums un locītavu elastība.",
+    "Asins hemoglobīna daudzums muskuļos."
+  ]
+},
+
+// 12. Kā rezultātā muskuļos izdalās pienskābe?
+{
+  q: "Kā rezultātā muskuļos izdalās pienskābe?",
+  a: "Anaerobās glikolīzes rezultātā, kad skābekļa nepietiek un piruvāts pārvēršas par laktātu.",
+  d: [
+    "Aerobās elpošanas rezultātā mitohondrijos.",
+    "Tauku oksidācijas procesā miera stāvoklī.",
+    "Olbaltumvielu šķelšanas rezultātā muskuļu šūnās."
+  ]
+},
+
+// 13. Ar ko atšķiras anaerobā un aerobā sistēma?
+{
+  q: "Ar ko atšķiras anaerobā un aerobā sistēma?",
+  a: "Anaerobā – bez skābekļa, ātra, īslaicīga, veido laktātu; Aerobā – ar skābekli, lēnāka, ilgstoša, pilnīga glikozes oksidācija.",
+  d: [
+    "Anaerobā izmanto tikai taukus, aerobā – tikai ogļhidrātus.",
+    "Anaerobā notiek tikai sirdī, aerobā – tikai plaušās.",
+    "Abas sistēmas ir identiskas un atšķiras tikai nosaukumā."
+  ]
+},
+
+// 14. No kā sastāv asinis?
+{
+  q: "No kā sastāv asinis?",
+  a: "Plazma (55%) un formelementi (45%) – eritrocīti, leikocīti, trombocīti.",
+  d: [
+    "Tikai no ūdens un sāļiem, bez šūnām.",
+    "Vienīgi no sarkanajām asins šūnām un hemoglobīna.",
+    "No limfas un audu šķidruma vienādās proporcijās."
+  ]
+},
+
+// 15. Kas atrodas plazmā?
+{
+  q: "Kas atrodas plazmā?",
+  a: "Ūdens (90%), olbaltumvielas (albumīni, globulīni, fibrinogēns), glikoze, hormoni, elektrolīti, gāzes.",
+  d: [
+    "Tikai eritrocīti un hemoglobīns.",
+    "Vienīgi ūdens bez jebkādām izšķīdušām vielām.",
+    "Tikai leikocīti un antivielas."
+  ]
+},
+
+// 16. Ko asinīs dara albumīni?
+{
+  q: "Ko asinīs dara albumīni?",
+  a: "Uztur onkotisko spiedienu, transportē vielas (hormonus, zāles, taukskābes) un kalpo kā olbaltumvielu rezerve.",
+  d: [
+    "Iznīcina baktērijas un vīrusus.",
+    "Nodrošina asins recēšanu.",
+    "Transportē skābekli uz audiem."
+  ]
+},
+
+// 17. Ko asinīs dara globulīni?
+{
+  q: "Ko asinīs dara globulīni?",
+  a: "Gamma-globulīni (imūnglobulīni) ir antivielas imūnaizsardzībai; alfa un beta globulīni transportē lipīdus un metālus.",
+  d: [
+    "Nodrošina skābekļa pārnesi eritrocītos.",
+    "Veido asins recekli asinsvadu bojājuma vietā.",
+    "Regulē glikozes līmeni asinīs."
+  ]
+},
+
+// 18. Kas nodrošina asins recēšanu?
+{
+  q: "Kas nodrošina asins recēšanu?",
+  a: "Trombocīti, recēšanas faktori (protrombīns, trombīns, fibrinogēns→fibrīns), Ca²⁺ joni un K vitamīns.",
+  d: [
+    "Tikai eritrocīti un hemoglobīns.",
+    "Leikocīti un antivielas.",
+    "Albumīni un glikoze plazmā."
+  ]
+},
+
+// 19. Kas ir hipoglikēmija?
+{
+  q: "Kas ir hipoglikēmija?",
+  a: "Pazemināts glikozes līmenis asinīs (zem 3.5 mmol/L), kas izraisa vājumu, trīci, svīšanu, apziņas traucējumus.",
+  d: [
+    "Paaugstināts glikozes līmenis asinīs.",
+    "Pazemināts hemoglobīna līmenis asinīs.",
+    "Paaugstināts kalcija līmenis asinīs."
+  ]
+},
+
+// 20. Kas ir hiperglikēmija?
+{
+  q: "Kas ir hiperglikēmija?",
+  a: "Paaugstināts glikozes līmenis asinīs (virs 6.1 mmol/L tukšā dūšā), raksturīgs cukura diabētam.",
+  d: [
+    "Pazemināts glikozes līmenis asinīs.",
+    "Paaugstināts eritrocītu skaits asinīs.",
+    "Pazemināts skābekļa līmenis asinīs."
+  ]
+},
+
+// 21. Ko dara eritrocīti?
+{
+  q: "Ko dara eritrocīti?",
+  a: "Transportē skābekli no plaušām uz audiem un oglekļa dioksīdu no audiem uz plaušām ar hemoglobīna palīdzību.",
+  d: [
+    "Iznīcina baktērijas un vīrusus organismā.",
+    "Nodrošina asins recēšanu brūces vietā.",
+    "Ražo antivielas pret patogēniem."
+  ]
+},
+
+// 22. Kas piesaista asinīm skābekli?
+{
+  q: "Kas piesaista asinīm skābekli?",
+  a: "Hemoglobīns – dzelzi saturošs proteīns eritrocītos, kas reversibli saistās ar O₂.",
+  d: [
+    "Albumīns – galvenais plazmas proteīns.",
+    "Fibrinogēns – recēšanas faktors.",
+    "Leikocīti – baltās asins šūnas."
+  ]
+},
+
+// 23. Ko dara trombocīti asinīs?
+{
+  q: "Ko dara trombocīti asinīs?",
+  a: "Piedalās asins recēšanā – veido trombocītu korķi bojājuma vietā un izdala recēšanas faktorus.",
+  d: [
+    "Transportē skābekli uz audiem.",
+    "Iznīcina baktērijas fagocitozes ceļā.",
+    "Ražo antivielas pret vīrusiem."
+  ]
+},
+
+// 24. Ko dara leikocīti un no kā tie sastāv?
+{
+  q: "Ko dara leikocīti un no kā tie sastāv?",
+  a: "Nodrošina imūnaizsardzību. Iedalās granulocītos (neitrofīli, eozinofīli, bazofīli) un agranulocītos (limfocīti, monocīti).",
+  d: [
+    "Transportē skābekli. Sastāv tikai no hemoglobīna.",
+    "Nodrošina recēšanu. Sastāv no fibrinogēna un trombīna.",
+    "Uztur pH līdzsvaru. Sastāv no albumīniem un globulīniem."
+  ]
+},
+
+// 25. Ja terminu beigās ir -citoze, -fīlija, tad konkrētā viela ir par daudz.
+{
+  q: "Ko nozīmē, ja termina beigās ir '-citoze' vai '-fīlija'?",
+  a: "Konkrētās šūnas vai vielas ir par daudz (piem., leikocitoze – par daudz leikocītu, eozinofīlija – par daudz eozinofīlu).",
+  d: [
+    "Konkrētās vielas ir par maz organismā.",
+    "Konkrētās vielas vispār nav organismā.",
+    "Konkrētā viela ir normālā līmenī."
+  ]
+},
+
+// 26. Ja terminu beigās ir -pēnija, tad konkrētā viela ir par maz.
+{
+  q: "Ko nozīmē, ja termina beigās ir '-pēnija'?",
+  a: "Konkrētās šūnas vai vielas ir par maz (piem., leikopēnija – par maz leikocītu, trombocitopēnija – par maz trombocītu).",
+  d: [
+    "Konkrētās vielas ir par daudz organismā.",
+    "Konkrētā viela ir normālā līmenī.",
+    "Konkrētā viela ir pilnībā iztrūkst organismā."
+  ]
+},
+
+// 27. Kur plaušās notiek gāzu apmaiņa?
+{
+  q: "Kur plaušās notiek gāzu apmaiņa?",
+  a: "Alveolās – plaušu pūslīšos, kur O₂ difundē asinīs un CO₂ difundē no asinīm.",
+  d: [
+    "Bronhos un trahejas augšdaļā.",
+    "Pleiras dobumā starp plaušām un krūškurvi.",
+    "Deguna dobumā un rīklē."
+  ]
+},
+
+// 28. Kas ir surfaktants?
+{
+  q: "Kas ir surfaktants?",
+  a: "Virsmas aktīva viela alveolās, kas samazina virsmas spraigumu un novērš alveolu sakrišanu.",
+  d: [
+    "Gāze, kas piedalās skābekļa transportā.",
+    "Ferments, kas šķeļ ogļhidrātus plaušās.",
+    "Hormons, kas regulē elpošanas biežumu."
+  ]
+},
+
+// 29. Kas ir pneimotorakss?
+{
+  q: "Kas ir pneimotorakss?",
+  a: "Gaisa uzkrāšanās pleiras dobumā starp plaušām un krūškurvi, kas izraisa plaušu kolapsu.",
+  d: [
+    "Šķidruma uzkrāšanās plaušu alveolās.",
+    "Elpošanas centra bojājums smadzenēs.",
+    "Bronhu spazma astmas lēkmes laikā."
+  ]
+},
+
+// 30. Kur atrodas elpošanas centrs?
+{
+  q: "Kur atrodas elpošanas centrs?",
+  a: "Iegarenajās smadzenēs un Varolija tiltā (smadzeņu stumbrā).",
+  d: [
+    "Smadzenītēs aizmugurējā galvaskausa bedrē.",
+    "Hipotalāmā starpsmadzenēs.",
+    "Muguras smadzeņu jostas daļā."
+  ]
+},
+
+// 31. Kas ir spirometrija?
+{
+  q: "Kas ir spirometrija?",
+  a: "Plaušu funkcijas izmeklēšanas metode, kas mēra plaušu tilpumus un gaisa plūsmas ātrumu.",
+  d: [
+    "Sirds elektriskās aktivitātes reģistrēšana.",
+    "Asins spiediena mērīšana artērijās.",
+    "Smadzeņu bioelektriskās aktivitātes reģistrēšana."
+  ]
+},
+
+// 32. Kas uzbudina elpošanas centru?
+{
+  q: "Kas uzbudina elpošanas centru?",
+  a: "Paaugstināts CO₂ līmenis (hiperkapnija) un pazemināts O₂ līmenis asinīs, kā arī pH samazināšanās.",
+  d: [
+    "Paaugstināts O₂ līmenis asinīs.",
+    "Pazemināts CO₂ līmenis asinīs.",
+    "Paaugstināts glikozes līmenis asinīs."
+  ]
+},
+
+// 33. Kas ir sirds vadīšanas sistēma?
+{
+  q: "Kas ir sirds vadīšanas sistēma?",
+  a: "Specializētu šūnu sistēma, kas ģenerē un vada elektriskos impulsus: sinusa mezgls, AV mezgls, Hisa kūlītis, Purkinjē šķiedras.",
+  d: [
+    "Sirds asinsvadu tīkls, kas apgādā miokarda šūnas.",
+    "Sirds vārstuļu sistēma, kas regulē asins plūsmu.",
+    "Nervu šķiedras, kas nāk no smadzenēm uz sirdi."
+  ]
+},
+
+// 34. Kas ir sirds pašreflekss?
+{
+  q: "Kas ir sirds pašreflekss?",
+  a: "Sirds spēja automātiski ģenerēt elektriskos impulsus bez ārējas nervu stimulācijas (automātisms).",
+  d: [
+    "Reflekss, kas palēnina sirds ritmu stresa laikā.",
+    "Reakcija uz sāpju kairinājumu krūškurvī.",
+    "Asins spiediena paaugstināšanās fiziskas slodzes laikā."
+  ]
+},
+
+// 35. Kas ir un kur atrodas sirds sinusa mezgls?
+{
+  q: "Kas ir un kur atrodas sirds sinusa mezgls?",
+  a: "Sirds ritma ģenerators (pacemaker), atrodas labā ātrija sienā pie augšējās dobo vēnu ietekas. Ģenerē 60-100 impulsus/min.",
+  d: [
+    "Atrodas kreisajā kambarī un regulē vārstuļu darbību.",
+    "Atrodas aortā un mēra asins spiedienu.",
+    "Atrodas plaušu artērijā un regulē gāzu apmaiņu."
+  ]
+},
+
+// 36. Kas ir ekstrakardiālās šķiedras?
+{
+  q: "Kas ir ekstrakardiālās šķiedras?",
+  a: "Nervu šķiedras ārpus sirds, kas modulē sirds darbību – simpātiskās (paātrina) un parasimpātiskās/vaguss (palēnina).",
+  d: [
+    "Muskuļu šķiedras sirds iekšienē.",
+    "Asinsvadi, kas apgādā sirds muskuli.",
+    "Sirds vārstuļu saistaudu struktūras."
+  ]
+},
+
+// 37. Kādos orgānos ir piecas gremošanas sulas?
+{
+  q: "Kādos orgānos ir piecas gremošanas sulas?",
+  a: "Siekalu dziedzeri (siekalas), kuņģis (kuņģa sula), aknas (žults), aizkuņģa dziedzeris (aizkuņģa sula), zarnu dziedzeri (zarnu sula).",
+  d: [
+    "Tikai kuņģī un tievajās zarnās.",
+    "Tikai aknās un nierēs.",
+    "Tikai mutē un resnajās zarnās."
+  ]
+},
+
+// 38. Kādi fermenti ir siekalās un ko tās šķeļ?
+{
+  q: "Kādi fermenti ir siekalās un ko tās šķeļ?",
+  a: "Amilāze (ptialīns) – šķeļ cieti līdz maltozei; Lizocīms – baktericīda iedarbība.",
+  d: [
+    "Pepsīns – šķeļ olbaltumvielas līdz aminoskābēm.",
+    "Lipāze – šķeļ taukus līdz glicerīnam.",
+    "Tripsīns – šķeļ nukleīnskābes."
+  ]
+},
+
+// 39. Kas ir zarnu sulā un ko tā šķeļ?
+{
+  q: "Kas ir zarnu sulā un ko tā šķeļ?",
+  a: "Maltāze, saharāze, laktāze (šķeļ disaharīdus), peptidāzes (šķeļ peptīdus), lipāze (šķeļ taukus).",
+  d: [
+    "Tikai sālsskābe un pepsīns.",
+    "Tikai žultsskābes un bilirubīns.",
+    "Tikai amilāze un lizocīms."
+  ]
+},
+
+// 40. Kas ir aizkuņģa dziedzera sulā un ko tā šķeļ?
+{
+  q: "Kas ir aizkuņģa dziedzera sulā un ko tā šķeļ?",
+  a: "Tripsīns, himotripsīns (olbaltumvielas), amilāze (ciete), lipāze (tauki), nukleāzes (nukleīnskābes), bikarbonāti (neitralizē).",
+  d: [
+    "Tikai sālsskābe, kas palielina skābumu.",
+    "Tikai žultsskābes tauku emulģēšanai.",
+    "Tikai insulīns un glikagons."
+  ]
+},
+
+// 41. Kas ir žults sulā un ko šķeļ?
+{
+  q: "Kas ir žults sulā un ko tā šķeļ?",
+  a: "Žultsskābes, bilirubīns, holesterīns. Žults nešķeļ, bet emulģē taukus (sadala sīkās pilītēs) lipāzes darbībai.",
+  d: [
+    "Pepsīns, kas šķeļ olbaltumvielas.",
+    "Amilāze, kas šķeļ ogļhidrātus.",
+    "Tripsīns, kas šķeļ visas barības vielas."
+  ]
+},
+
+// 42. Kas ir gremošanas sistēmas hormons?
+{
+  q: "Kas ir gremošanas sistēmas hormoni?",
+  a: "Gastrīns (stimulē kuņģa sekrēciju), sekretīns (stimulē bikarbonātu sekrēciju), holecistokinīns (stimulē žults izdalīšanos).",
+  d: [
+    "Insulīns un glikagons – regulē glikozes līmeni.",
+    "Adrenalīns un noradrenalīns – stresa hormoni.",
+    "T3 un T4 – vairogdziedzera hormoni."
+  ]
+},
+
+// 43. Kādi procesi notiek tievajās zarnās?
+{
+  q: "Kādi procesi notiek tievajās zarnās?",
+  a: "Galīgā barības vielu šķelšana (fermenti), uzsūkšanās (absorbcija) caur bārkstiņām, peristaltika, imūnaizsardzība.",
+  d: [
+    "Tikai mehāniska barības sasmalcināšana.",
+    "Tikai ūdens uzsūkšanās un fēču veidošana.",
+    "Tikai gāzu apmaiņa ar asinīm."
+  ]
+},
+
+// 44. Kādi procesi notiek resnajās zarnās?
+{
+  q: "Kādi procesi notiek resnajās zarnās?",
+  a: "Ūdens un elektrolītu uzsūkšanās, vitamīnu K un B sintēze (zarnu baktērijas), fēču veidošana un izvadīšana.",
+  d: [
+    "Galvenā barības vielu šķelšana un uzsūkšanās.",
+    "Žults izdalīšanās un tauku emulģēšana.",
+    "Glikozes sintēze un uzkrāšana glikogēnā."
+  ]
+},
+
+// 45. Kas veicina gremošanas darbību?
+{
+  q: "Kas veicina gremošanas darbību?",
+  a: "Parasimpātiskā nervu sistēma (vaguss nervs), gastrīns, histamīns, acetilholīns.",
+  d: [
+    "Simpātiskā nervu sistēma un adrenalīns.",
+    "Somatiskā nervu sistēma un dopamīns.",
+    "Kortizols un noradrenalīns."
+  ]
+},
+
+// 46. Kas gremošanā strādā uz sekrēciju?
+{
+  q: "Kas gremošanā strādā uz sekrēciju (izdales veicināšanu)?",
+  a: "Parasimpātiskā NS, gastrīns, histamīns, sekretīns, holecistokinīns, acetilholīns.",
+  d: [
+    "Simpātiskā NS un adrenalīns kavē sekrēciju.",
+    "Somatiskā NS kontrolē tikai muskuļus.",
+    "Insulīns un glikagons regulē tikai glikozes līmeni."
+  ]
+},
+
+// 47. Kādi hormoni atrodas virsnierēs, kādas ir funkcijas?
+{
+  q: "Kādi hormoni atrodas virsnierēs, kādas ir to funkcijas?",
+  a: "Garozā: kortizols (stresa atbilde, pretiekaisums), aldosterons (Na/K līdzsvars). Serdenī: adrenalīns, noradrenalīns (fight-or-flight).",
+  d: [
+    "Tikai insulīns un glikagons – glikozes regulācija.",
+    "Tikai testosterons un estrogēns – dzimumhormoni.",
+    "Tikai tiroksīns un kalcitonīns – vielmaiņas regulācija."
+  ]
+},
+
+// 48. Kādus hormonus izdala hipofīzes priekšējā daiva, kādas ir funkcijas?
+{
+  q: "Kādus hormonus izdala hipofīzes priekšējā daiva, kādas ir to funkcijas?",
+  a: "STH (augšana), TSH (vairogdziedzeris), ACTH (virsnieres), FSH/LH (dzimumdziedzeri), prolaktīns (piena ražošana).",
+  d: [
+    "Tikai ADH un oksitocīns – izdala aizmugurējā daiva.",
+    "Tikai insulīns un glikagons – aizkuņģa dziedzeris.",
+    "Tikai melatonīns – epifīze."
+  ]
+},
+
+// 49. Kāda hormona trūkums dod bērniem kretīnismu?
+{
+  q: "Kāda hormona trūkums dod bērniem kretīnismu?",
+  a: "Vairogdziedzera hormonu (T3, T4 – tiroksīna) trūkums agrā bērnībā izraisa kretīnismu – augšanas un garīgās attīstības aizturi.",
+  d: [
+    "Augšanas hormona (STH) trūkums.",
+    "Insulīna trūkums.",
+    "Kortizola trūkums."
+  ]
+},
+
+// 50. Kas stimulē ūdens uzsūkšanos atpakaļ nefrona kanāliņos?
+{
+  q: "Kas stimulē ūdens uzsūkšanos atpakaļ nefrona kanāliņos?",
+  a: "Antidiurētiskais hormons (ADH, vazopresīns), ko izdala hipofīzes aizmugurējā daiva.",
+  d: [
+    "Aldosterons – stimulē Na⁺ uzsūkšanos.",
+    "Insulīns – regulē glikozes uzņemšanu.",
+    "Gastrīns – stimulē kuņģa sekrēciju."
+  ]
+},
+
+// 51. Kādi ir vairogdziedzera hormoni, kāda ir to funkcija?
+{
+  q: "Kādi ir vairogdziedzera hormoni, kāda ir to funkcija?",
+  a: "T3 (trijodtironīns), T4 (tiroksīns) – paātrina vielmaiņu, siltuma ražošanu; Kalcitonīns – samazina Ca²⁺ līmeni asinīs.",
+  d: [
+    "Insulīns un glikagons – glikozes regulācija.",
+    "Adrenalīns un noradrenalīns – stresa reakcija.",
+    "Estrogēns un progesterons – dzimumfunkcijas."
+  ]
+},
+
+// 52. Kurš hormons atbild par pretiekaisuma darbību?
+{
+  q: "Kurš hormons atbild par pretiekaisuma darbību?",
+  a: "Kortizols (glikokortikoīds) no virsnieru garozas – nomāc iekaisumu un imūnreakcijas.",
+  d: [
+    "Adrenalīns – paātrina sirds ritmu.",
+    "Insulīns – samazina glikozes līmeni.",
+    "Aldosterons – regulē ūdens līdzsvaru."
+  ]
+},
+
+// 53. Kas ir gangliji, kur tie atrodas un kāda ir to funkcija?
+{
+  q: "Kas ir gangliji, kur tie atrodas un kāda ir to funkcija?",
+  a: "Nervu šūnu ķermeņu kopas ārpus CNS. Atrodas gar mugurkaulu un pie orgāniem. Pārslēdz un apstrādā nervu impulsus.",
+  d: [
+    "Muskuļu šūnu kopas, kas nodrošina kontrakciju.",
+    "Asinsvadu mezgli, kas regulē asins plūsmu.",
+    "Dziedzeru kopas, kas izdala hormonus."
+  ]
+},
+
+// 54. Kas ir noradrenalīns, kāda ir tā funkcija?
+{
+  q: "Kas ir noradrenalīns, kāda ir tā funkcija?",
+  a: "Neirotransmiters un hormons. Paaugstina asinsspiedienu, sašaurina asinsvadus, piedalās stresa reakcijā (fight-or-flight).",
+  d: [
+    "Gremošanas ferments, kas šķeļ ogļhidrātus.",
+    "Transportproteīns, kas pārnes skābekli.",
+    "Imūnšūna, kas iznīcina baktērijas."
+  ]
+},
+
+// 55. Ar ko atšķiras smadzenes no smadzenītēm, kāda ir to funkcija?
+{
+  q: "Ar ko atšķiras smadzenes no smadzenītēm, kāda ir to funkcija?",
+  a: "Lielās smadzenes – domāšana, atmiņa, maņas, apzinātas kustības; Smadzenītes – kustību koordinācija, līdzsvars, muskuļu tonuss.",
+  d: [
+    "Smadzenes regulē sirds ritmu, smadzenītes – elpošanu.",
+    "Smadzenes atrodas krūškurvī, smadzenītes – vēdera dobumā.",
+    "Abas struktūras veic identiskas funkcijas."
+  ]
+},
+
+// 56. Kāda ir ATF (ATP) funkcija?
+{
+  q: "Kāda ir ATF (adenozīntrifosfāta) funkcija?",
+  a: "Universālais enerģijas nesējs šūnās – nodrošina enerģiju muskuļu kontrakcijai, vielu transportam, biosintēzei.",
+  d: [
+    "Transportē skābekli asinīs.",
+    "Veido šūnu membrānas struktūru.",
+    "Glabā ģenētisko informāciju."
+  ]
+},
+
+// 57. Kas ir acetilholīns?
+{
+  q: "Kas ir acetilholīns?",
+  a: "Neirotransmiters, kas pārvada impulsus neiromuskulārajās sinapsēs un parasimpātiskajā NS. Izraisa muskuļu kontrakciju.",
+  d: [
+    "Hormons, kas regulē glikozes līmeni.",
+    "Ferments, kas šķeļ taukus.",
+    "Proteīns, kas transportē dzelzi asinīs."
+  ]
+},
+
+// 58. Kas ir fagocitoze?
+{
+  q: "Kas ir fagocitoze?",
+  a: "Process, kurā šūnas (fagocīti – neitrofīli, makrofāgi) aptver un iznīcina baktērijas, vīrusus un atmirušas šūnas.",
+  d: [
+    "Process, kurā šūnas dalās un vairojas.",
+    "Process, kurā šūnas ražo antivielas.",
+    "Process, kurā šūnas transportē skābekli."
+  ]
 }
 
-]; /* END OF PART 2.1 */
-</script>
-<script>
-/* ========= QUESTION DATA (Part 2.2) ========= */
+];
 
-QUESTION_DATA.push(
-
-{
-q: "Kura struktūra nodrošina ātru nervu impulsu pārvadi pa aksonu?",
-a: "Mielīna apvalks, kas nodrošina sānlēciena vadīšanu starp Ranvjē iežmaugām.",
-d: [
-  "Švana šūnu kodoli, kas ģenerē impulsu katrā segmentā.",
-  "Dendriti, kas palielina membrānas pretestību impulsu plūsmai.",
-  "Neurofilamenti, kas absorbē elektrisko lādiņu impulsu laikā."
-]
-},
-
-{
-q: "Kas ir sinapse?",
-a: "Kontakta vieta starp neironiem vai neironu un efektoru, kur notiek signālu pārvade ar mediatoriem.",
-d: [
-  "Glikoproteīnu slānis ap aksonu, kas aizsargā to no infekcijām.",
-  "Speciāls kodola apgabals, kurā notiek DNS replikācija.",
-  "Asinsvadu pinums, kas apgādā nervu šūnas ar skābekli."
-]
-},
-
-{
-q: "Kāds ir acetilholīna lomas efekts neiromuskulārajā sinapsē?",
-a: "Tas saistās ar receptoriem uz muskuļu membrānas un izraisa depolarizāciju, kas iniciē kontrakciju.",
-d: [
-  "Tas bloķē Na⁺ kanālus, novēršot muskuļu saraušanos.",
-  "Tas izraisa Ca²⁺ izdalīšanos no sinaptiskā spraugas uz aksonu.",
-  "Tas inhibē miozīna darbību, pārtraucot kontrakciju."
-]
-},
-
-{
-q: "Kura smadzeņu daļa koordinē kustības un līdzsvaru?",
-a: "Smadzenītes, kas apstrādā propriocepciju un korekcijas impulsus.",
-d: [
-  "Vidussmadzenes, kas regulē elpošanas ritmu.",
-  "Starpsmadzenes, kas nodrošina dzirdes refleksus.",
-  "Smadzeņu stumbrs, kas nodrošina hormonālu regulāciju."
-]
-},
-
-{
-q: "Kas ir reflekslokā efektors?",
-a: "Orgāns vai audi, kas veic atbildes reakciju uz refleksā saņemto signālu.",
-d: [
-  "Receptora galotne, kas uztver stimulus.",
-  "Starpsinapse muguras smadzenēs, kas ģenerē impulsu.",
-  "Neirons, kas inhibē centrālās sinapses."
-]
-},
-
-{
-q: "Kur atrodas elpošanas ritma ģenerators?",
-a: "Ieelpas un izelpas centri iegarenajās smadzenēs un Varolija tiltā.",
-d: [
-  "Smadzenītēs, kur atrodas elpošanas refleksu mezgli.",
-  "Hipofīzē, kas izdala elpošanas hormonus.",
-  "Talamā, kas regulē ķermeņa temperatūru."
-]
-},
-
-{
-q: "Kas nosaka artēriju asinsspiedienu?",
-a: "Sirds izsviedes tilpums un perifērā pretestība.",
-d: [
-  "Eritrocītu skaits asinīs un leikocītu aktivitāte.",
-  "Asins plazmas pH un oksidācijas pakāpe.",
-  "Tikai venozās asinis plaušu apritē."
-]
-},
-
-{
-q: "Kas raksturīgs kapilāriem?",
-a: "Tie ir vienas endotēlija šūnas biezumā un nodrošina vielu apmaiņu.",
-d: [
-  "Tie satur vārstus, kas novērš atplūdi.",
-  "Tie ir biezsienu trauki ar muskuļu apvalku.",
-  "Tie nodrošina tikai skābekļa transportu, nevis vielu apmaiņu."
-]
-},
-
-{
-q: "Kas stimulē kuņģa sulas sekrēciju?",
-a: "Gastrīns, histamīns un parasimpātiskā nervu sistēma.",
-d: [
-  "Kortizols un adrenalīns pie stresa situācijām.",
-  "Melatonīns, kas nomāc kuņģa darbību dienas laikā.",
-  "Vazopresīns, kas izraisa ūdens sekrēciju."
-]
-},
-
-{
-q: "Kur notiek galvenā barības vielu uzsūkšanās?",
-a: "Tievajās zarnās — jejunum un ileum segmentā.",
-d: [
-  "Kuņģī, kur notiek intensīvākā absorbcija.",
-  "Aknās pirms barības vielas nonāk asinīs.",
-  "Resnajā zarnā, kur tiek absorbēti aminoskābju kompleksi."
-]
-}
-
-); /* END OF PART 2.2 */
-</script>
-<script>
-/* ========= QUESTION DATA (Part 2.3) ========= */
-
-QUESTION_DATA.push(
-
-{
-q: "Kas ir žults galvenās funkcijas?",
-a: "Taukšķīstošo vielu emulģēšana un tauku gremošanas aktivēšana tievajās zarnās.",
-d: [
-  "Olbaltumvielu hidrolīze kuņģī.",
-  "Glikozes uzsūkšanās resnajā zarnā.",
-  "Fermentu sintēze aizkuņģa dziedzerī."
-]
-},
-
-{
-q: "Kur tiek sintezēti gremošanas fermenti lielākajā daudzumā?",
-a: "Aizkuņģa dziedzerī, kas izdala proteāzes, lipāzi un amilāzi.",
-d: [
-  "Barības vadā, kas aktivē hidrolīzes reakcijas.",
-  "Aknās, kas izdala fermentus tieši tievajās zarnās.",
-  "Žultspūslī, kur notiek fermentu uzglabāšana."
-]
-},
-
-{
-q: "Kas izraisa insulīna izdalīšanos?",
-a: "Paaugstināts glikozes līmenis asinīs pēc ēdienreizes.",
-d: [
-  "Zems glikozes līmenis asinīs badošanās laikā.",
-  "Vazopresīna pieaugums nieru darbības laikā.",
-  "Augsts hemoglobīna saturs eritrocītos."
-]
-},
-
-{
-q: "Kas ir glikagons?",
-a: "Aizkuņģa dziedzera hormons, kas paaugstina glikozes līmeni asinīs.",
-d: [
-  "Nieru garozas hormons, kas aktivē ūdens reabsorbciju.",
-  "Virsnieru hormons, kas samazina glikozes koncentrāciju.",
-  "Hipotalāma proteīns, kas bloķē aknu glikogēna sintēzi."
-]
-},
-
-{
-q: "Kas stimulē vairogdziedzeri izdalīt T3 un T4?",
-a: "TSH (vairogdziedzeri stimulējošais hormons) no hipofīzes priekšējās daivas.",
-d: [
-  "ACTH, kas aktivē vairogdziedzera hormonu sintēzi.",
-  "Adrenalīns, kas tieši stimulē T3 un T4 sekrēciju.",
-  "Prolaktīns, kas regulē vairogdziedzera trijodtironīnu."
-]
-},
-
-{
-q: "Kas raksturīgs kortizolam?",
-a: "Paaugstina glikozes līmeni, nomāc iekaisumu un ir stresa hormons.",
-d: [
-  "Samazina glikozes līmeni un aktivē imūnsistēmu.",
-  "Izraisa tūlītēju insulīna izdalīšanos.",
-  "Inhibē olbaltumvielu noārdīšanos stresa laikā."
-]
-},
-
-{
-q: "Kas ir eritropoetīna (EPO) galvenā funkcija?",
-a: "Stimulēt eritrocītu veidošanos kaulu smadzenēs hipoksijas apstākļos.",
-d: [
-  "Aktivēt leikocītu fagocitozi iekaisuma laikā.",
-  "Paātrināt asins plazmas recēšanu.",
-  "Regulēt trombocītu veidošanos liesā."
-]
-},
-
-{
-q: "Kas ir trombocītu galvenā funkcija?",
-a: "Asins recekļa veidošanās, veidojot trombocītu spraudni bojājuma vietā.",
-d: [
-  "Skābekļa transportēšana plaušām un audiem.",
-  "Gremošanas fermentu ražošana tievajās zarnās.",
-  "Nervu impulsu pārvades nodrošināšana sinapsēs."
-]
-},
-
-{
-q: "Kas izraisa iekaisuma reakciju sākumu?",
-a: "Histamīna un citu mediatoru izdalīšanās bojājuma vai infekcijas vietā.",
-d: [
-  "Insulīna straujš pieaugums asinīs.",
-  "Aknu žults koncentrācijas samazināšanās.",
-  "Melatonīna sekrēcija miega laikā."
-]
-},
-
-{
-q: "Kas raksturīgs IgG imūnglobulīniem?",
-a: "Tie ir visvairāk sastopamie antivielu tipi asinīs un nodrošina ilgstošu aizsardzību.",
-d: [
-  "Tie ir galvenokārt uz gļotādām un nodrošina lokālu aizsardzību.",
-  "Tie piedalās tikai alerģiskajās reakcijās.",
-  "Tie veidojas tikai embrija attīstības laikā."
-]
-}
-
-); /* END OF PART 2.3 */
-</script>
-<script>
-/* ========= QUESTION DATA (Part 2.4) ========= */
-
-QUESTION_DATA.push(
-
-{
-q: "Kurā vietā organismā notiek primārā limfas veidošanās?",
-a: "Limfkapilāros, kur audiem raksturīgais šķidrums nonāk limfvadā.",
-d: [
-  "Limfmezglos, kas sintezē limfu no eritrocītiem.",
-  "Aknās, kur veidojas visa cirkulējošā limfa.",
-  "Aortā, kur filtrējas asinis un veidojas limfa."
-]
-},
-
-{
-q: "Kas raksturīgs NK šūnām (dabīgajiem killeriem)?",
-a: "Tās iznīcina vīrusu skartās un audzēja šūnas bez iepriekšējas sensibilizācijas.",
-d: [
-  "Tās sintezē antivielas pret specifiskiem patogēniem.",
-  "Tās veic tikai fagocitozi, kā makrofāgi.",
-  "Tās darbojas tikai alerģisko reakciju laikā."
-]
-},
-
-{
-q: "Kas ir fagocitoze?",
-a: "Šūnu spēja apņemt un sagremot mikroorganismus un daļiņas (piem., makrofāgi, neitrofīli).",
-d: [
-  "Antivielu saistīšanās ar antigēnu bez šūnu iesaistes.",
-  "Hormonu transportēšana ar plazmas olbaltumiem.",
-  "Šūnu diferenciācija par nervu šūnām."
-]
-},
-
-{
-q: "Kas raksturīgs makrofāgiem?",
-a: "Tie fagocitē patogēnus un aktivē citus imūnsistēmas komponentus, izdalot citokīnus.",
-d: [
-  "Tie ražo hemoglobīnu skābekļa transportēšanai.",
-  "Tie veido mielīna apvalku nervu šķiedrām.",
-  "Tie ir galvenie insulīna producētāji organismā."
-]
-},
-
-{
-q: "Kas ir antivielas?",
-a: "Imūnglobulīni, kurus ražo B limfocīti, lai saistītos ar specifiskiem antigēniem.",
-d: [
-  "Enzīmi, kas šķeļ baktēriju proteīnus.",
-  "Lipīdi, kas bloķē vīrusu receptorus uz visām šūnām.",
-  "Hormoni, kas regulē imūnreakciju ātrumu."
-]
-},
-
-{
-q: "Kas raksturīgs skeleta muskuļu šķiedru 'sarkanajam' tipam?",
-a: "Lēnas, izturīgas šķiedras ar daudz mitohondrijiem, izmanto aerobos procesus.",
-d: [
-  "Ātras, eksplozīvas šķiedras ar zemu mitohondriju saturu.",
-  "Šķiedras, kas saraujas tikai anaerobi bez skābekļa.",
-  "Šķiedras, kas neveic mehānisku darbu, tikai uztur tonusu."
-]
-},
-
-{
-q: "Kas nodrošina muskuļu tonusu miera stāvoklī?",
-a: "Pastāvīga zema līmeņa motorneironu impulsācija uz muskuli.",
-d: [
-  "ATP pilnīga izsīkšana muskuļos.",
-  "Glikogēna degradācija intensīvas slodzes laikā.",
-  "Neirotransmiteru ilgstoša bloķēšana sinapsēs."
-]
-},
-
-{
-q: "Kāds ir Ca²⁺ jonu nozīmīgums muskuļu kontrakcijā?",
-a: "Tie saistās ar troponīnu, kas ļauj aktīnam un miozīnam veidot šķērstiltiņus.",
-d: [
-  "Tie iznīcina ATP, lai apturētu kontrakciju.",
-  "Tie bloķē aktīna vietas miozīna savienošanai.",
-  "Tie denaturē muskuļu proteīnus kontrakcijas beigās."
-]
-},
-
-{
-q: "Kas raksturīgs gludajiem muskuļiem?",
-a: "Lēna, ilgstoša kontrakcija, autonomās nervu sistēmas regulācija.",
-d: [
-  "Ātra kontrakcija tikai pēc motorā neirona tieša signāla.",
-  "Striācija un sarkomēru precīza uzbūve kā skeleta muskuļos.",
-  "Tikai apzināta kontrole kā pie skeleta muskuļiem."
-]
-},
-
-{
-q: "Kas izraisa muskuļu nogurumu ilgstošas slodzes laikā?",
-a: "Enerģijas rezervju samazināšanās un metabolītu uzkrāšanās šķiedrās.",
-d: [
-  "Triiodtironīna straujš samazinājums asinīs slodzes laikā.",
-  "Pārmērīga Ca²⁺ uzkrāšanās mitohondrijos, kas palielina ATP ražošanu.",
-  "Glikozes rekombinācija par glikogēnu aktīvas kontrakcijas laikā."
-]
-}
-
-); /* END OF PART 2.4 */
-</script>
-<script>
-/* ========= QUESTION DATA (Part 2.5) ========= */
-
-QUESTION_DATA.push(
-
-{
-q: "Kas raksturīgs sirds kambaru sistoliskajai fāzei?",
-a: "Kambari saraujas, spiediens strauji paaugstinās un asinis tiek izsviestas artērijās.",
-d: [
-  "Kambari atslābst, spiediens samazinās un asinis ieplūst no ātrijiem.",
-  "AV vārstuļi atveras, lai asinis plūstu atpakaļ sirdī.",
-  "Asinis no aortas pasīvi ieplūst kambaru dobumos."
-]
-},
-
-{
-q: "Kas izraisa sirds pirmo toņu (S1)?",
-a: "Mitrālā un trikuspidālā vārstuļa aizvēršanās sistoles sākumā.",
-d: [
-  "Aortas un plaušu artērijas vārstuļu aizvēršanās diastoles beigās.",
-  "Asins turbulenta plūsma aortā izelpā.",
-  "Miokarda relaksācija kambaru diastoles sākumā."
-]
-},
-
-{
-q: "Kas ir sirds minūtes tilpums (CO)?",
-a: "Asins daudzums, ko sirds izsviež vienā minūtē (SV × HR).",
-d: [
-  "Asins daudzums, kas atgriežas labajā ātrijā vienā minūtē.",
-  "Asins daudzums, ko sirds izsviež vienā kontrakcijā.",
-  "Asins tilpums, kas paliek kreisajā kambarī sistoles laikā."
-]
-},
-
-{
-q: "Kas nosaka elpošanas biežumu miera stāvoklī?",
-a: "CO₂ līmenis asinīs, kas ietekmē elpošanas centru jutību.",
-d: [
-  "O₂ līmenis asinīs ir vienīgais regulators.",
-  "Glikozes līmenis, kas aktivē elpošanas centru pēc ēšanas.",
-  "Eritrocītu daudzums asinīs neatkarīgi no gāzu sastāva."
-]
-},
-
-{
-q: "Kur notiek galvenā ūdens uzsūkšanās gremošanas traktā?",
-a: "Resnajā zarnā, kur tiek reabsorbēts ūdens un elektrolīti.",
-d: [
-  "Kuņģī, kas reabsorbē lielāko daļu ūdens.",
-  "Divpadsmitpirkstu zarnā, kur notiek visa ūdens absorbcija.",
-  "Aizkuņģa dziedzerī, izmantojot kanāliņu epitēliju."
-]
-},
-
-{
-q: "Kas ir peristaltikas galvenais regulētājs tievajā zarnā?",
-a: "Enterālā nervu sistēma (Auerbaha pinums).",
-d: [
-  "Hipotalāms, kas tieši aktivē gludos muskuļus.",
-  "Aknu portālās vēnas sistēma, kas inducē muskuļu kontrakcijas.",
-  "Liesa, kas kontrolē zarnu kustību ātrumu."
-]
-},
-
-{
-q: "Kas raksturīgs laktāzei?",
-a: "Ferments, kas šķeļ piena cukuru (laktozi) līdz monosaharīdiem.",
-d: [
-  "Ferments, kas šķeļ polisaharīdus par taukskābēm.",
-  "Ferments, kas aktivē proteīnu sašķelšanu kuņģī.",
-  "Ferments, kas neitralizē kuņģa skābo vidi."
-]
-},
-
-{
-q: "Kas ir hormonu ‘mērķa šūnas’?",
-a: "Šūnas ar specifiskiem receptoriem konkrētam hormonam.",
-d: [
-  "Visas organisma šūnas neatkarīgi no receptoru klātbūtnes.",
-  "Šūnas, kas veido hormonus neatkarīgi no regulācijas.",
-  "Tikai imūnās šūnas, kas reaģē uz citokīniem."
-]
-},
-
-{
-q: "Kas ir aldosterona iedarbība?",
-a: "Veicina Na⁺ un ūdens reabsorbciju nierēs, paaugstinot asinsspiedienu.",
-d: [
-  "Veicina glikozes uzkrāšanu aknās un samazina asinsspiedienu.",
-  "Stimulē proteīnu sintēzi skeleta muskuļos.",
-  "Samazina kālija izdalīšanos nierēs."
-]
-},
-
-{
-q: "Kas raksturīgs T-limfocītiem?",
-a: "Tie nodrošina šūnu mediēto imunitāti un iznīcina inficētās šūnas.",
-d: [
-  "Tie ražo antivielas kā galveno aizsardzību pret patogēniem.",
-  "Tie veido trombocītus kaulu smadzenēs.",
-  "Tie veido žults sāļus aknās."
-]
-}
-
-); /* END OF PART 2.5 */
-</script>
-<script>
-/* ========= QUESTION DATA (Part 2.6 — FINAL) ========= */
-
-QUESTION_DATA.push(
-
-{
-q: "Kas ir renīna–angiotensīna–aldosterona sistēmas (RAAS) galvenais mērķis?",
-a: "Paaugstināt asinsspiedienu un saglabāt šķidruma daudzumu organismā.",
-d: [
-  "Samazināt asinsspiedienu, bloķējot nieru asinsriti.",
-  "Palielināt glikozes sintēzi un samazināt ūdens reabsorbciju.",
-  "Stimulēt eritrocītu veidošanos neatkarīgi no skābekļa līmeņa."
-]
-},
-
-{
-q: "Kas izraisa antidurētiskā hormona (ADH) izdalīšanos?",
-a: "Plazmas osmolaritātes palielināšanās vai cirkulējošā asinsspiediena kritums.",
-d: [
-  "Glikozes līmeņa samazināšanās pēc fiziskas slodzes.",
-  "Aknu žults sintēzes palielināšanās.",
-  "Pastiprināts skābekļa piesātinājums arteriālajās asinīs."
-]
-},
-
-{
-q: "Kur notiek galvenā Na⁺ reabsorbcija nieru kanāliņos?",
-a: "Proksimālajā kanāliņā un Henles cilpas augšupejošajā daļā.",
-d: [
-  "Savācējkanāliņos pirms filtrāta izvadīšanas.",
-  "Glomerulos, kur notiek aktīva Na⁺ sūkņošana.",
-  "Nieru kapsulā, pirms veidojas primārais urīns."
-]
-},
-
-{
-q: "Kas raksturīgs neitrofīliem?",
-a: "Tie ir pirmie fagocīti, kas nonāk iekaisuma vietā un iznīcina baktērijas.",
-d: [
-  "Tie ražo antivielas pret specifiskiem vīrusiem.",
-  "Tie nodrošina tikai audu reģenerāciju.",
-  "Tie sintezē mielīnu perifērās nervu šķiedrās."
-]
-},
-
-{
-q: "Kas ir mioglobīns?",
-a: "Olbaltumviela muskuļos, kas saista skābekli un kalpo kā tā rezerve.",
-d: [
-  "Ferments, kas aktivē miozīnu kontrakcijas laikā.",
-  "Hormons, kas regulē muskuļu augšanu un hipertrofiju.",
-  "Neirotransmiteris, kas nodrošina neiromuskulārās sinapses darbību."
-]
-},
-
-{
-q: "Kas raksturīgs sarkomēram?",
-a: "Muskuļu šķiedras funkcionālā vienība ar aktīna un miozīna pavedieniem.",
-d: [
-  "Struktūra, kas ražo ATP mitohondrijos.",
-  "Skeleta muskuļu saistaudu kapsula.",
-  "Proteīna komplekss, kas aktivē kalcija izdalīšanu aksonā."
-]
-},
-
-{
-q: "Kas izraisa otrā tipa (IIb) muskuļu šķiedru ātro kontrakciju?",
-a: "Liels miozīna ATPāzes aktivitātes līmenis un ātra anaerobā ATP ražošana.",
-d: [
-  "Augsta mitohondriju koncentrācija un aerobā dominējošā enerģētika.",
-  "Lēna nervu impulsu vadīšana pa mielinizētajiem aksoniem.",
-  "Augsts hemoglobīna saturs šķiedrās ilgstošai slodzei."
-]
-},
-
-{
-q: "Kas raksturīgs komplementa sistēmai?",
-a: "Plazmas proteīnu kaskāde, kas lizē baktērijas un pastiprina imūnreakciju.",
-d: [
-  "Proteīnu sistēma, kas nodrošina antivielu degradāciju.",
-  "Asins recēšanas proteīni, kas bloķē imūnreakciju.",
-  "Enzīmi, kas galvenokārt sintezē T-limfocītus timusā."
-]
-}
-
-); /* END OF PART 2.6 — FINAL */
-</script>
-<!-- ========================= -->
-<!--      PART 3 — LOGIC      -->
-<!-- ========================= -->
-
-<script>
-// -----------------------------
-//   TESTA STĀVOKLIS
-// -----------------------------
+// ===============================
+//         QUIZ LOGIC
+// ===============================
 
 let questions = [];
 let currentIndex = 0;
 let score = 0;
 let locked = false;
 
-// HTML elementi
 const qLabel = document.getElementById('qLabel');
 const questionText = document.getElementById('questionText');
 const optionsEl = document.getElementById('options');
@@ -908,11 +889,6 @@ const startBtn = document.getElementById('startBtn');
 const nextBtn = document.getElementById('nextBtn');
 const restartBtn = document.getElementById('restartBtn');
 
-
-// -----------------------------
-//   PALĪGFUNKCIJAS
-// -----------------------------
-
 function shuffle(arr) {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -923,10 +899,7 @@ function shuffle(arr) {
 }
 
 function buildQuiz() {
-  // atlasām 30 nejaušus jautājumus no kopējiem 58
   const selected = shuffle(QUESTION_DATA).slice(0, 30);
-
-  // katram sajaucam atbilžu secību
   questions = selected.map(q => {
     const opts = shuffle([q.a, ...q.d]);
     return { q: q.q, a: q.a, options: opts };
@@ -949,24 +922,29 @@ function resetState() {
   locked = false;
 }
 
-
-// -----------------------------
-//   JAUTĀJUMA PARĀDĪŠANA
-// -----------------------------
-
 function renderQuestion() {
   resetState();
 
   if (currentIndex >= questions.length) {
     qLabel.textContent = "Tests pabeigts!";
     questionText.textContent = `Jūsu rezultāts: ${score} no ${questions.length}.`;
+    
+    const percent = Math.round((score / questions.length) * 100);
+    let message = "";
+    if (percent >= 90) message = "🏆 Izcili!";
+    else if (percent >= 70) message = "👍 Labi!";
+    else if (percent >= 50) message = "📚 Jāmācās vēl!";
+    else message = "💪 Turpini mācīties!";
+    
+    feedbackEl.textContent = message;
+    feedbackEl.className = "feedback ok";
 
     const again = document.createElement('button');
     again.className = "btn primary";
     again.textContent = "Aizpildīt atkārtoti";
     again.onclick = restartQuiz;
-
     optionsEl.appendChild(again);
+    
     updateHUD();
     return;
   }
@@ -984,11 +962,9 @@ function renderQuestion() {
     fragment.appendChild(btn);
   });
   optionsEl.appendChild(fragment);
-
   updateHUD();
 }
 
-// Event delegation for option buttons
 optionsEl.addEventListener('click', (e) => {
   if (e.target.classList.contains('option-btn') && !locked) {
     const q = questions[currentIndex];
@@ -996,44 +972,33 @@ optionsEl.addEventListener('click', (e) => {
   }
 });
 
-
-// -----------------------------
-//   ATBILDES APSTRĀDE
-// -----------------------------
-
 function selectAnswer(el, correct) {
   if (locked) return;
   locked = true;
 
-  const chosen = el.textContent.trim();
-  const isCorrect = chosen === correct.trim();
+  const isCorrect = el.textContent.trim() === correct.trim();
 
   if (isCorrect) {
     score++;
     el.classList.add("correct");
-    feedbackEl.textContent = "Pareizi!";
+    feedbackEl.textContent = "✓ Pareizi!";
     feedbackEl.classList.add("ok");
   } else {
     el.classList.add("wrong");
-    feedbackEl.textContent = "Nepareizi";
+    feedbackEl.textContent = "✗ Nepareizi";
     feedbackEl.classList.add("bad");
 
-    // atzīmē pareizo
-    optionsEl.querySelectorAll(".option-btn").forEach(b => {
+    for (const b of optionsEl.children) {
       if (b.textContent.trim() === correct.trim()) {
         b.classList.add("correct");
+        break;
       }
-    });
+    }
   }
 
   nextBtn.style.display = "inline-flex";
   updateHUD();
 }
-
-
-// -----------------------------
-//     PĀRSLĒGŠANĀS
-// -----------------------------
 
 function nextQuestion() {
   if (!locked) return;
@@ -1058,7 +1023,6 @@ function restartQuiz() {
   renderQuestion();
   scrollTo({ top: 0, behavior: 'instant' });
 }
-
 </script>
 
 </body>
