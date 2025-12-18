@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mikrobioloģijas tests</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Mikrobioloģijas tests">
+    <div class="header">
+      <div class="title">Mikrobioloģijas tests</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied “Pildīt vēlreiz”.</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [{"q": "Kas ir mikrobioloģija un ko tā pēta?", "correct": "Mikrobioloģija ir zinātne, kas pēta mikroorganismus (baktērijas, vīrusus, sēnes u.c.), to uzbūvi, dzīves procesus un ietekmi uz cilvēku un vidi.", "options": ["Mikrobioloģija ir zinātne, kas pēta mikroorganismus (baktērijas, vīrusus, sēnes u.c.), to uzbūvi, dzīves procesus un ietekmi uz cilvēku un vidi.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kā atšķiras patogēni, nepatogēni un oportūnistiskie mikroorganismi?", "correct": "Patogēni izraisa slimības, nepatogēni parasti slimības neizraisa, bet oportūnistiskie mikroorganismi izraisa slimības tikai noteiktos apstākļos (piem., imūnsupresijas vai barjeru bojājuma gadījumā).", "options": ["Patogēni izraisa slimības, nepatogēni parasti slimības neizraisa, bet oportūnistiskie mikroorganismi izraisa slimības tikai noteiktos apstākļos (piem., imūnsupresijas vai barjeru bojājuma gadījumā).", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kāpēc oportūnistiskie patogēni parasti neizraisa slimības veselam cilvēkam?", "correct": "Veselam cilvēkam oportūnistiskos mikroorganismus ierobežo ādas/gļotādu barjeras, normālā mikroflora un efektīva imūnsistēma, tāpēc tie parasti neizraisa slimību.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Veselam cilvēkam oportūnistiskos mikroorganismus ierobežo ādas/gļotādu barjeras, normālā mikroflora un efektīva imūnsistēma, tāpēc tie parasti neizraisa slimību."]}, {"q": "Kas ir normālā mikroflora?", "correct": "Normālā mikroflora ir mikroorganismu kopums, kas pastāvīgi vai ilgstoši dzīvo uz ādas un gļotādām, parasti nekaitējot saimniekam.", "options": ["Normālā mikroflora ir mikroorganismu kopums, kas pastāvīgi vai ilgstoši dzīvo uz ādas un gļotādām, parasti nekaitējot saimniekam.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Ar ko atšķiras pastāvīgā mikroflora no tranzitorās mikrofloras?", "correct": "Pastāvīgā mikroflora ir relatīvi stabila un spēj pašatjaunoties, bet tranzitorā mikroflora apmetas īslaicīgi un parasti nespēj ilgstoši kolonizēt.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Pastāvīgā mikroflora ir relatīvi stabila un spēj pašatjaunoties, bet tranzitorā mikroflora apmetas īslaicīgi un parasti nespēj ilgstoši kolonizēt."]}, {"q": "Kādās situācijās tranzitorā mikroflora var izraisīt saslimšanu?", "correct": "mikroflora, tranzistorā var savairoties un izsaukt saslimšanu. • Mikroorganismi, kas var izraisīt saslimšanu - patogēni", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "mikroflora, tranzistorā var savairoties un izsaukt saslimšanu. • Mikroorganismi, kas var izraisīt saslimšanu - patogēni"]}, {"q": "Kādas funkcijas pilda baktēriju kapsula?", "correct": "Baktēriju kapsula palīdz aizsargāt baktēriju (piem., no fagocitozes un izžūšanas) un veicina piesaisti audiem un biofilmu veidošanos.", "options": ["Kapsulas galvenā funkcija ir olbaltumvielu sintēze, jo tajā atrodas ribosomas.", "Kapsula nodrošina skābekļa ražošanu fotosintēzes ceļā.", "Baktēriju kapsula palīdz aizsargāt baktēriju (piem., no fagocitozes un izžūšanas) un veicina piesaisti audiem un biofilmu veidošanos."]}, {"q": "Kāda ir šūnas sienas nozīme baktēriju dzīvotspējā?", "correct": "Šūnas siena nodrošina baktērijas formu un mehānisko izturību, pasargā no osmotiskās lizēšanas un ir nozīmīga mijiedarbībā ar saimniekorganismu (piem., Gram īpašības).", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Šūnas siena nodrošina baktērijas formu un mehānisko izturību, pasargā no osmotiskās lizēšanas un ir nozīmīga mijiedarbībā ar saimniekorganismu (piem., Gram īpašības)."]}, {"q": "Kāda ir ribosomu galvenā funkcija baktēriju šūnā?", "correct": "Ribosomu galvenā funkcija baktēriju šūnā ir olbaltumvielu (proteīnu) sintēze.", "options": ["Ribosomu galvenā funkcija baktēriju šūnā ir olbaltumvielu (proteīnu) sintēze.", "Ribosomas nodrošina DNS replikāciju un hromosomu sadalīšanos dalīšanās laikā.", "Ribosomu galvenā funkcija ir toksīnu uzkrāšana un izdale ārējā vidē."]}, {"q": "Kāda ir viciņu (flagellu) nozīme baktērijām?", "correct": "Viciņas (flagellas) nodrošina baktēriju kustīgumu un virzītu pārvietošanos (ķemotaksi), kas var palīdzēt kolonizācijai.", "options": ["Viciņas nodrošina galveno enerģijas sintēzi fotosintēzes ceļā.", "Viciņas nodrošina sporu veidošanos un izdzīvošanu nelabvēlīgos apstākļos.", "Viciņas (flagellas) nodrošina baktēriju kustīgumu un virzītu pārvietošanos (ķemotaksi), kas var palīdzēt kolonizācijai."]}, {"q": "Kādi ir divi pili tipi un kādas ir to funkcijas?", "correct": "Divi pili tipi: fimbrijas (adhezīvie pili) piesaistei audiem/virsmām un dzimum-pili (sex pili) konjugācijai jeb DNS pārnesei starp baktērijām.", "options": ["Pili ir sporas veidojošas struktūras, kas aizsargā baktēriju no karstuma un UV starojuma.", "Pili galvenokārt kalpo kustībai, bet flagellas nodrošina DNS pārnesi starp baktērijām.", "Divi pili tipi: fimbrijas (adhezīvie pili) piesaistei audiem/virsmām un dzimum-pili (sex pili) konjugācijai jeb DNS pārnesei starp baktērijām."]}, {"q": "Kas ir baktēriju sporas un kāpēc tās ir īpaši izturīgas?", "correct": "Baktēriju sporas ir miera (dormantas) izdzīvošanas formas; tās ir īpaši izturīgas biezā apvalka, zema ūdens satura un stabilizējošu vielu (piem., Ca–dipikolīnskābes) dēļ.", "options": ["Baktēriju sporas ir miera (dormantas) izdzīvošanas formas; tās ir īpaši izturīgas biezā apvalka, zema ūdens satura un stabilizējošu vielu (piem., Ca–dipikolīnskābes) dēļ.", "Sporas ir baktēriju vairošanās veids, kas vienmēr palielina kolonijas skaitu divkārt.", "Sporas ir viegli iznīcināmas, jo tām ir augsts ūdens saturs un plāns apvalks."]}, {"q": "Kā notiek barības vielu uzņemšana baktēriju šūnā?", "correct": "Barības vielu uzņemšana notiek caur šūnas membrānu ar difūziju, atvieglotu difūziju, aktīvu transportu vai grupu translokāciju.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Barības vielu uzņemšana notiek caur šūnas membrānu ar difūziju, atvieglotu difūziju, aktīvu transportu vai grupu translokāciju.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos."]}, {"q": "Kā atšķiras autotrofie un heterotrofie mikroorganismi?", "correct": "Autotrofi izmanto CO₂ kā oglekļa avotu (enerģiju no gaismas vai ķīmiskām reakcijām), bet heterotrofi oglekli un enerģiju iegūst no organiskām vielām.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Autotrofi izmanto CO₂ kā oglekļa avotu (enerģiju no gaismas vai ķīmiskām reakcijām), bet heterotrofi oglekli un enerģiju iegūst no organiskām vielām."]}, {"q": "Ar ko atšķiras obligāti aerobie, obligāti anaerobie un fakultatīvi anaerobie mikroorganismi?", "correct": "Obligāti aerobie mikroorganismi aug tikai skābekļa klātbūtnē, obligāti anaerobie – tikai bez skābekļa, bet fakultatīvi anaerobie spēj augt gan ar skābekli, gan bez tā.", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Obligāti aerobie mikroorganismi aug tikai skābekļa klātbūtnē, obligāti anaerobie – tikai bez skābekļa, bet fakultatīvi anaerobie spēj augt gan ar skābekli, gan bez tā.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kāds ir galvenais baktēriju vairošanās veids?", "correct": "Galvenais baktēriju vairošanās veids ir dalīšanās uz pusēm (binārā šķelšanās).", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Galvenais baktēriju vairošanās veids ir dalīšanās uz pusēm (binārā šķelšanās)."]}, {"q": "Kāds ir ūdens īpatsvars baktēriju šūnā un kāpēc tas ir būtisks?", "correct": "Baktēriju šūnā parasti ir ap 75–90% ūdens; tas ir būtisks enzīmu darbībai, vielmaiņai un vielu transportam.", "options": ["Baktēriju šūnā parasti ir ap 75–90% ūdens; tas ir būtisks enzīmu darbībai, vielmaiņai un vielu transportam.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kādas funkcijas baktēriju šūnā pilda olbaltumvielas?", "correct": "Olbaltumvielas baktēriju šūnā pilda enzīmu funkcijas, veido struktūras, nodrošina transportu un regulē vielmaiņas procesus.", "options": ["Olbaltumvielas baktēriju šūnā pilda enzīmu funkcijas, veido struktūras, nodrošina transportu un regulē vielmaiņas procesus.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kā lipīdu daudzums baktēriju šūnā var atšķirties dažādām sugām?", "correct": "Lipīdu daudzums var būt ļoti atšķirīgs: dažām sugām tas ir neliels, bet, piemēram, mikobaktērijām šūnapvalkā ir daudz lipīdu (vaskveida slānis), kas palielina izturību.", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Lipīdu daudzums var būt ļoti atšķirīgs: dažām sugām tas ir neliels, bet, piemēram, mikobaktērijām šūnapvalkā ir daudz lipīdu (vaskveida slānis), kas palielina izturību.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kas ir minimālā, optimālā un maksimālā temperatūra?", "correct": "Minimālā temperatūra ir zemākā, kurā iespējama augšana, optimālā – kur augšana ir visintensīvākā, bet maksimālā – augstākā, virs kuras augšana apstājas un šūnas iet bojā.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Minimālā temperatūra ir zemākā, kurā iespējama augšana, optimālā – kur augšana ir visintensīvākā, bet maksimālā – augstākā, virs kuras augšana apstājas un šūnas iet bojā."]}, {"q": "Kāpēc mitrums ir būtisks mikroorganismu dzīvībai?", "correct": "Mitrums ir būtisks, jo mikroorganismu vielmaiņa norit ūdens vidē; zems mitrums kavē augšanu un veicina šūnu dehidratāciju.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Mitrums ir būtisks, jo mikroorganismu vielmaiņa norit ūdens vidē; zems mitrums kavē augšanu un veicina šūnu dehidratāciju.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos."]}, {"q": "Kā ultravioletais starojums iedarbojas uz mikroorganismiem?", "correct": "Ultravioletais starojums bojā mikroorganismu DNS (piem., veido timīna dimerus), tāpēc tam ir baktericīda iedarbība, īpaši uz virsmām.", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Ultravioletais starojums bojā mikroorganismu DNS (piem., veido timīna dimerus), tāpēc tam ir baktericīda iedarbība, īpaši uz virsmām."]}, {"q": "Kā darbojas ultraskaņa un kādi ir tās ierobežojumi?", "correct": "Ultraskaņa iedarbojas galvenokārt ar kavitāciju un mehānisku šūnu bojājumu, bet tās efektivitāti ierobežo nepietiekama iedarbība dziļākos slāņos un aizsargājošas struktūras.", "options": ["Ultraskaņa iedarbojas galvenokārt ar kavitāciju un mehānisku šūnu bojājumu, bet tās efektivitāti ierobežo nepietiekama iedarbība dziļākos slāņos un aizsargājošas struktūras.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kāda ir atšķirība starp bakteriostatisku un baktericīdu iedarbību?", "correct": "Bakteriostatiska iedarbība kavē baktēriju augšanu un vairošanos, bet baktericīda iedarbība baktērijas iznīcina.", "options": ["Abi termini nozīmē vienu un to pašu – mikrobu iznīcināšanu neatkarīgi no devas.", "Bakteriostatiska iedarbība baktērijas iznīcina, bet baktericīda tikai palēnina to augšanu.", "Bakteriostatiska iedarbība kavē baktēriju augšanu un vairošanos, bet baktericīda iedarbība baktērijas iznīcina."]}, {"q": "Kas ir sterilizācija un kādas ir galvenās sterilizācijas metodes?", "correct": "Sterilizācija ir visu mikroorganismu, tostarp sporu, pilnīga iznīcināšana; metodes: tvaika sterilizācija autoklāvā, sausais karstums, filtrācija, starojums un ķīmiskā sterilizācija.", "options": ["Sterilizācija ir visu mikroorganismu, tostarp sporu, pilnīga iznīcināšana; metodes: tvaika sterilizācija autoklāvā, sausais karstums, filtrācija, starojums un ķīmiskā sterilizācija.", "Sterilizācija nozīmē virsmu noskalošanu ar ūdeni un ziepēm bez fiziskas vai ķīmiskas iedarbības.", "Sterilizācija ir tikai patogēnu samazināšana līdz drošam līmenim, bet sporas var saglabāties."]}, {"q": "Kas ir antibiotikas un kāds ir to darbības spektrs?", "correct": "Antibiotikas ir vielas, kas kavē baktēriju augšanu vai tās iznīcina; darbības spektrs var būt šaurs vai plašs (pret vairākām baktēriju grupām).", "options": ["Antibiotikas ir vielas, kas kavē baktēriju augšanu vai tās iznīcina; darbības spektrs var būt šaurs vai plašs (pret vairākām baktēriju grupām).", "Antibiotiku darbības spektrs vienmēr ir universāls un vienādi efektīvs pret visiem mikroorganismiem.", "Antibiotikas ir zāles, kas iedarbojas tikai uz vīrusiem, bloķējot to iekļūšanu šūnās."]}, {"q": "Kādi ir galvenie antibakteriālo līdzekļu darbības mehānismi?", "correct": "Galvenie mehānismi: šūnas sienas sintēzes inhibēšana, proteīnu sintēzes kavēšana ribosomās, nukleīnskābju sintēzes traucēšana, membrānas bojāšana un vielmaiņas ceļu (piem., folātu) bloķēšana.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Galvenie mehānismi: šūnas sienas sintēzes inhibēšana, proteīnu sintēzes kavēšana ribosomās, nukleīnskābju sintēzes traucēšana, membrānas bojāšana un vielmaiņas ceļu (piem., folātu) bloķēšana.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos."]}, {"q": "Kas ir rezistence un kāpēc tā ir aktuāla problēma mūsdienu medicīnā?", "correct": "Rezistence ir mikroorganisma spēja izdzīvot pret antibakteriālu līdzekli; tā ir aktuāla pārmērīgas/nepareizas antibiotiku lietošanas dēļ, kas veicina rezistentu celmu izplatību.", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Rezistence ir mikroorganisma spēja izdzīvot pret antibakteriālu līdzekli; tā ir aktuāla pārmērīgas/nepareizas antibiotiku lietošanas dēļ, kas veicina rezistentu celmu izplatību.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kādi trīs faktori ir nepieciešami, lai rastos infekcija?", "correct": "Infekcijas rašanos parasti nosaka: pietiekama patogēna deva un virulence, ieejas vārti/pārnešanas ceļš, kā arī uzņēmīgs saimniekorganisms (imunitāte, barjeras).", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Infekcijas rašanos parasti nosaka: pietiekama patogēna deva un virulence, ieejas vārti/pārnešanas ceļš, kā arī uzņēmīgs saimniekorganisms (imunitāte, barjeras)."]}, {"q": "Kādi ir infekcijas slimības norises galvenie posmi?", "correct": "Infekcijas slimības norises posmi: inkubācijas periods, prodromālais periods, slimības izpausmju (akūtais) periods, norimšana un atveseļošanās (konvalescence).", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Infekcijas slimības norises posmi: inkubācijas periods, prodromālais periods, slimības izpausmju (akūtais) periods, norimšana un atveseļošanās (konvalescence)."]}, {"q": "Kas ir virulence un kādi faktori to nosaka?", "correct": "Virulence ir patogenitātes pakāpe; to nosaka, piemēram, adhezīni, invazivitāte, kapsula, fermenti un toksīnu (ekso-/endotoksīnu) veidošana.", "options": ["Virulence ir patogenitātes pakāpe; to nosaka, piemēram, adhezīni, invazivitāte, kapsula, fermenti un toksīnu (ekso-/endotoksīnu) veidošana.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos."]}, {"q": "Ar ko atšķiras endotoksīni no eksotoksīniem?", "correct": "Endotoksīni parasti ir Gram-negatīvo baktēriju šūnas sienas (LPS) sastāvdaļa un izdalās šūnai sairstot; eksotoksīni ir olbaltumvielu toksīni, ko baktērijas aktīvi izdala un kam ir specifiska iedarbība.", "options": ["Eksotoksīni izdalās tikai šūnai sairstot, bet endotoksīni vienmēr ir brīvi šķīstoši toksīni asinīs.", "Endotoksīni parasti ir Gram-negatīvo baktēriju šūnas sienas (LPS) sastāvdaļa un izdalās šūnai sairstot; eksotoksīni ir olbaltumvielu toksīni, ko baktērijas aktīvi izdala un kam ir specifiska iedarbība.", "Endotoksīni ir olbaltumvielas, ko baktērijas aktīvi izdala, bet eksotoksīni ir tikai šūnas sienas lipīdi."]}, {"q": "Kā darbojas iedzimtā un iegūtā imunitāte, un kāda ir vakcinācijas nozīme?", "correct": "Iedzimtā imunitāte ir ātra, nespecifiska aizsardzība, bet iegūtā imunitāte ir specifiska un veido atmiņu; vakcinācija izraisa aktīvu iegūto imunitāti bez pārslimošanas.", "options": ["Iedzimtā imunitāte ir ātra, nespecifiska aizsardzība, bet iegūtā imunitāte ir specifiska un veido atmiņu; vakcinācija izraisa aktīvu iegūto imunitāti bez pārslimošanas.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kas ir infekcijas slimību epidemioloģija un kāds ir tās praktiskais pielietojums sabiedrības veselībā?", "correct": "Epidemioloģija pēta infekcijas slimību izplatību, avotus, pārnešanas ceļus un riska faktorus, lai plānotu profilaksi un uzliesmojumu kontroli sabiedrības veselībā.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Epidemioloģija pēta infekcijas slimību izplatību, avotus, pārnešanas ceļus un riska faktorus, lai plānotu profilaksi un uzliesmojumu kontroli sabiedrības veselībā.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos."]}, {"q": "Kas ir mikrobu antagonisms?", "correct": "Mikrobu antagonisms ir viena mikroorganisma spēja kavēt cita mikroorganisma augšanu (piem., ar konkurenci par barības vielām vai antibakteriālu vielu izdalīšanu).", "options": ["Mikrobu antagonisms ir viena mikroorganisma spēja kavēt cita mikroorganisma augšanu (piem., ar konkurenci par barības vielām vai antibakteriālu vielu izdalīšanu).", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}, {"q": "Kas ir probiotikas un prebiotikas, un ar ko tās atšķiras pēc darbības mehānisma?", "correct": "Probiotikas ir dzīvi, veselībai labvēlīgi mikroorganismi, bet prebiotikas ir nesagremojamas vielas, kas selektīvi veicina šo mikroorganismu augšanu zarnās.", "options": ["Probiotikas ir dzīvi, veselībai labvēlīgi mikroorganismi, bet prebiotikas ir nesagremojamas vielas, kas selektīvi veicina šo mikroorganismu augšanu zarnās.", "Probiotikas ir antibiotiku paveids, kas iznīcina normālo mikrofloru, lai mazinātu infekciju risku.", "Prebiotikas ir dzīvas baktērijas kapsulās, bet probiotikas ir barības vielas, kas veicina to augšanu."]}, {"q": "Kas ir bakteriofāgi un kādos nolūkos tos izmanto diagnostikā un terapijā?", "correct": "Bakteriofāgi ir vīrusi, kas inficē baktērijas; tos izmanto, piemēram, baktēriju tipēšanā diagnostikā un atsevišķos gadījumos – fāgu terapijā.", "options": ["Bakteriofāgi ir sēnes, kas noārda baktēriju kapsulu un tiek lietotas kā pretsēnīšu līdzekļi.", "Bakteriofāgi ir antibakteriāli fermenti, ko ražo cilvēka aknas.", "Bakteriofāgi ir vīrusi, kas inficē baktērijas; tos izmanto, piemēram, baktēriju tipēšanā diagnostikā un atsevišķos gadījumos – fāgu terapijā."]}, {"q": "Kādas ir galvenās iekaisuma pazīmes un kādi ir iekaisuma galvenie uzdevumi organismā?", "correct": "Galvenās iekaisuma pazīmes: apsārtums, karstums, pietūkums, sāpes un funkcijas traucējumi; uzdevumi – patogēna ierobežošana, bojāto audu novākšana un dzīšanas uzsākšana.", "options": ["Iekaisuma uzdevums ir tikai glikozes līmeņa samazināšana asinīs.", "Galvenās iekaisuma pazīmes: apsārtums, karstums, pietūkums, sāpes un funkcijas traucējumi; uzdevumi – patogēna ierobežošana, bojāto audu novākšana un dzīšanas uzsākšana.", "Galvenās iekaisuma pazīmes ir bālums un ķermeņa temperatūras pazemināšanās; iekaisums vienmēr kavē dzīšanu."]}, {"q": "Kāda ir drudža bioloģiskā nozīme infekcijas laikā un kā tas palīdz organismam cīnīties ar patogēniem?", "correct": "Drudzis paaugstina ķermeņa temperatūru, kas var kavēt patogēnu vairošanos un pastiprināt imūnreakcijas (piem., fagocitozi un interferona aktivitāti).", "options": ["Drudzis vienmēr paātrina patogēnu vairošanos un nomāc imūnsistēmu.", "Drudzis ir tikai psiholoģiska reakcija un nav saistīts ar imūnprocesiem.", "Drudzis paaugstina ķermeņa temperatūru, kas var kavēt patogēnu vairošanos un pastiprināt imūnreakcijas (piem., fagocitozi un interferona aktivitāti)."]}, {"q": "Kas ir interferons un kā tas iedarbojas uz vīrusu infekcijām?", "correct": "Interferons ir citokīns, kas inducē šūnās pretvīrusu stāvokli un kavē vīrusu replikāciju, aktivizējot aizsargmehānismus.", "options": ["Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām.", "Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Interferons ir citokīns, kas inducē šūnās pretvīrusu stāvokli un kavē vīrusu replikāciju, aktivizējot aizsargmehānismus."]}, {"q": "Kāda ir atšķirība starp aktīvo un pasīvo imunitāti, un kādos gadījumos katru no tām izmanto?", "correct": "Aktīvā imunitāte veidojas, kad organisms pats izstrādā antivielas (pēc infekcijas vai vakcinācijas), bet pasīvā imunitāte ir gatavu antivielu saņemšana (imūnglobulīni/serumi) ar ātru, īslaicīgu efektu.", "options": ["Tā ir organisma reakcija, kas galvenokārt nodrošina tikai enerģijas ražošanu mitohondrijos.", "Aktīvā imunitāte veidojas, kad organisms pats izstrādā antivielas (pēc infekcijas vai vakcinācijas), bet pasīvā imunitāte ir gatavu antivielu saņemšana (imūnglobulīni/serumi) ar ātru, īslaicīgu efektu.", "Tā ir struktūra/process, kas raksturīgs tikai vīrusiem un nav sastopams baktērijām."]}];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
