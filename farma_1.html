@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Farmakoloģijas tests</title>
+  <style>
+/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none; /* no underline */
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+.btn:hover:not(.primary) { background: #374151; }
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+  text-align: left;
+  align-items: flex-start; /* left align content */
+  justify-content: flex-start;
+}
+
+.option-btn span { text-align: left; display:block; width:100%; }
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title">Farmakoloģijas tests</div>
+      <div class="meta">
+        <div class="badge" id="badgeQ">Jautājumi: 30 (izlase)</div>
+        <div class="badge" id="badgeS">Pareizi: 0</div>
+      </div>
+    </div>
+
+    <div class="progress"><div id="progressBar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-text">Tests no pievienotā materiāla</div>
+      <div class="question-label" style="margin-top:8px;">
+        Katru reizi tiek izlozēti 30 jautājumi, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button id="startBtn" class="btn primary" type="button">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <span>• 1 jautājums vienlaikus</span>
+        <span>• 4 atbilžu varianti</span>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" class="hidden">
+      <div class="card">
+        <div class="question-label" id="qLabel"></div>
+        <div class="question-text" id="qText"></div>
+
+        <div class="options" id="options"></div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="controls">
+          <button id="nextBtn" class="btn primary" type="button" disabled>Nākamais</button>
+          <button id="againBtn" class="btn ghost" type="button">Sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <span>Padoms: izvēlies vienu atbildi; pēc tam redzēsi, vai tā ir pareiza.</span>
+          <span>Avots: Word + PDF materiāli</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="screenResult" class="hidden card">
+      <div class="question-text">Rezultāts</div>
+      <div class="question-label" style="margin-top:8px;">Pareizās atbildes:</div>
+      <div class="question-text" id="finalScore" style="margin-top:6px;"></div>
+      <div class="question-label" id="finalPct" style="margin-top:6px;"></div>
+
+      <div class="controls">
+        <button id="restartBtn" class="btn primary" type="button">Atpakaļ</button>
+        <button id="againBtn2" class="btn" type="button">Pildīt vēlreiz</button>
+      </div>
+    </div>
+
+  </div>
+  
+<script>
+(function() {
+  "use strict";
+
+  const ALL_QUESTIONS = [{"q": "Zāļu formas un ievadīšana:", "options": ["Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "Kuņģa čūlas, asiņošana, gastrīts", "Formas: tabletes, kapsulas, injekcijas, aerosoli, gēli, svecītes"], "correctIndex": 3}, {"q": "Spēcīgākais pretsāpju medikaments:", "options": ["Kuņģa čūlas, asiņošana, gastrīts", "Miorelaksāciju Nomierinošu efektu", "Morfīns klīniskajā praksē", "Botulīna toksīns Suksametonijs"], "correctIndex": 2}, {"q": "Muskuļu relaksāciju izraisa:", "options": ["Botulīna toksīns Suksametonijs", "Mebendazolu klīniskajā praksē", "Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Paracetamolu, zāļu forma: tabletes, sīrups utt."], "correctIndex": 0}, {"q": "Diazepāms izraisa:", "options": ["Miorelaksāciju Nomierinošu efektu", "Paracetamolu, zāļu forma: tabletes, sīrups…", "Morfīns klīniskajā praksē", "Botulīna toksīns Suksametonijs"], "correctIndex": 0}, {"q": "Tārpu izraisītu infekciju ārstē ar:", "options": ["Botulīna toksīns Suksametonijs", "Deksametazonam – glikokortikoīds", "Mebendazolu", "Paracetamols + Diklofenaks"], "correctIndex": 2}, {"q": "Spēcīgāks pretiekaisuma efekts būs:", "options": ["Paracetamols + Diklofenaks", "Morfīns", "Dod karbamazepīnu, gabapentīnu u.c.", "Deksametazonam – glikokortikoīds"], "correctIndex": 3}, {"q": "Rivastigmīnu lieto:", "options": ["Deksametazonam – glikokortikoīds", "Alcheimera slimības ārstēšanai", "Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Dod karbamazepīnu, gabapentīnu u.c."], "correctIndex": 1}, {"q": "Glikokortikoīdu terapijas blakusefekti:", "options": ["Formas: tabletes, kapsulas, injekcijas, aerosoli, gēli, svecītes", "Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Tos lieto pie elpceļu infekcijām Tos lieto pie skarlatīnas", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks."], "correctIndex": 1}, {"q": "Paaugstinātu temperatūru var samazināt ar:", "options": ["Botulīna toksīns Suksametonijs", "Alcheimera slimības ārstēšanai", "Paracetamolu, zāļu forma: tabletes, sīrups utt.", "Ibuprofēnu – palielina asiņošanas un GI…"], "correctIndex": 2}, {"q": "Aspirīna galvenie blakusefekti:", "options": ["Dod karbamazepīnu, gabapentīnu u.c.", "Deksametazonam – glikokortikoīds", "Kuņģa čūlas, asiņošana, gastrīts", "Paracetamolu, zāļu forma: tabletes, sīrups utt."], "correctIndex": 2}, {"q": "Tetraciklīni ko dara organismā:", "options": ["Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "Ibuprofēnu – palielina asiņošanas un GI bojājumu risku", "Paracetamolu, zāļu forma: tabletes, sīrups utt.", "Inhibē baktēriju proteīnu sintēzi Ir plaša spektra antibakteriālās…"], "correctIndex": 3}, {"q": "Metronidazolu lieto:", "options": ["Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Pie amēbu infekcijas Pie erlihiozes – daļēji (nav pirmais līdzeklis)", "Alopecija (matu izkrišana), imūnsupresija, slikta dūša, vemšana, kaulu smadzeņu nomākums", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks."], "correctIndex": 1}, {"q": "Aspirīnu nevar kombinēt ar:", "options": ["Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks.", "Kuņģa čūlas, asiņošana, gastrīts", "Ibuprofēnu – palielina asiņošanas un GI bojājumu risku"], "correctIndex": 3}, {"q": "Citotoksisko pretvēža vielu galvenie blakusefekti:", "options": ["Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "Alopecija (matu izkrišana), imūnsupresija, slikta dūša, vemšana, kaulu smadzeņu nomākums", "Pie amēbu infekcijas Pie erlihiozes – daļēji (nav pirmais līdzeklis)", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks."], "correctIndex": 1}, {"q": "Kura viela pieder pie vispārējās anestēzijas vielām?", "options": ["Diazepams (daļēji – lieto premedikācijā)", "Deksametazonam – glikokortikoīds", "Morfīns klīniskajā praksē", "Kuņģa čūlas, asiņošana, gastrīts"], "correctIndex": 0}, {"q": "Klotrimazola indikācijas ir:", "options": ["Palielināts glikozes līmenis Paaugstināts asinsspiediens Osteoporoze", "Miorelaksāciju Nomierinošu efektu", "Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "Alcheimera slimības ārstēšanai"], "correctIndex": 2}, {"q": "Vai pie neiropātiskām sāpēm dod ibuprofēnu?", "options": ["Botulīna toksīns Suksametonijs", "Dod karbamazepīnu, gabapentīnu u.c.", "Deksametazonam – glikokortikoīds", "Paracetamolu, zāļu forma: tabletes, sīrups utt."], "correctIndex": 1}, {"q": "Kuri apgalvojumi par penicilīniem ir pareizi:", "options": ["Alopecija (matu izkrišana), imūnsupresija, slikta dūša, vemšana, kaulu smadzeņu nomākums", "Tos lieto pie elpceļu infekcijām Tos lieto pie skarlatīnas", "Inhibē baktēriju proteīnu sintēzi Ir plaša spektra antibakteriālās vielas", "Ibuprofēnu – palielina asiņošanas un GI bojājumu risku"], "correctIndex": 1}, {"q": "Pie hormonu atkarīgā prostatas vēža pacienti lieto:", "options": ["Alopecija (matu izkrišana), imūnsupresija, slikta dūša, vemšana, kaulu…", "Antiandrogēnus, piemēram, flutamīdu, GnRH agonistus/antagonistus (piem", "Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "Kuņģa čūlas, asiņošana, gastrīts"], "correctIndex": 1}, {"q": "Kurus divus pretsāpju medikamentus var kombinēt:", "options": ["Paracetamols + Diklofenaks", "Mebendazolu", "Alcheimera slimības ārstēšanai", "Dod karbamazepīnu, gabapentīnu u.c."], "correctIndex": 0}, {"q": "Vai var kombinēt Diklofenaka gelu un tabletes?", "options": ["Antiandrogēnus, piemēram, flutamīdu, GnRH agonistus/antagonistus (piem", "Inhibē baktēriju proteīnu sintēzi Ir plaša spektra antibakteriālās vielas", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks.", "Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes"], "correctIndex": 2}, {"q": "Kas raksturo Pankuronijs?", "options": ["depolarizējošs miorelaksants", "vispārējā anestēzijā (intubācija, ķirurģija, mākslīgā…", "nedepolarizējošs N-receptoru antagonists", "īslaicīgām procedūrām"], "correctIndex": 2}, {"q": "Kāda ir lietošana Pankuronijs?", "options": ["depolarizējošs miorelaksants", "vispārējā anestēzijā (intubācija, ķirurģija, mākslīgā…", "skeleta muskuļu paralīze", "nedepolarizējošs N-receptoru antagonists"], "correctIndex": 1}, {"q": "Kāds ir efekts Pankuronijs?", "options": ["nedepolarizējošs N-receptoru antagonists", "vispārējā anestēzijā (intubācija, ķirurģija, mākslīgā…", "skeleta muskuļu paralīze", "depolarizējošs miorelaksants"], "correctIndex": 2}, {"q": "Kas raksturo Suksametonijs?", "options": ["īslaicīgām procedūrām", "depolarizējošs miorelaksants", "skeleta muskuļu paralīze", "nedepolarizējošs N-receptoru antagonists"], "correctIndex": 1}, {"q": "Kāda ir lietošana Suksametonijs?", "options": ["īslaicīgām procedūrām", "skeleta muskuļu paralīze", "nedepolarizējošs N-receptoru antagonists", "depolarizējošs miorelaksants"], "correctIndex": 0}, {"q": "Kāds ir efekts Dantrolēns?", "options": ["Laima slimība – tetraciklīni – Elpceļu infekcijas –…", "tahikardija, bronhodilatācija ( bronhu paplašināšanās), ↓ sekrēcija", "Formas: tabletes, kapsulas, injekcijas, aerosoli, gēli, svecītes", "kavē Ca²⁺( Kalcija jons) izdalīšanos muskuļos"], "correctIndex": 3}, {"q": "Kāds ir efekts Diazepams?", "options": ["tahikardija, bronhodilatācija ( bronhu paplašināšanās), ↓ sekrēcija", "kavē sieniņas sintēzi", "iedzimtības ietekme uz vielas iedrabību uz organismu", "muskuļu relaksācija, sedācija ( konktrolēta nomierināšana)"], "correctIndex": 3}, {"q": "Kādas ir indikācijas Atropīns?", "options": ["bradikardija, astma, kuņģa čūla", "Formas: tabletes, kapsulas, injekcijas, aerosoli,…", "Botulīna toksīns Suksametonijs", "malārija klīniskajā praksē"], "correctIndex": 0}, {"q": "Kādi ir efekti Atropīns?", "options": ["tahikardija, bronhodilatācija ( bronhu paplašināšanās), ↓…", "Deksametazonam – glikokortikoīds", "vispārējā anestēzijā (intubācija, ķirurģija, mākslīgā ventilācija)", "nedepolarizējošs N-receptoru antagonists"], "correctIndex": 0}, {"q": "Kāda ir lietošana Rivastigmīns?", "options": ["Alcheimera slimība", "īslaicīgām procedūrām", "spalīši, cērmes, lenteņi", "sistēmiskas mikozes"], "correctIndex": 0}, {"q": "Kādi ir efekti Rivastigmīns?", "options": ["↑ Ach CNS ( palielinās acetilholīna (ACh) daudzums centrālajā…", "muskuļu relaksācija, sedācija ( konktrolēta nomierināšana)", "Laima slimība – tetraciklīni – Elpceļu infekcijas – penicilīni…", "tahikardija, bronhodilatācija ( bronhu paplašināšanās), ↓ sekrēcija"], "correctIndex": 0}, {"q": "Kāda ir lietošana Ekotiopāts?", "options": ["amēbas, trihomonas", "Deksametazonam – glikokortikoīds", "glaukoma", "sistēmiskas mikozes"], "correctIndex": 2}, {"q": "Kas raksturo Imipramīns?", "options": ["Inhalāciju veidā.", "depresija, neiropātiskas sāpes", "Sublingvāli.", "Paracetamolu, zāļu forma: tabletes,…"], "correctIndex": 1}, {"q": "Kas raksturo Gabapentīns, karbamazepīns?", "options": ["epilepsija, neiropātiskas sāpes", "malārija", "kavē proteīnu sintēzi", "Alcheimera slimība"], "correctIndex": 0}, {"q": "Kas raksturo Penicilīni, cefalosporīni?", "options": ["Paracetamols + Diklofenaks", "kavē sieniņas sintēzi", "Diazepams (daļēji – lieto…", "Deksametazonam – glikokortikoīds"], "correctIndex": 1}, {"q": "Kas raksturo Tetraciklīni?", "options": ["kavē proteīnu sintēzi", "īslaicīgām procedūrām", "palielina asiņošanas un GI…", "glaukoma"], "correctIndex": 0}, {"q": "Kas raksturo Lietošana:?", "options": ["Laima slimība – tetraciklīni – Elpceļu infekcijas – penicilīni –…", "iedzimtības ietekme uz vielas iedrabību uz organismu", "frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "vispārējā anestēzijā (intubācija, ķirurģija, mākslīgā ventilācija)"], "correctIndex": 0}, {"q": "Kas raksturo Remantadīns?", "options": ["Alcheimera slimības ārstēšanai", "A gripa", "kavē sieniņas sintēzi", "Kuņģa čūlas, asiņošana, gastrīts"], "correctIndex": 1}, {"q": "Kas raksturo Oseltamivirs?", "options": ["Formas: tabletes, kapsulas, injekcijas, aerosoli,…", "A un B gripa", "Deksametazonam – glikokortikoīds", "epilepsija, neiropātiskas sāpes"], "correctIndex": 1}, {"q": "Kas raksturo Klotrimazols?", "options": ["Paracetamolu, zāļu forma: tabletes, sīrups utt.", "Dermatomikozes Ārējo dzimumorgānu ādas, gļotādas mikozes", "amēbas, trihomonas klīniskajā praksē", "lokāli (āda, gļotādas)"], "correctIndex": 3}, {"q": "Kas raksturo Flukonazols?", "options": ["A gripa", "sistēmiskas mikozes", "Deksametazonam – glikokortikoīds", "lieto premedikācijā)"], "correctIndex": 1}, {"q": "Kas raksturo Hlorohīns?", "options": ["Paracetamols + Diklofenaks", "A un B gripa", "Intravenozi (i.v.).", "malārija"], "correctIndex": 3}, {"q": "Kas raksturo Metronidazols?", "options": ["glikokortikoīds", "amēbas, trihomonas", "nedepolarizējošs N-receptoru antagonists", "Miorelaksāciju Nomierinošu efektu"], "correctIndex": 1}, {"q": "Kas raksturo Mebendazols?", "options": ["spalīši, cērmes, lenteņi", "kavē proteīnu sintēzi", "Botulīna toksīns Suksametonijs", "lokāli (āda, gļotādas)"], "correctIndex": 0}, {"q": "Kas raksturo Deksametazonam?", "options": ["glikokortikoīds", "amēbas, trihomonas", "daļēji (nav pirmais līdzeklis)", "epilepsija, neiropātiskas sāpes"], "correctIndex": 0}, {"q": "Kas raksturo Pie erlihiozes?", "options": ["daļēji (nav pirmais līdzeklis)", "lokāli (āda, gļotādas)", "lieto premedikācijā)", "iedzimtības ietekme uz vielas iedrabību…"], "correctIndex": 0}, {"q": "Kas raksturo Ibuprofēnu?", "options": ["Laima slimība – tetraciklīni – Elpceļu…", "palielina asiņošanas un GI bojājumu risku", "kavē proteīnu sintēzi", "kavē sieniņas sintēzi"], "correctIndex": 1}, {"q": "Kas raksturo Diazepams (daļēji?", "options": ["lieto premedikācijā)", "Botulīna toksīns Suksametonijs", "tahikardija, bronhodilatācija ( bronhu paplašināšanās),…", "skeleta muskuļu paralīze"], "correctIndex": 0}, {"q": "Ko nozīmē Farmakokinētika?", "options": ["frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "ZV pārvietošanās no tās ievadīšanas vietas uz organisma centrālo daļu", "vielas absorbcija, izplatība (asinis -audi), metabolisms (molekulas biotransformācija), izdalīšanās jeb eliminācija", "iedzimtības ietekme uz vielas iedrabību uz organismu"], "correctIndex": 2}, {"q": "Ko nozīmē Farmakodinamika?", "options": ["ZV pārvietošanās no tās ievadīšanas vietas uz organisma centrālo daļu", "iedzimtības ietekme uz vielas iedrabību uz organismu", "frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "vielas bioloģiskie efekti, kas veidojas tad, kad viela sasniegusi receptorus; ietver…"], "correctIndex": 3}, {"q": "Ko nozīmē Farmakoģenētika?", "options": ["frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "ZV pārvietošanās no tās ievadīšanas vietas uz organisma centrālo daļu", "vielas bioloģiskie efekti, kas veidojas tad, kad viela sasniegusi receptorus; ietver…", "iedzimtības ietekme uz vielas iedrabību uz organismu"], "correctIndex": 3}, {"q": "Ko nozīmē Absorbcija?", "options": ["vielas absorbcija, izplatība (asinis -audi), metabolisms (molekulas biotransformācija), izdalīšanās jeb eliminācija", "ZV pārvietošanās no tās ievadīšanas vietas uz organisma centrālo daļu", "frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "iedzimtības ietekme uz vielas iedrabību uz organismu"], "correctIndex": 1}, {"q": "Ko nozīmē Biopieejamība?", "options": ["vielas absorbcija, izplatība (asinis -audi), metabolisms (molekulas biotransformācija), izdalīšanās jeb eliminācija", "frakcijas daudzums (no ZV), kas sasniedz savu darbības vietu", "ZV pārvietošanās no tās ievadīšanas vietas uz organisma centrālo daļu", "iedzimtības ietekme uz vielas iedrabību uz organismu"], "correctIndex": 1}, {"q": "Kas ir first-pass efekts?", "options": ["Aknu pirmās pārejas metabolisms, kas samazina biopieejamību.", "Paracetamolu, zāļu forma: tabletes, sīrups utt.", "bradikardija, astma, kuņģa čūla", "↑ Ach CNS ( palielinās acetilholīna (ACh) daudzums…"], "correctIndex": 0}, {"q": "Kas palīdz vielai šķērsot HEB?", "options": ["tahikardija, bronhodilatācija ( bronhu paplašināšanās), ↓ sekrēcija", "Augsta lipofilitāte (jo lipofīlāka, jo vieglāk šķērso).", "Formas: tabletes, kapsulas, injekcijas, aerosoli, gēli, svecītes", "iedzimtības ietekme uz vielas iedrabību uz organismu"], "correctIndex": 1}, {"q": "Kurš plazmas proteīns saista skābas ZV?", "options": ["Albumīns (skābo zāļu galvenais transportieris).", "Var, bet ar piesardzību, jo paaugstinās blakusefektu risks.", "Kuņģa čūlas, asiņošana, gastrīts", "Aknu pirmās pārejas metabolisms, kas samazina biopieejamību."], "correctIndex": 0}, {"q": "Kurš plazmas proteīns saista bāziskas ZV?", "options": ["Aknu pirmās pārejas metabolisms, kas samazina biopieejamību.", "α1‑skābais glikoproteīns (saista bāziskas zāles).", "Formas: tabletes, kapsulas, injekcijas, aerosoli, gēli, svecītes", "spalīši, cērmes, lenteņi klīniskajā praksē"], "correctIndex": 1}, {"q": "Kura ievadīšanas metode apiet absorbciju?", "options": ["Sublingvāli.", "Intravenozi (i.v.).", "Inhalāciju veidā.", "Rektāli."], "correctIndex": 1}, {"q": "Kura ievadīšana der vielām, kas inaktivējas kuņģī?", "options": ["Sublingvāli.", "Rektāli.", "Intravenozi (i.v.).", "Inhalāciju veidā."], "correctIndex": 0}, {"q": "Kura ievadīšana bieži dod lokālu vai ātru efektu?", "options": ["Rektāli.", "Sublingvāli.", "Intravenozi (i.v.).", "Inhalāciju veidā."], "correctIndex": 0}, {"q": "Kura ievadīšana bieži tiek lietota bronhodilatatoriem?", "options": ["Intravenozi (i.v.).", "Inhalāciju veidā.", "Rektāli.", "Sublingvāli."], "correctIndex": 1}];
+
+  const TOTAL_PER_RUN = 30;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function pickQuestions() {
+    const copy = ALL_QUESTIONS.map(q => ({
+      q: q.q,
+      options: q.options.slice(),
+      correctIndex: q.correctIndex
+    }));
+    shuffle(copy);
+    const chosen = copy.slice(0, Math.min(TOTAL_PER_RUN, copy.length));
+    // shuffle options within each question and update correct index
+    for (const item of chosen) {
+      const correct = item.options[item.correctIndex];
+      shuffle(item.options);
+      item.correctIndex = item.options.indexOf(correct);
+    }
+    return chosen;
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  let run = [];
+  let idx = 0;
+  let score = 0;
+  let answered = false;
+
+  function setText(id, txt) {
+    const el = $(id);
+    if (el) el.textContent = txt;
+  }
+
+  function show(el) { el.classList.remove("hidden"); }
+  function hide(el) { el.classList.add("hidden"); }
+
+  function updateProgress() {
+    const pct = run.length ? Math.round((idx / run.length) * 100) : 0;
+    $("progressBar").style.width = pct + "%";
+    setText("badgeQ", `Jautājums: ${Math.min(idx+1, run.length)}/${run.length}`);
+    setText("badgeS", `Pareizi: ${score}`);
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const item = run[idx];
+    setText("qLabel", `Jautājums ${idx+1} no ${run.length}`);
+    setText("qText", item.q);
+
+    const box = $("options");
+    box.innerHTML = "";
+    item.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option-btn";
+      btn.setAttribute("data-index", String(i));
+      btn.innerHTML = `<span>${opt}</span>`;
+      btn.addEventListener("click", onChoose, {passive:true});
+      // iOS Safari sometimes prefers touchend
+      btn.addEventListener("touchend", function(e) {
+        // avoid duplicate click by letting click still fire; do nothing special
+      }, {passive:true});
+      box.appendChild(btn);
+    });
+
+    $("feedback").textContent = "";
+    $("nextBtn").disabled = true;
+    updateProgress();
+  }
+
+  function lockOptions(correctIdx, chosenIdx) {
+    const buttons = Array.from(document.querySelectorAll(".option-btn"));
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === correctIdx) b.classList.add("correct");
+      if (i === chosenIdx && chosenIdx !== correctIdx) b.classList.add("wrong");
+    });
+  }
+
+  function onChoose(e) {
+    if (answered) return;
+    const btn = e.currentTarget;
+    const chosenIdx = Number(btn.getAttribute("data-index"));
+    const item = run[idx];
+
+    answered = true;
+    const correct = (chosenIdx === item.correctIndex);
+    if (correct) {
+      score += 1;
+      $("feedback").textContent = "Pareizi!";
+      $("feedback").className = "feedback ok";
+    } else {
+      $("feedback").textContent = "Nepareizi.";
+      $("feedback").className = "feedback bad";
+    }
+
+    lockOptions(item.correctIndex, chosenIdx);
+    $("nextBtn").disabled = false;
+    setText("badgeS", `Pareizi: ${score}`);
+  }
+
+  function next() {
+    if (!answered) return;
+    idx += 1;
+    if (idx >= run.length) {
+      finish();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function finish() {
+    hide($("screenQuiz"));
+    show($("screenResult"));
+    $("progressBar").style.width = "100%";
+    setText("finalScore", `${score} / ${run.length}`);
+    const pct = run.length ? Math.round((score / run.length) * 100) : 0;
+    setText("finalPct", `${pct}%`);
+  }
+
+  function start() {
+    run = pickQuestions();
+    idx = 0;
+    score = 0;
+    hide($("screenStart"));
+    hide($("screenResult"));
+    show($("screenQuiz"));
+    renderQuestion();
+  }
+
+  function restart() {
+    hide($("screenResult"));
+    show($("screenStart"));
+  }
+
+  function bindButton(id, handler) {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener("click", handler, {passive:true});
+    el.addEventListener("touchend", handler, {passive:true});
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    bindButton("startBtn", start);
+    bindButton("nextBtn", next);
+    bindButton("restartBtn", restart);
+    bindButton("againBtn", start);
+    bindButton("againBtn2", start);
+  });
+})();
+</script>
+
+</body>
+</html>
