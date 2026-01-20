@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kosmētiskā ķīmija — tests</title>
+
+<style>
+/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left; /* left align text */
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+.btn:hover:not(.primary) { background: #374151; }
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+
+</head>
+<body>
+<div class="app" role="application">
+  <div class="header">
+    <div class="title">Kosmētiskā ķīmija — tests</div>
+    <div class="meta">
+      <div class="badge" id="score">Punkti: 0</div>
+      <div class="badge" id="count">Izvēlēti: 30</div>
+    </div>
+  </div>
+
+  <div class="progress" aria-hidden="true"><div id="prog"></div></div>
+
+  <div id="startScreen" class="card">
+    <div class="question-text">Sāc testu</div>
+    <div class="footer" style="margin-top:8px;">
+      <div>Katru reizi tiek izlozēti 30 jautājumi.</div>
+      <div>Atbildes varianti ir izlīdzināti pie kreisās malas.</div>
+    </div>
+    <div class="controls" style="margin-top:14px;">
+      <button id="startBtn" type="button" class="btn primary">Sākt testu</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" style="display:none;">
+    <div class="card">
+      <div class="question-label" id="qLabel">Jautājums</div>
+      <div class="question-text" id="qText"></div>
+
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+
+      <div class="controls">
+        <button id="nextBtn" type="button" class="btn primary" style="display:none;">Nākamais</button>
+        <button id="restartBtn" type="button" class="btn ghost" style="display:none;">Sākt no jauna</button>
+      </div>
+
+      <div class="footer">
+        <div>Vienmēr izvēlies vienu atbildi.</div>
+        <div>Versija: v2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="bank" type="application/json">[{"q": "Kas ir kosmētiskais līdzeklis?", "options": ["Viela vai maisījums ārējai saskarei ar ķermeni kopšanai.", "Viela vai maisījums virsmu dezinfekcijai mājsaimniecībā.", "Viela vai maisījums iekšķīgai lietošanai slimību ārstēšanai.", "Viela vai maisījums pārtikas garšas un smaržas uzlabošanai."], "answer": 0}, {"q": "Emulgatora galvenā funkcija?", "options": ["Palielina pH un padara vidi sārmainu.", "Stabilizē ūdens un eļļas fāzi vienā emulsijā.", "Samazina ūdens saturu un paātrina iztvaikošanu.", "Nodrošina krāsu, bet neietekmē stabilitāti."], "answer": 1}, {"q": "Kas ir virsmaktīvās vielas?", "options": ["Vielas, kas palielina virsmas spraigumu un samazina putošanu.", "Vielas, kas samazina virsmas spraigumu un tīra virsmu.", "Vielas, kas darbojas tikai kā krāsvielas un pigmenti.", "Vielas, kas veido kristālus un vienmēr ir sāļi."], "answer": 1}, {"q": "Kāpēc kosmētikā pievieno konservantus?", "options": ["Lai paātrinātu oksidēšanās procesus un novecošanu produktā.", "Lai kavētu mikroorganismu (baktēriju, sēņu) vairošanos.", "Lai palielinātu putošanu un viskozitāti mazgāšanas līdzekļos.", "Lai paaugstinātu produkta pH līdz ļoti sārmainai videi."], "answer": 1}, {"q": "Kas ir hialuronskābe?", "options": ["Minerālsāls, kas paaugstina pH un neitralizē skābes.", "Polisaharīds, kas piesaista ūdeni un palīdz mitrināt audus.", "Spirts, kas darbojas kā agresīvs šķīdinātājs ādai.", "Proteīns, kas šķeļ taukus un samazina lipīdu slāni."], "answer": 1}, {"q": "Ko rāda pH skala?", "options": ["Vides skābumu vai sārmainību pēc H⁺ jonu daudzuma.", "Vielas viskozitāti pēc plūsmas ātruma šķīdumā.", "Vides temperatūru pēc šķīduma blīvuma izmaiņām.", "Vielas krāsu pēc gaismas absorbcijas spektra."], "answer": 0}, {"q": "Kurš ādas slānis ir galvenā barjera vielu iekļūšanai?", "options": ["Dermas tīklojuma slānis (retikulārā derma).", "Hipodermas tauku slānis (subcutis).", "Epidermas raga slānis (stratum corneum).", "Asinsvadu slānis dziļajā dermā."], "answer": 2}, {"q": "Kurā slānī pārsvarā atrodas kolagēns un elastīns?", "options": ["Stratum lucidum, kas ir biezākais slānis visur.", "Dermā, kas nodrošina izturību un elastību.", "Epidermā, kas veido tikai raga slāni.", "Raga slānī, kas sastāv no dzīviem keratinocītiem."], "answer": 1}, {"q": "Kas ir intercelulārs penetrācijas ceļš?", "options": ["Ceļš pa asinsvadiem tieši līdz dermas dziļumam.", "Ceļš starp šūnām pa lipīdu matricu raga slānī.", "Ceļš tikai pa sviedru dziedzeru izvadiem bez lipīdiem.", "Ceļš caur šūnām un to membrānām (transcelulāri)."], "answer": 1}, {"q": "Kas ir transcelulārs penetrācijas ceļš?", "options": ["Ceļš caur šūnām un to membrānām raga slānī.", "Ceļš tikai pa matu folikuliem bez difūzijas.", "Ceļš starp šūnām pa lipīdu matricu raga slānī.", "Ceļš tikai pa limfvadiem uzreiz pēc uzklāšanas."], "answer": 0}, {"q": "Kā oklūzija parasti ietekmē aktīvo vielu penetrāciju?", "options": ["Samazina hidratāciju un vienmēr kavē penetrāciju.", "Nemainīgi neietekmē penetrāciju nekādos apstākļos.", "Pilnībā bloķē jebkādu difūziju caur ādu.", "Palielina hidratāciju un var pastiprināt penetrāciju."], "answer": 3}, {"q": "Kas parasti samazina vielas iekļūšanu caur ādu?", "options": ["Formulācija ar šķīdinātāju un penetrācijas pastiprinātāju.", "Liela molekulmasa un zema lipofilitāte.", "Mazs molekulas izmērs un mērena lipofilitāte.", "Okluzīvs pārklājums un paaugstināta hidratācija."], "answer": 1}, {"q": "Kas ir antioksidanta uzdevums kosmētikā?", "options": ["Palielināt oksidēšanos, lai aktivizētu krāsu reakcijas.", "Aizstāt konservantu un iznīcināt mikroorganismus vienmēr.", "Paaugstināt pH līdz sārmainai videi stabilitātei.", "Samazināt oksidēšanos un palēnināt produkta noārdīšanos."], "answer": 3}, {"q": "Kas ir helators (chelating agent) formulā?", "options": ["Viela, kas paaugstina spiedienu iepakojumā aerosoliem.", "Viela, kas veido emulģētu sistēmu bez ūdens fāzes.", "Viela, kas saista metāla jonus un uzlabo stabilitāti.", "Viela, kas piešķir intensīvu aromātu un krāsu produktam."], "answer": 2}, {"q": "Kas ir pH regulators kosmētikā?", "options": ["Sastāvdaļa, kas aizstāj ūdeni un samazina fāžu skaitu.", "Sastāvdaļa, kas pielāgo pH stabilitātei un ādai.", "Sastāvdaļa, kas vienmēr sterilizē produktu bez konservantiem.", "Sastāvdaļa, kas palielina putošanu un detergējošo iedarbību."], "answer": 1}, {"q": "Ko dara biezinātājs formulā?", "options": ["Kavē baktēriju un sēņu vairošanos produktā.", "Pazemina pH un neitralizē bāzes šķīdumā.", "Mīkstina ādu un atjauno lipīdu barjeru.", "Uzlabo tekstūru un palielina viskozitāti produktā."], "answer": 3}, {"q": "Ko dara konservants formulā?", "options": ["Piesaista ūdeni un palielina ādas mitrumu.", "Kavē baktēriju un sēņu vairošanos produktā.", "Veido hidrofobu plēvīti un samazina mitruma zudumu.", "Pazemina pH un neitralizē bāzes šķīdumā."], "answer": 1}, {"q": "Ko dara virsmaktīvā viela?", "options": ["Stabilizē emulsiju un novērš atslāņošanos.", "Mīkstina ādu un atjauno lipīdu barjeru.", "Samazina virsmas spraigumu un uzlabo saslapināšanu.", "Pazemina pH un neitralizē bāzes šķīdumā."], "answer": 2}, {"q": "Ko dara emolients?", "options": ["Stabilizē emulsiju un novērš atslāņošanos.", "Mīkstina ādu un atjauno lipīdu barjeru.", "Paaugstina pH un neitralizē skābes šķīdumā.", "Pazemina pH un neitralizē bāzes šķīdumā."], "answer": 1}, {"q": "Ko dara humektants?", "options": ["Samazina virsmas spraigumu un uzlabo saslapināšanu.", "Mīkstina ādu un atjauno lipīdu barjeru.", "Paaugstina pH un neitralizē skābes šķīdumā.", "Piesaista ūdeni un palielina ādas mitrumu."], "answer": 3}, {"q": "Ko dara okluzīvs komponents?", "options": ["Paaugstina pH un neitralizē skābes šķīdumā.", "Veido hidrofobu plēvīti un samazina mitruma zudumu.", "Nodrošina aromātu un uzlabo smaržas noturību.", "Stabilizē emulsiju un novērš atslāņošanos."], "answer": 1}, {"q": "Kas raksturīgs skābai videi?", "options": ["Šķīdība atkarīga no polaritātes un temperatūras.", "Sāļi rodas skābes un bāzes neitralizācijas reakcijā.", "Redukcija ir elektronu pieņemšana reakcijā.", "Skābā vidē H⁺ jonu daudzums ir lielāks."], "answer": 3}, {"q": "Kas raksturīgs sārmainai videi?", "options": ["Buferis stabilizē pH pie nelielām piedevām.", "Virsmspraigumu samazina virsmaktīvās vielas.", "Viskozitāti palielina biezinātāji un polimēri.", "Sārmainā vidē OH⁻ jonu daudzums ir lielāks."], "answer": 3}, {"q": "Ko nozīmē neitrāls pH ūdens šķīdumā?", "options": ["Viskozitāti palielina biezinātāji un polimēri.", "Skābā vidē H⁺ jonu daudzums ir lielāks.", "pH 7 ir neitrāla vide ūdens šķīdumos.", "Sāļi rodas skābes un bāzes neitralizācijas reakcijā."], "answer": 2}, {"q": "Kas ir emulsija?", "options": ["pH 7 ir neitrāla vide ūdens šķīdumos.", "Koncentrācija ietekmē reakcijas ātrumu un līdzsvaru.", "Emulsija ir divu nesajaucamu šķidrumu sistēma.", "Skābā vidē H⁺ jonu daudzums ir lielāks."], "answer": 2}, {"q": "Kas ir stratum corneum?", "options": ["Intercelulārs ceļš iet starp šūnām pa lipīdu matricu.", "Matu folikuli var kalpot kā penetrācijas ceļš.", "Stratum corneum sastāv no korneocītiem un lipīdu matricām.", "Transcelulārs ceļš iet caur šūnām un membrānām."], "answer": 2}, {"q": "Kurš var būt folikulārs penetrācijas ceļš?", "options": ["Dermā atrodas kolagēns, elastīns un asinsvadi.", "Epidermas raga slānis ir galvenais penetrācijas ierobežotājs.", "Intercelulārs ceļš iet starp šūnām pa lipīdu matricu.", "Matu folikuli var kalpot kā penetrācijas ceļš."], "answer": 3}, {"q": "Kurš var būt dziedzeru penetrācijas ceļš?", "options": ["Derma nodrošina ādas izturību un elastību.", "Matu folikuli var kalpot kā penetrācijas ceļš.", "Okluzīva plēvīte palielina hidratāciju un var veicināt penetrāciju.", "Sviedru dziedzeru izvadi var būt penetrācijas ceļš."], "answer": 3}, {"q": "Kāds ir UV filtra uzdevums kosmētikā?", "options": ["Palielināt pH līdz 10–12, lai uzlabotu aizsardzību.", "Aizstāt konservantus un nodrošināt sterilitāti produktā.", "Samazināt UV starojuma ietekmi uz ādu un fotobojājumu risku.", "Palielināt UV starojumu, lai stimulētu melanīna veidošanos."], "answer": 2}, {"q": "Kas ir aktīvā viela kosmētikā?", "options": ["Antioksidants palēnina oksidēšanos formulā.", "Mitrinātājs uzlabo ūdens saturu raga slānī.", "Aktīvā viela nodrošina mērķefektu ādā.", "Konservants kavē mikroorganismu augšanu."], "answer": 2}, {"q": "Kas ir palīgviela kosmētikā?", "options": ["Antioksidants palēnina oksidēšanos formulā.", "pH regulators pielāgo pH stabilitātei un ādai.", "Šķīdinātājs palīdz izšķīdināt aktīvās vielas.", "Palīgviela uzlabo stabilitāti un tekstūru."], "answer": 3}, {"q": "Kas ir konservants formulā?", "options": ["Konservants kavē mikroorganismu augšanu.", "Helators saista metāla jonus un stabilizē formulāciju.", "Šķīdinātājs palīdz izšķīdināt aktīvās vielas.", "Mitrinātājs uzlabo ūdens saturu raga slānī."], "answer": 0}, {"q": "Kas ir antioksidants formulā?", "options": ["Smāržviela uzlabo produkta sensoriku.", "Antioksidants palēnina oksidēšanos formulā.", "Šķīdinātājs palīdz izšķīdināt aktīvās vielas.", "Mitrinātājs uzlabo ūdens saturu raga slānī."], "answer": 1}, {"q": "Kas ir biezinātājs formulā?", "options": ["Antioksidants palēnina oksidēšanos formulā.", "Emulgators notur fāzes kopā emulsijā.", "Šķīdinātājs palīdz izšķīdināt aktīvās vielas.", "Biezinātājs palielina viskozitāti un stabilitāti."], "answer": 3}, {"q": "Kas ir smāržviela produktā?", "options": ["Biezinātājs palielina viskozitāti un stabilitāti.", "Smāržviela uzlabo produkta sensoriku.", "Konservants kavē mikroorganismu augšanu.", "Aktīvā viela nodrošina mērķefektu ādā."], "answer": 1}, {"q": "Kas ir helators formulā?", "options": ["Helators saista metāla jonus un stabilizē formulāciju.", "Palīgviela uzlabo stabilitāti un tekstūru.", "Aktīvā viela nodrošina mērķefektu ādā.", "UV filtrs samazina UV starojuma ietekmi uz ādu."], "answer": 0}, {"q": "Kas ir šķīdinātājs formulā?", "options": ["Palīgviela uzlabo stabilitāti un tekstūru.", "Šķīdinātājs palīdz izšķīdināt aktīvās vielas.", "Mitrinātājs uzlabo ūdens saturu raga slānī.", "Helators saista metāla jonus un stabilizē formulāciju."], "answer": 1}, {"q": "Kas ir mitrinātājs formulā?", "options": ["Smāržviela uzlabo produkta sensoriku.", "UV filtrs samazina UV starojuma ietekmi uz ādu.", "Mitrinātājs uzlabo ūdens saturu raga slānī.", "Palīgviela uzlabo stabilitāti un tekstūru."], "answer": 2}, {"q": "Kas ir sāļi ķīmijā?", "options": ["Koncentrācija ietekmē reakcijas ātrumu un līdzsvaru.", "Emulsija ir divu nesajaucamu šķidrumu sistēma.", "Buferis stabilizē pH pie nelielām piedevām.", "Sāļi rodas skābes un bāzes neitralizācijas reakcijā."], "answer": 3}, {"q": "Kas ir oksidēšanās reakcijā?", "options": ["Viskozitāti palielina biezinātāji un polimēri.", "pH 7 ir neitrāla vide ūdens šķīdumos.", "Redukcija ir elektronu pieņemšana reakcijā.", "Oksidēšanās ir elektronu atdošana reakcijā."], "answer": 3}, {"q": "Kas ir redukcija reakcijā?", "options": ["Buferis stabilizē pH pie nelielām piedevām.", "Šķīdība atkarīga no polaritātes un temperatūras.", "Redukcija ir elektronu pieņemšana reakcijā.", "Virsmspraigumu samazina virsmaktīvās vielas."], "answer": 2}, {"q": "No kā bieži atkarīga vielas šķīdība?", "options": ["Buferis stabilizē pH pie nelielām piedevām.", "Koncentrācija ietekmē reakcijas ātrumu un līdzsvaru.", "Oksidēšanās ir elektronu atdošana reakcijā.", "Šķīdība atkarīga no polaritātes un temperatūras."], "answer": 3}, {"q": "Ko bieži ietekmē koncentrācija šķīdumā?", "options": ["Emulsija ir divu nesajaucamu šķidrumu sistēma.", "pH 7 ir neitrāla vide ūdens šķīdumos.", "Koncentrācija ietekmē reakcijas ātrumu un līdzsvaru.", "Šķīdība atkarīga no polaritātes un temperatūras."], "answer": 2}, {"q": "Ko ietekmē virsmspraigums formulā?", "options": ["Skābā vidē H⁺ jonu daudzums ir lielāks.", "Sāļi rodas skābes un bāzes neitralizācijas reakcijā.", "Sārmainā vidē OH⁻ jonu daudzums ir lielāks.", "Virsmspraigumu samazina virsmaktīvās vielas."], "answer": 3}, {"q": "Kur atrodas galvenā ādas barjera?", "options": ["Intercelulārs ceļš iet starp šūnām pa lipīdu matricu.", "Epidermā, īpaši raga slānī, veidojas galvenā barjera.", "Lielāka molekulmasa parasti samazina penetrāciju ādā.", "Stratum corneum sastāv no korneocītiem un lipīdu matricām."], "answer": 1}, {"q": "Kāda ir dermas loma ādā?", "options": ["Lielāka molekulmasa parasti samazina penetrāciju ādā.", "Sviedru dziedzeru izvadi var būt penetrācijas ceļš.", "Dermā atrodas kolagēns, elastīns un asinsvadi.", "Derma nodrošina ādas izturību un elastību."], "answer": 3}, {"q": "Kas raksturo hipodermu?", "options": ["Stratum corneum sastāv no korneocītiem un lipīdu matricām.", "Sviedru dziedzeru izvadi var būt penetrācijas ceļš.", "Derma nodrošina ādas izturību un elastību.", "Hipoderma galvenokārt satur taukaudus un saistaudus."], "answer": 3}, {"q": "Kas var veicināt folikulāru penetrāciju?", "options": ["Matu folikuli var kalpot kā penetrācijas ceļš.", "Epidermas raga slānis ir galvenais penetrācijas ierobežotājs.", "Hipoderma galvenokārt satur taukaudus un saistaudus.", "Sviedru dziedzeru izvadi var būt penetrācijas ceļš."], "answer": 0}, {"q": "Kas raksturo intercelulāru difūziju?", "options": ["Sviedru dziedzeru izvadi var būt penetrācijas ceļš.", "Epidermas raga slānis ir galvenais penetrācijas ierobežotājs.", "Intercelulārs ceļš iet starp šūnām pa lipīdu matricu.", "Hipoderma galvenokārt satur taukaudus un saistaudus."], "answer": 2}, {"q": "Kas raksturo transcelulāru difūziju?", "options": ["Dermā atrodas kolagēns, elastīns un asinsvadi.", "Okluzīva plēvīte palielina hidratāciju un var veicināt penetrāciju.", "Transcelulārs ceļš iet caur šūnām un membrānām.", "Sviedru dziedzeru izvadi var būt penetrācijas ceļš."], "answer": 2}]</script>
+
+<script>
+(() => {
+  const BANK = JSON.parse(document.getElementById('bank').textContent);
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function pickNUnique(arr, n) {
+    const idx = [...arr.keys()];
+    shuffle(idx);
+    return idx.slice(0, n).map(i => arr[i]);
+  }
+
+  const TOTAL = 30;
+  const quiz = pickNUnique(BANK, Math.min(TOTAL, BANK.length)).map(q => {
+    // shuffle options but keep correct index updated
+    const opts = q.options.map((t, i) => ({ t, i }));
+    shuffle(opts);
+    const answer = opts.findIndex(o => o.i === q.answer);
+    return { q: q.q, options: opts.map(o => o.t), answer };
+  });
+
+  let i = 0;
+  let score = 0;
+  let locked = false;
+
+  const elQLabel = document.querySelector('#qLabel');
+  const elQText = document.querySelector('#qText');
+  const elOptions = document.querySelector('#options');
+  const elFeedback = document.querySelector('#feedback');
+  const elNext = document.querySelector('#nextBtn');
+  const elRestart = document.querySelector('#restartBtn');
+  const elScore = document.querySelector('#score');
+  const elCount = document.querySelector('#count');
+  const elProg = document.querySelector('#prog');
+
+  function setProgress() {
+    const done = i;
+    const pct = Math.round((done / quiz.length) * 100);
+    elProg.style.width = pct + '%';
+  }
+
+  function render() {
+    locked = false;
+    elFeedback.textContent = '';
+    elFeedback.className = 'feedback';
+
+    const item = quiz[i];
+    elQLabel.textContent = `Jautājums ${i + 1} no ${quiz.length}`;
+    elQText.textContent = item.q;
+
+    elOptions.innerHTML = '';
+    item.options.forEach((optText, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-btn';
+      btn.setAttribute('data-idx', String(idx));
+      btn.textContent = optText;
+      // iOS Safari reliability: attach both click and pointerup
+      btn.addEventListener('click', onPick, { passive: true });
+      btn.addEventListener('pointerup', onPick, { passive: true });
+      btn.addEventListener('touchend', onPick, { passive: true });
+      elOptions.appendChild(btn);
+    });
+
+    elNext.style.display = 'none';
+    elRestart.style.display = 'none';
+    elScore.textContent = `Punkti: ${score}`;
+    elCount.textContent = `Izvēlēti: ${quiz.length} / Bankā: ${BANK.length}`;
+    setProgress();
+  }
+
+  function markButtons(correctIdx, chosenIdx) {
+    const buttons = [...elOptions.querySelectorAll('.option-btn')];
+    buttons.forEach((b, idx) => {
+      if (idx === correctIdx) b.classList.add('correct');
+      if (idx === chosenIdx && chosenIdx !== correctIdx) b.classList.add('wrong');
+      b.disabled = true;
+    });
+  }
+
+  function onPick(ev) {
+    if (locked) return;
+    const target = ev.currentTarget;
+    if (!target) return;
+
+    locked = true;
+    const chosenIdx = Number(target.getAttribute('data-idx'));
+    const item = quiz[i];
+    const correctIdx = item.answer;
+
+    if (chosenIdx === correctIdx) {
+      score += 1;
+      elFeedback.textContent = 'Pareizi!';
+      elFeedback.classList.add('ok');
+    } else {
+      elFeedback.textContent = 'Nepareizi.';
+      elFeedback.classList.add('bad');
+    }
+
+    markButtons(correctIdx, chosenIdx);
+    elScore.textContent = `Punkti: ${score}`;
+
+    if (i < quiz.length - 1) {
+      elNext.style.display = 'inline-flex';
+    } else {
+      elRestart.style.display = 'inline-flex';
+      elQLabel.textContent = `Tests pabeigts`;
+      elQText.textContent = `Rezultāts: ${score} / ${quiz.length}`;
+    }
+  }
+
+  elNext.addEventListener('click', () => {
+    if (i >= quiz.length - 1) return;
+    i += 1;
+    render();
+  });
+
+  elRestart.addEventListener('click', () => {
+    location.reload();
+  });
+
+  // Start screen
+  const elStart = document.querySelector('#startBtn');
+  const elStartScreen = document.querySelector('#startScreen');
+  const elQuizScreen = document.querySelector('#quizScreen');
+
+  elStart.addEventListener('click', () => {
+    elStartScreen.style.display = 'none';
+    elQuizScreen.style.display = 'block';
+    render();
+  });
+
+})();
+</script>
+
+</body>
+</html>
