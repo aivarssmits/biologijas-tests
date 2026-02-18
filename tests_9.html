@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dermatoloģijas tests</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Dermatoloģijas tests">
+    <div class="header">
+      <div class="title">Dermatoloģijas tests</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied "Pildīt vēlreiz".</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Kurā slānī notiek šūnu dalīšanās?",
+    "correct": "Bazālajā slānī.",
+    "options": [
+      "Bazālajā slānī.",
+      "Raga slānī.",
+      "Graudainajā slānī.",
+      "Dzeloņainajā slānī."
+    ]
+  },
+  {
+    "q": "Vai Epidermā ir asinsvadi?",
+    "correct": "Nav, Epidermā asinsvadu nav.",
+    "options": [
+      "Nav, Epidermā asinsvadu nav.",
+      "Jā, Epidermā ir smalki kapilāri.",
+      "Jā, Epidermā ir gan artērijas, gan vēnas.",
+      "Nav, bet Epidermā ir limfātiskie asinsvadi."
+    ]
+  },
+  {
+    "q": "No cik slāņiem sastāv āda? Nosauc tos.",
+    "correct": "No 3 slāņiem: Epiderma (virsāda), Derma (āda), Hipoderma (zemāda).",
+    "options": [
+      "No 3 slāņiem: Epiderma (virsāda), Derma (āda), Hipoderma (zemāda).",
+      "No 2 slāņiem: Epiderma (virsāda) un Derma (āda), bez zemādas slāņa.",
+      "No 4 slāņiem: Epiderma (virsāda), Derma (āda), Hipoderma (zemāda), Fascija (dziļāda).",
+      "No 3 slāņiem: Keratinocītu slānis, Melanocītu slānis, Fibroblastuslānis."
+    ]
+  },
+  {
+    "q": "Kas ir galvenā epidermas sastāvdaļa?",
+    "correct": "Keratinocīti.",
+    "options": [
+      "Keratinocīti.",
+      "Melanocīti.",
+      "Fibroblasti.",
+      "Langerhansa šūnas."
+    ]
+  },
+  {
+    "q": "No kā sastāv Hipoderma?",
+    "correct": "Taukaudi un asinsvadi.",
+    "options": [
+      "Taukaudi un asinsvadi.",
+      "Keratinocīti un melanocīti.",
+      "Kolagēnās šķiedras un nervi.",
+      "Elastīgās šķiedras un limfas audi."
+    ]
+  },
+  {
+    "q": "Vai Epidermā ir limfātiskie kanāliņi?",
+    "correct": "Jā, Epidermā ir limfātiskie kanāliņi.",
+    "options": [
+      "Jā, Epidermā ir limfātiskie kanāliņi.",
+      "Nē, limfātiskie kanāliņi atrodas tikai Dermā.",
+      "Nē, limfātiskie kanāliņi atrodas tikai Hipodermā.",
+      "Nē, Epidermā nav ne asinsvadu, ne limfātisko kanāliņu."
+    ]
+  },
+  {
+    "q": "Cik slāņu ir Epidermai?",
+    "correct": "5 dažādi epitēlija šūnu slāņi biezākajās ādas zonās, pārējās – 4 slāņi.",
+    "options": [
+      "5 dažādi epitēlija šūnu slāņi biezākajās ādas zonās, pārējās – 4 slāņi.",
+      "3 epitēlija šūnu slāņi visās ādas zonās neatkarīgi no ādas biezuma.",
+      "7 dažādi epitēlija šūnu slāņi biezākajās ādas zonās, pārējās – 6 slāņi.",
+      "4 epitēlija šūnu slāņi biezākajās ādas zonās, pārējās – 3 slāņi."
+    ]
+  },
+  {
+    "q": "Cik slāņus satur plāna āda un vai ir mati?",
+    "correct": "4 slāņi, ir mati.",
+    "options": [
+      "4 slāņi, ir mati.",
+      "5 slāņi, nav matu.",
+      "3 slāņi, ir mati.",
+      "4 slāņi, nav matu."
+    ]
+  },
+  {
+    "q": "Cik slāņus satur bieza āda?",
+    "correct": "5 slāņus, nav matu.",
+    "options": [
+      "5 slāņus, nav matu.",
+      "4 slāņus, ir mati.",
+      "5 slāņus, ir mati.",
+      "3 slāņus, nav matu."
+    ]
+  },
+  {
+    "q": "Kura ir svarīgākā šūna Dermā un kāda ir tās funkcija?",
+    "correct": "Fibroblasti – sintezē kolagēnās un elastīgās šķiedras, GAG (glikozaminoglikānus).",
+    "options": [
+      "Fibroblasti – sintezē kolagēnās un elastīgās šķiedras, GAG (glikozaminoglikānus).",
+      "Keratinocīti – nodrošina ādas barjerfunkciju un aizsargā pret UV starojumu un patogēniem.",
+      "Melanocīti – ražo melanīnu un nosaka ādas pigmentāciju, pasargā no ultravioletā starojuma.",
+      "Langerhansa šūnas – veido ādas imūno aizsardzību un atpazīst svešos antigēnus."
+    ]
+  },
+  {
+    "q": "Kas ir Melanocīti un Melanīns?",
+    "correct": "Melanocīts ir pigmenta šūna, Melanīns – krāsas pigments.",
+    "options": [
+      "Melanocīts ir pigmenta šūna, Melanīns – krāsas pigments.",
+      "Melanocīts ir imūnšūna, Melanīns – aizsargājošs proteīns.",
+      "Melanocīts ir nervu šūna, Melanīns – hormonu pigments.",
+      "Melanocīts ir saistaudu šūna, Melanīns – strukturāls proteīns."
+    ]
+  },
+  {
+    "q": "Kas atrodas Dermā?",
+    "correct": "Nervi, asinsvadi, sviedru dziedzeri.",
+    "options": [
+      "Nervi, asinsvadi, sviedru dziedzeri.",
+      "Keratinocīti, melanocīti, Langerhansa šūnas.",
+      "Taukaudi, muskuļi, skrimšļaudi.",
+      "Raga šūnas, bazālās šūnas, dzeloņainās šūnas."
+    ]
+  },
+  {
+    "q": "Vai tumšādainiem un gaišādainiem cilvēkiem ir vienāds melanocītu daudzums?",
+    "correct": "Jā, ir vienāds melanocītu daudzums, taču atšķiras to aktivitāte.",
+    "options": [
+      "Jā, ir vienāds melanocītu daudzums, taču atšķiras to aktivitāte.",
+      "Nē, tumšādainiem cilvēkiem ir ievērojami vairāk melanocītu ādā.",
+      "Nē, gaišādainiem ir vairāk melanocītu, bet tie ir mazāk aktīvi.",
+      "Jā, ir vienāds daudzums, un arī to aktivitāte ir pilnīgi vienāda."
+    ]
+  },
+  {
+    "q": "Ko veido Langerhansa šūnas?",
+    "correct": "Veido ādas imūno sistēmu.",
+    "options": [
+      "Veido ādas imūno sistēmu.",
+      "Veido ādas pigmentācijas sistēmu.",
+      "Veido ādas nervu galu tīklu.",
+      "Veido ādas asinsvadu struktūru."
+    ]
+  },
+  {
+    "q": "Kas bloķē melanīna veidošanos?",
+    "correct": "C Vitamīns, Azelīnskābe, Niacinamīds (B3 vitamīns).",
+    "options": [
+      "C Vitamīns, Azelīnskābe, Niacinamīds (B3 vitamīns).",
+      "A Vitamīns, Salicilskābe, Retinols (E vitamīns).",
+      "D Vitamīns, Hialuronskābe, Pantenols (B5 vitamīns).",
+      "K Vitamīns, Glikolskābe, Biotīns (B7 vitamīns)."
+    ]
+  },
+  {
+    "q": "Kur sākas un beidzas limfātiskā sistēma ādā?",
+    "correct": "No limfas kapilāriem Dermā, sasniedz Ductus Thoracicus un ieplūst venozajā sistēmā.",
+    "options": [
+      "No limfas kapilāriem Dermā, sasniedz Ductus Thoracicus un ieplūst venozajā sistēmā.",
+      "No limfas kapilāriem Epidermā, sasniedz arteriālo sistēmu un ieplūst aortā.",
+      "No limfas mezgliem Hipodermā, sasniedz Ductus Lymphaticus un ieplūst arteriālajā sistēmā.",
+      "No limfas kapilāriem Hipodermā, sasniedz Vena Cava un ieplūst arteriālajā asinsritē."
+    ]
+  },
+  {
+    "q": "Kas stimulē tauku dziedzerus?",
+    "correct": "Dzimumhormoni – androgēns palielina tauku dziedzeru aktivitāti, estrogēns to samazina.",
+    "options": [
+      "Dzimumhormoni – androgēns palielina tauku dziedzeru aktivitāti, estrogēns to samazina.",
+      "Vairogdziedzera hormoni – tiroksīns palielina tauku dziedzeru aktivitāti, kalcitonīns to samazina.",
+      "Augšanas hormoni – somatotropīns palielina tauku dziedzeru aktivitāti, melatonīns to samazina.",
+      "Virsnieru hormoni – kortizols palielina tauku dziedzeru aktivitāti, aldosterons to samazina."
+    ]
+  },
+  {
+    "q": "Kurš ādas slānis ir pamata slānis un kāpēc?",
+    "correct": "Bazālais slānis, jo tas ir dziļākais un pie tā piestiprinās epidermas šūnas.",
+    "options": [
+      "Bazālais slānis, jo tas ir dziļākais un pie tā piestiprinās epidermas šūnas.",
+      "Raga slānis, jo tas ir virspusējākais un aizsargā pārējos ādas slāņus.",
+      "Dzeloņainais slānis, jo tas ir biezākais un nodrošina ādas mehānisko izturību.",
+      "Graudainais slānis, jo tas ir centrālais un savieno pārējos epidermas slāņus."
+    ]
+  },
+  {
+    "q": "Kas ir Vazodilatācija?",
+    "correct": "Kad ķermeņa temperatūra paaugstinās, asinsvadi paplašinās, lai atdotu siltumu.",
+    "options": [
+      "Kad ķermeņa temperatūra paaugstinās, asinsvadi paplašinās, lai atdotu siltumu.",
+      "Kad ķermeņa temperatūra pazeminās, asinsvadi sašaurinās, lai saglabātu siltumu.",
+      "Kad ķermeņa temperatūra paaugstinās, asinsvadi sašaurinās, lai samazinātu asins plūsmu.",
+      "Kad ķermeņa temperatūra pazeminās, asinsvadi paplašinās, lai palielinātu siltuma zudumu."
+    ]
+  },
+  {
+    "q": "Kas ir Vazokonstrikcija?",
+    "correct": "Kad ķermeņa temperatūra pazeminās, asinsvadi sašaurinās, lai saglabātu siltumu.",
+    "options": [
+      "Kad ķermeņa temperatūra pazeminās, asinsvadi sašaurinās, lai saglabātu siltumu.",
+      "Kad ķermeņa temperatūra paaugstinās, asinsvadi paplašinās, lai atdotu siltumu.",
+      "Kad ķermeņa temperatūra pazeminās, asinsvadi paplašinās, lai palielinātu siltuma zudumu.",
+      "Kad ķermeņa temperatūra paaugstinās, asinsvadi sašaurinās, lai palielinātu asins plūsmu."
+    ]
+  },
+  {
+    "q": "Kādi ir epidermas slāņi?",
+    "correct": "Bazālais slānis (galvenais), Dzeloņainais slānis, Graudainais slānis, Spīdīgais slānis (uz plaukstām, pēdām), Raga slānis.",
+    "options": [
+      "Bazālais slānis (galvenais), Dzeloņainais slānis, Graudainais slānis, Spīdīgais slānis (uz plaukstām, pēdām), Raga slānis.",
+      "Bazālais slānis, Retikulārais slānis, Papillārais slānis, Graudainais slānis, Raga slānis.",
+      "Bazālais slānis, Dzeloņainais slānis, Taukainais slānis, Spīdīgais slānis, Dermas slānis.",
+      "Bazālais slānis, Melanocītu slānis, Graudainais slānis, Dzeloņainais slānis, Raga slānis."
+    ]
+  },
+  {
+    "q": "Kas ir m. arrector pili?",
+    "correct": "Matu cēlājmuskulis, atbild par zosādas veidošanos.",
+    "options": [
+      "Matu cēlājmuskulis, atbild par zosādas veidošanos.",
+      "Matu folikula aizsargslānis, atbild par matu augšanu.",
+      "Ādas gludais muskulis, atbild par sviedru izdalīšanos.",
+      "Matu saknes muskulis, atbild par matu krāsas maiņu."
+    ]
+  },
+  {
+    "q": "Ar ko atšķiras apokrīnie un ekrīnie sviedru dziedzeri?",
+    "correct": "Ekrīnie kalpo dzesēšanai; apokrīnie – smaržai un hormonālai/emocionālai reakcijai.",
+    "options": [
+      "Ekrīnie kalpo dzesēšanai; apokrīnie – smaržai un hormonālai/emocionālai reakcijai.",
+      "Ekrīnie kalpo smaržai; apokrīnie – dzesēšanai un termoregulācijai organismā.",
+      "Ekrīnie kalpo hormonālai reakcijai; apokrīnie – ādas eļļošanai un mitrināšanai.",
+      "Ekrīnie kalpo ādas aizsardzībai; apokrīnie – barības vielu izdalīšanai uz ādas."
+    ]
+  },
+  {
+    "q": "Kas ir Spongioze?",
+    "correct": "Starpšūnu tūska epidermā.",
+    "options": [
+      "Starpšūnu tūska epidermā.",
+      "Raga slāņa sabiezēšana.",
+      "Šūnu hiperplāzija dermā.",
+      "Ādas atrofijas process."
+    ]
+  },
+  {
+    "q": "Kas ir Hiperkeratoze?",
+    "correct": "Pastiprināta raga slāņa veidošanās.",
+    "options": [
+      "Pastiprināta raga slāņa veidošanās.",
+      "Pastiprināta melanīna sintēze epidermā.",
+      "Pastiprināta starpšūnu tūskas veidošanās.",
+      "Pastiprināta bazālā slāņa šūnu dalīšanās."
+    ]
+  },
+  {
+    "q": "Kas ir Paraheratoze?",
+    "correct": "Nepilnīga pārragošanās (raga slānī saglabājas šūnu kodoli).",
+    "options": [
+      "Nepilnīga pārragošanās (raga slānī saglabājas šūnu kodoli).",
+      "Pilnīga šūnu atrofija (raga slānis pilnībā izzūd).",
+      "Pārmērīga raga slāņa veidošanās (hiperkeranizācija).",
+      "Patoloģiska melanīna uzkrāšanās (raga slānī veidojas pigments)."
+    ]
+  },
+  {
+    "q": "Kas ir Diskeratoze?",
+    "correct": "Raga slāņa šūnas attīstās nevietā (pāragra vai ektopiska keratinizācija).",
+    "options": [
+      "Raga slāņa šūnas attīstās nevietā (pāragra vai ektopiska keratinizācija).",
+      "Raga slāņa šūnas pilnībā atrofējas (keratīna sintēze apstājas).",
+      "Bazālā slāņa šūnas pārstāj dalīties (mitotiskā aktivitāte izzūd).",
+      "Melanocītu šūnas migrē uz dermu (patoloģiska šūnu migrācija)."
+    ]
+  },
+  {
+    "q": "Kas ir Nēvusi?",
+    "correct": "Dzimumzīmes (labdabīgi melanocītu veidojumi ādā).",
+    "options": [
+      "Dzimumzīmes (labdabīgi melanocītu veidojumi ādā).",
+      "Ļaundabīgi ādas audzēji (melanomas priekšstadija).",
+      "Asinsvadu anomālijas (paplašināti kapilāri ādā).",
+      "Pigmenta trūkuma zonas (depigmentācijas perēkļi)."
+    ]
+  },
+  {
+    "q": "Nosauc ļaundabīgos ādas audzējus.",
+    "correct": "Bazālā karcinoma, Melanoma, Plakanšūnu karcinoma.",
+    "options": [
+      "Bazālā karcinoma, Melanoma, Plakanšūnu karcinoma.",
+      "Lipoma, Fibroma, Hemangioma.",
+      "Keratoze, Papiloma, Dermatofibroma.",
+      "Ateroma, Nēvuss, Seborejas keratoze."
+    ]
+  },
+  {
+    "q": "Kas ir Erupcija?",
+    "correct": "Izsitumu parādīšanās process uz ādas.",
+    "options": [
+      "Izsitumu parādīšanās process uz ādas.",
+      "Izsitumu izzušanas process no ādas.",
+      "Ādas pigmentācijas izmaiņu process.",
+      "Ādas atrofijas sākuma stadija."
+    ]
+  },
+  {
+    "q": "Kā sauc izsitumus medicīnā?",
+    "correct": "Eflorescences.",
+    "options": [
+      "Eflorescences.",
+      "Erupcijas.",
+      "Eksantēmas.",
+      "Dermatozes."
+    ]
+  },
+  {
+    "q": "Nosauc primārās eflorescences.",
+    "correct": "Macula, Papula, Nodus, Urtica, Vesicula, Pustula, Cystis.",
+    "options": [
+      "Macula, Papula, Nodus, Urtica, Vesicula, Pustula, Cystis.",
+      "Squama, Crusta, Ulcus, Rēta, Atrofija, Plaisas, Lihenifikācija.",
+      "Eritēma, Hematoma, Petehija, Purpura, Ekhimoze, Teleangiektāzijas."
+    ]
+  },
+  {
+    "q": "Nosauc sekundārās eflorescences.",
+    "correct": "Squama, Crusta, Sakasījumi, Ulcus, Rēta, Atrofija, Plaisas, Lihenifikācija.",
+    "options": [
+      "Squama, Crusta, Sakasījumi, Ulcus, Rēta, Atrofija, Plaisas, Lihenifikācija.",
+      "Macula, Papula, Nodus, Urtica, Vesicula, Pustula, Cystis, Bulla.",
+      "Eritēma, Hematoma, Petehija, Purpura, Ekhimoze, Teleangiektāzijas, Eritrodermija."
+    ]
+  },
+  {
+    "q": "Nosauc specifiskos elementus, kas veidojas ādā noteiktos apstākļos.",
+    "correct": "Eritēma, Eritrodermija, Teleangiektāzijas, Hematoma, Petehija, Purpura, Ekhimoze.",
+    "options": [
+      "Eritēma, Eritrodermija, Teleangiektāzijas, Hematoma, Petehija, Purpura, Ekhimoze.",
+      "Macula, Papula, Nodus, Urtica, Vesicula, Pustula, Cystis.",
+      "Squama, Crusta, Sakasījumi, Ulcus, Rēta, Atrofija, Lihenifikācija."
+    ]
+  },
+  {
+    "q": "Kas ir Eritēma?",
+    "correct": "Ādas apsārtums, ko izraisa paviršējo asinsvadu paplašināšanās (vazodilatācija).",
+    "options": [
+      "Ādas apsārtums, ko izraisa paviršējo asinsvadu paplašināšanās (vazodilatācija).",
+      "Ādas pigmentācijas zudums, ko izraisa melanocītu iznīcināšanās (depigmentācija).",
+      "Ādas sabiezēšana, ko izraisa pastiprināta keratīna sintēze (hiperkeratinizācija).",
+      "Ādas pietūkums, ko izraisa limfātiskās sistēmas nosprostojums (limfostāze)."
+    ]
+  },
+  {
+    "q": "Kas ir primārās eflorescences?",
+    "correct": "Izsitumi, kas parādās uz iepriekš veselas ādas.",
+    "options": [
+      "Izsitumi, kas parādās uz iepriekš veselas ādas.",
+      "Izsitumi, kas rodas no citiem, jau esošiem izsitumiem.",
+      "Izsitumi, kas parādās tikai uz iekaisušas ādas.",
+      "Izsitumi, kas veidojas tikai pēc mehāniskas ādas traumas."
+    ]
+  },
+  {
+    "q": "Kas ir sekundārās eflorescences?",
+    "correct": "Rodas no primāriem izsitumiem, tiem progresējot vai regresējot.",
+    "options": [
+      "Rodas no primāriem izsitumiem, tiem progresējot vai regresējot.",
+      "Parādās tieši uz veselas ādas bez iepriekšējiem bojājumiem.",
+      "Rodas no ārējās vides iedarbības, piemēram, ķīmiskām vielām.",
+      "Parādās tikai akūtu infekcijas slimību gadījumā uz gļotādām."
+    ]
+  },
+  {
+    "q": "Kas ir specifiski elementi dermatoloģijā?",
+    "correct": "Elementi, kas veidojas ādā noteiktos apstākļos (piem., asinsvadu vai asinsreces patoloģijās).",
+    "options": [
+      "Elementi, kas veidojas ādā noteiktos apstākļos (piem., asinsvadu vai asinsreces patoloģijās).",
+      "Elementi, kas veidojas jebkurā ādas slānī neatkarīgi no apstākļiem vai slimībām.",
+      "Elementi, kas veidojas tikai dermas slānī normālos fizioloģiskos apstākļos.",
+      "Elementi, kas rodas tikai pēc ķirurģiskas iejaukšanās vai mehāniskas ādas traumēšanas."
+    ]
+  }
+];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
