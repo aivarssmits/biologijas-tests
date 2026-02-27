@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dermatoloģijas tests II</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Dermatoloģijas tests II">
+    <div class="header">
+      <div class="title">Dermatoloģijas tests II</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied "Pildīt vēlreiz".</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Kas ir Difūza izsitumu izplatība?",
+    "correct": "Āda skarta vienlaidus, bez veselas ādas laukumiem starp perēkļiem.",
+    "options": [
+      "Āda skarta vienlaidus, bez veselas ādas laukumiem starp perēkļiem.",
+      "Starp izsitumu perēkļiem ir veselas ādas laukumi, izsitumi izkliedēti.",
+      "Neliels skaits atsevišķu izsitumu perēkļu dažādās ķermeņa daļās.",
+      "Izsitumi koncentrēti tikai vienā nelielā ādas zonā bez izplatīšanās."
+    ]
+  },
+  {
+    "q": "Kas ir Diseminēta izsitumu izplatība?",
+    "correct": "Starp izsitumu perēkļiem ir veselas ādas laukumi.",
+    "options": [
+      "Starp izsitumu perēkļiem ir veselas ādas laukumi.",
+      "Āda skarta vienlaidus, bez veselas ādas laukumiem starp perēkļiem.",
+      "Izsitumi koncentrēti tikai uz sejas un kakla apvidū.",
+      "Neliels skaits izsitumu perēkļu, kas lokalizēti vienā vietā."
+    ]
+  },
+  {
+    "q": "Kas ir Solitāra izsitumu izplatība?",
+    "correct": "Neliels skaits izsitumu perēkļu.",
+    "options": [
+      "Neliels skaits izsitumu perēkļu.",
+      "Āda skarta vienlaidus, bez veselas ādas pazīmēm.",
+      "Izsitumi izkliedēti pa visu ķermeni ar veseliem laukumiem.",
+      "Daudz izsitumu perēkļu koncentrēti vienā zonā."
+    ]
+  },
+  {
+    "q": "Kas ir Monomorfisms dermatoloģijā?",
+    "correct": "Viens primāro eflorescenšu veids.",
+    "options": [
+      "Viens primāro eflorescenšu veids.",
+      "Vairāk nekā viens primāro eflorescenšu veids dažādās stadijās.",
+      "Tikai sekundāro eflorescenšu klātbūtne uz ādas.",
+      "Primāro un sekundāro eflorescenšu kombinācija vienlaikus."
+    ]
+  },
+  {
+    "q": "Kas ir Polimorfisms dermatoloģijā?",
+    "correct": "Vairāk nekā viens primāro eflorescenšu veids, bet dažādās stadijās.",
+    "options": [
+      "Vairāk nekā viens primāro eflorescenšu veids, bet dažādās stadijās.",
+      "Tikai viens primāro eflorescenšu veids visā ādas virsmā.",
+      "Tikai sekundāro eflorescenšu klātbūtne vienas slimības ietvaros.",
+      "Viens eflorescenšu veids, kas mainās atkarībā no gadalaikā."
+    ]
+  },
+  {
+    "q": "Kādi faktori jāmin, aprakstot Status localis?",
+    "correct": "Lielums, forma, robežas, konsistence, krāsa.",
+    "options": [
+      "Lielums, forma, robežas, konsistence, krāsa.",
+      "Temperatūra, mitrums, elastība, biezums, smarža.",
+      "Dziļums, simetija, blīvums, spīdīgums, tekstūra.",
+      "Lokalizācija, svars, tilpums, cietība, virsmas reljefs."
+    ]
+  },
+  {
+    "q": "Kādas ir invazīvas diagnostikas metodes dermatoloģijā?",
+    "correct": "Ādas biopsija – punch-biopsija, shave biopsija.",
+    "options": [
+      "Ādas biopsija – punch-biopsija, shave biopsija.",
+      "Dermatoskopija, Vuda lampa, Diaskopija, USG.",
+      "Patch testi, Prik testi, kopējais IgE līmenis.",
+      "Konfokālā mikroskopija, USG, digitālā fotogrāfija."
+    ]
+  },
+  {
+    "q": "Kādas ir neinvazīvas diagnostikas metodes dermatoloģijā?",
+    "correct": "Dermatoskopija, Vuda lampa, Diaskopija, USG, Konfokālā mikroskopija.",
+    "options": [
+      "Dermatoskopija, Vuda lampa, Diaskopija, USG, Konfokālā mikroskopija.",
+      "Punch-biopsija, shave biopsija, ekscīzijas biopsija, incīzijas biopsija.",
+      "Patch testi, Prik testi, intradermālie testi, kopējais IgE līmenis.",
+      "Asins analīzes, urīna analīzes, baktēriju kultūras, bioķīmiskās analīzes."
+    ]
+  },
+  {
+    "q": "Nosauc ādas alerģiskos testus!",
+    "correct": "Patch testi, Prik testi, kopējais IgE.",
+    "options": [
+      "Patch testi, Prik testi, kopējais IgE.",
+      "Dermatoskopija, Diaskopija, Vuda lampa.",
+      "Punch-biopsija, shave biopsija, ekscīzijas biopsija.",
+      "USG, konfokālā mikroskopija, MRI izmeklējums."
+    ]
+  },
+  {
+    "q": "Kas ir oklūzija un kā tā ietekmē ādas lokālo absorbciju?",
+    "correct": "Oklūzija – slēgti, hermētiski pārsēji vai ziedes palielina raga slāņa hidratāciju un temperatūru, samazina medikamenta zudumu un veicina tā dziļāku penetrāciju.",
+    "options": [
+      "Oklūzija – slēgti, hermētiski pārsēji vai ziedes palielina raga slāņa hidratāciju un temperatūru, samazina medikamenta zudumu un veicina tā dziļāku penetrāciju.",
+      "Oklūzija – atvērti pārsēji vai losjoni samazina raga slāņa hidratāciju un temperatūru, palielina medikamenta iztvaikošanu un kavē tā penetrāciju.",
+      "Oklūzija – mitri kompresi vai šķīdumi palielina ādas pH līmeni, veicina epidermas lobīšanos un samazina zāļu efektivitāti ādā.",
+      "Oklūzija – dezinficējoši pārsēji vai gēli samazina ādas mikrofloru, palielina raga slāņa biezumu un kavē aktīvo vielu absorbciju."
+    ]
+  },
+  {
+    "q": "Kādi vēl faktori ietekmē un uzlabo ādas lokālo absorbciju?",
+    "correct": "Produkta aplikāciju biežums un ilgums, kā arī aplicējamais daudzums.",
+    "options": [
+      "Produkta aplikāciju biežums un ilgums, kā arī aplicējamais daudzums.",
+      "Pacienta vecums un svars, kā arī ādas ģenētiskais tips un fototipiski.",
+      "Barības vielu daudzums uzturā un fiziskā aktivitāte ikdienā.",
+      "Gaisa temperatūra un mitrums telpā, kā arī apgaismojuma intensitāte."
+    ]
+  },
+  {
+    "q": "Vai krēmu var lietot visās iekaisuma fāzēs?",
+    "correct": "Jā, krēmu var lietot visās iekaisuma fāzēs.",
+    "options": [
+      "Jā, krēmu var lietot visās iekaisuma fāzēs.",
+      "Nē, krēmu drīkst lietot tikai akūtā iekaisuma fāzē.",
+      "Nē, krēmu drīkst lietot tikai hroniskā iekaisuma fāzē.",
+      "Nē, krēmu lieto tikai profilaktiski, nevis iekaisuma ārstēšanai."
+    ]
+  },
+  {
+    "q": "Kura no zāļu formām penetrē ļoti dziļi ādā?",
+    "correct": "Ziede.",
+    "options": [
+      "Ziede.",
+      "Losions.",
+      "Gēls.",
+      "Krēms."
+    ]
+  },
+  {
+    "q": "Kas ir pasta dermatoloģijā?",
+    "correct": "Augstas koncentrācijas pūdera (līdz pat 50%) un ziedes apvienojums.",
+    "options": [
+      "Augstas koncentrācijas pūdera (līdz pat 50%) un ziedes apvienojums.",
+      "Augstas koncentrācijas ūdens (līdz pat 50%) un gēla apvienojums.",
+      "Zemas koncentrācijas spirta (līdz pat 10%) un losiona apvienojums.",
+      "Augstas koncentrācijas eļļas (līdz pat 50%) un krēma apvienojums."
+    ]
+  },
+  {
+    "q": "Kura zāļu forma penetrē dziļāk nekā ziede?",
+    "correct": "Plāksteris.",
+    "options": [
+      "Plāksteris.",
+      "Losions.",
+      "Gēls.",
+      "Krēms."
+    ]
+  },
+  {
+    "q": "Kādas ir blaknes Glikokortikosteroīdu ilgstošai lietošanai?",
+    "correct": "Ādas atrofija, ādas trauslums, strijas, teleangiektāzijas, stabilas steroīdu eritēmas veidošanās (t.sk. rozācija, periorāls dermatīts).",
+    "options": [
+      "Ādas atrofija, ādas trauslums, strijas, teleangiektāzijas, stabilas steroīdu eritēmas veidošanās (t.sk. rozācija, periorāls dermatīts).",
+      "Ādas sabiezēšana, pastiprināta matu augšana, hiperpigmentācija, paaugstināts kolagēna līmenis (t.sk. fibroze, keloīdi).",
+      "Ādas hiperpigmentācija, pastiprināta svīšana, akne, palielināta sebuma izdale (t.sk. seborejas dermatīts, folikulīts).",
+      "Ādas hiperēmija, paātrināta brūču dzīšana, pastiprināta keratinizācija, palielināta elastīna sintēze un ādas biezuma pieaugums."
+    ]
+  },
+  {
+    "q": "Kurš no preparātiem ir galvenais Kerolītiķis?",
+    "correct": "Salicilskābe.",
+    "options": [
+      "Salicilskābe.",
+      "Hialuronskābe.",
+      "Glikolskābe.",
+      "Azelīnskābe."
+    ]
+  },
+  {
+    "q": "Vai var lietot terminu 'Ekzematozais dermatīts' kopā?",
+    "correct": "Nevar – ekzēma un dermatīts ir sinonīmi, tāpēc kopā lietot ir nepareizi.",
+    "options": [
+      "Nevar – ekzēma un dermatīts ir sinonīmi, tāpēc kopā lietot ir nepareizi.",
+      "Jā, var – ekzēma apzīmē akūtu formu, bet dermatīts hronisku bojājumu.",
+      "Jā, var – ekzēma attiecas uz epidermālām izmaiņām, bet dermatīts uz dermālām.",
+      "Nevar – ekzēma ir alerģiska, bet dermatīts ir tikai kairinājuma izraisīts."
+    ]
+  },
+  {
+    "q": "Eksogēnos dermatītus izraisa ārējie faktori – mini piemērus!",
+    "correct": "Kairinājuma kontaktdermatīts, Alerģisks kontaktdermatīts.",
+    "options": [
+      "Kairinājuma kontaktdermatīts, Alerģisks kontaktdermatīts.",
+      "Atopiskais dermatīts, Seborejiskais dermatīts.",
+      "Asteatotiskais dermatīts, Stāzes dermatīts.",
+      "Numulārais dermatīts, Dishidrotiskā ekzēma."
+    ]
+  },
+  {
+    "q": "Endogēnos dermatītus izraisa iekšējie faktori – mini piemērus!",
+    "correct": "Atopiskais dermatīts, Seborejiskais dermatīts un citi.",
+    "options": [
+      "Atopiskais dermatīts, Seborejiskais dermatīts un citi.",
+      "Kairinājuma kontaktdermatīts, Alerģisks kontaktdermatīts.",
+      "Fotodermatīts, Apdegumu dermatīts un radiācijas dermatīts.",
+      "Ķīmiskais dermatīts, Mehāniskais dermatīts un termiskais dermatīts."
+    ]
+  },
+  {
+    "q": "Kādas pazīmes raksturo Akūtu dermatītu?",
+    "correct": "Eritēma, Mitrošanās, Vezīkulas, Papulas, Kreveles.",
+    "options": [
+      "Eritēma, Mitrošanās, Vezīkulas, Papulas, Kreveles.",
+      "Sausa āda, Zvīņas, Lihenifikācija, Fisūras, Atrofija.",
+      "Hiperkeratoze, Rētas, Pigmentācija, Noduli, Cistas.",
+      "Zvīņošanās, Sabiezēšana, Plaisas, Pigmenta izmaiņas, Kserioze."
+    ]
+  },
+  {
+    "q": "Kādas pazīmes raksturo Hronisku dermatītu?",
+    "correct": "Eritēma, minimāla vai neesoša mitrošanās, Sausa āda, Zvīņas, Lihenifikācija, Fisūras.",
+    "options": [
+      "Eritēma, minimāla vai neesoša mitrošanās, Sausa āda, Zvīņas, Lihenifikācija, Fisūras.",
+      "Spēcīga mitrošanās, Vezīkulas, Papulas, Kreveles, Eritēma un tūska.",
+      "Pustulas, Bullas, Nekroze, Strutošanās, Čūlu veidošanās un abscess.",
+      "Hiperpigmentācija, Matu izkrišana, Nagu distrofija, Gļotādu bojājumi."
+    ]
+  },
+  {
+    "q": "Kas ir kontaktdermatīts?",
+    "correct": "Ādas iekaisums, kas rodas ādā pēc īslaicīga vai ilglaicīga kontakta ar noteiktu vielu.",
+    "options": [
+      "Ādas iekaisums, kas rodas ādā pēc īslaicīga vai ilglaicīga kontakta ar noteiktu vielu.",
+      "Ādas infekcija, kas rodas pēc baktēriju vai vīrusu iekļūšanas caur ādas barjeru.",
+      "Ādas autoimūna slimība, kas rodas imūnsistēmas kļūdainas darbības rezultātā.",
+      "Ādas alerģiska reakcija, kas rodas tikai pēc alerģēna iedarbības caur gremošanas traktu."
+    ]
+  },
+  {
+    "q": "Kāds ir primārais kontaktdermatīts, kas sastāda 80% gadījumu, un kas to izraisa?",
+    "correct": "Kairinājuma kontaktdermatīts, ko izraisa ķīmiskas vielas.",
+    "options": [
+      "Kairinājuma kontaktdermatīts, ko izraisa ķīmiskas vielas.",
+      "Alerģisks kontaktdermatīts, ko izraisa specifisks antigēns.",
+      "Fototoksisks kontaktdermatīts, ko izraisa UV starojums.",
+      "Atopiskais kontaktdermatīts, ko izraisa iedzimta predispozīcija."
+    ]
+  },
+  {
+    "q": "Kāds ir netiešais kontaktdermatīts, kas sastāda 20% gadījumu, un kas to izraisa?",
+    "correct": "Alerģisks kontaktdermatīts, ko izraisa antigēns.",
+    "options": [
+      "Alerģisks kontaktdermatīts, ko izraisa antigēns.",
+      "Kairinājuma kontaktdermatīts, ko izraisa ķīmiskas vielas.",
+      "Fotoalerģisks kontaktdermatīts, ko izraisa saules starojums.",
+      "Mehānisks kontaktdermatīts, ko izraisa berze vai spiediens."
+    ]
+  },
+  {
+    "q": "Kur ir biežākā kontaktdermatīta lokalizācija?",
+    "correct": "Plaukstas.",
+    "options": [
+      "Plaukstas.",
+      "Sejas āda.",
+      "Kāju pēdas.",
+      "Muguras āda."
+    ]
+  },
+  {
+    "q": "Cik ātri parādās akūta kontaktdermatīta simptomi?",
+    "correct": "Uzreiz (tūlīt pēc kontakta ar kairinošo vielu).",
+    "options": [
+      "Uzreiz (tūlīt pēc kontakta ar kairinošo vielu).",
+      "Pēc 24–72 stundām (novēlota tipa reakcija).",
+      "Pēc 1–2 nedēļām (lēni progresējoša reakcija).",
+      "Pēc 3–5 dienām (pakāpeniska sensibilizācija)."
+    ]
+  },
+  {
+    "q": "Kādā veidā lielākoties cilvēks iegūst Akūtu kairinājuma kontaktdermatītu (KKD)?",
+    "correct": "Biežāk saistīts ar aroda (profesionāliem) faktoriem.",
+    "options": [
+      "Biežāk saistīts ar aroda (profesionāliem) faktoriem.",
+      "Biežāk saistīts ar uztura alerģēniem un pārtikas nepanesamību.",
+      "Biežāk saistīts ar ģenētisku predispozīciju un iedzimtību.",
+      "Biežāk saistīts ar emocionālu stresu un psihosomatiskām reakcijām."
+    ]
+  },
+  {
+    "q": "Kādā veidā lielākoties cilvēks iegūst Hronisku kairinājuma kontaktdermatītu (KKD)?",
+    "correct": "Faktoru kumulatīvs (uzkrājošs) efekts ilgstošā laika periodā.",
+    "options": [
+      "Faktoru kumulatīvs (uzkrājošs) efekts ilgstošā laika periodā.",
+      "Vienreizēja spēcīga ķīmiska viela, kas uzreiz bojā ādas barjeru.",
+      "Akūta alerģiska reakcija pēc pirmreizēja kontakta ar alergēnu.",
+      "Ģenētiski noteikta predispozīcija, kas izpaužas bērnībā spontāni."
+    ]
+  },
+  {
+    "q": "Kuram no dermatītiem raksturīgs ādas un gļotādu pārmērīgs jutīgums pret apkārtējās vides vielām, kur lomu spēlē iedzimtība mijiedarbībā ar ārējiem faktoriem?",
+    "correct": "Atopiskais dermatīts.",
+    "options": [
+      "Atopiskais dermatīts.",
+      "Seborejiskais dermatīts.",
+      "Kairinājuma kontaktdermatīts.",
+      "Alerģisks kontaktdermatīts."
+    ]
+  },
+  {
+    "q": "Kuram dermatītam ir raksturīga hroniski recidivējoša, iekaisīga un niezoša dermatoze ar atopiju – ģenētisku noslieci uz alerģisku rinītu, astmu un uztura alerģiju?",
+    "correct": "Atopiskajam dermatītam.",
+    "options": [
+      "Atopiskajam dermatītam.",
+      "Seborejiskajam dermatītam.",
+      "Psoriāzei (plākšņu formai).",
+      "Kairinājuma kontaktdermatītam."
+    ]
+  },
+  {
+    "q": "Kurā vecumā Atopiskais dermatīts sāk izpausties un kur visbiežāk tas sastopams?",
+    "correct": "Attīstās līdz 6 mēnešu – 1 gada vecumam, visbiežāk sastopams uz ieloku jeb fleksoru virsmām.",
+    "options": [
+      "Attīstās līdz 6 mēnešu – 1 gada vecumam, visbiežāk sastopams uz ieloku jeb fleksoru virsmām.",
+      "Attīstās pēc 5–10 gadu vecuma, visbiežāk sastopams uz ekstensoru virsmām un galvas ādā.",
+      "Attīstās pusaudžu vecumā (12–16 gadi), visbiežāk sastopams uz stumbra un muguras.",
+      "Attīstās pieaugušā vecumā (25–40 gadi), visbiežāk sastopams uz plaukstām un pēdām."
+    ]
+  },
+  {
+    "q": "Kurš dermatīts ir raksturīgs gados vecākiem cilvēkiem?",
+    "correct": "Asteatotiskais dermatīts.",
+    "options": [
+      "Asteatotiskais dermatīts.",
+      "Atopiskais dermatīts.",
+      "Seborejiskais dermatīts.",
+      "Alerģiskais kontaktdermatīts."
+    ]
+  },
+  {
+    "q": "Kas raksturīgs Stāzes dermatītam?",
+    "correct": "Krāsas izmaiņas, plāna āda, Vezīkulas, kreveles, tūska.",
+    "options": [
+      "Krāsas izmaiņas, plāna āda, Vezīkulas, kreveles, tūska.",
+      "Sabiezēta āda, lihenifikācija, fisūras, hiperkeratoze.",
+      "Pustulas, noduli, cistas, strutaini izdalījumi, rētas.",
+      "Depigmentācija, alopēcija, nagu distrofija, gļotādu erozijas."
+    ]
+  },
+  {
+    "q": "Ja ir izjaukta ādas barjera, ko svarīgi darīt?",
+    "correct": "Stiprināt ādas barjeru ar lipīdiem.",
+    "options": [
+      "Stiprināt ādas barjeru ar lipīdiem.",
+      "Bieži mazgāt ādu ar spēcīgām ziepēm.",
+      "Lietot augsta % spirta dezinfekcijas līdzekli.",
+      "Aplikēt skābes pīlingu visā ādas virsmā."
+    ]
+  },
+  {
+    "q": "Kādus medikamentus lieto dermatītu gadījumā?",
+    "correct": "Kortikosteroīdus, kalcineirīna inhibītorus, antihistamīnus.",
+    "options": [
+      "Kortikosteroīdus, kalcineirīna inhibītorus, antihistamīnus.",
+      "Antibiotiku kursus, pretvīrusu līdzekļus, pretsēnīšu krēmus.",
+      "Citostatiskos preparātus, imūnsupresantus, bioloģiskos aģentus.",
+      "Insulīnu, metformīnu, tiroksīnu un citus hormonālos preparātus."
+    ]
+  },
+  {
+    "q": "Kur tauku dziedzeri atveras?",
+    "correct": "Matu folikulā.",
+    "options": [
+      "Matu folikulā.",
+      "Tieši uz ādas virsmas.",
+      "Sviedru dziedzeru kanālā.",
+      "Dermas papilārajā slānī."
+    ]
+  },
+  {
+    "q": "Kur tauku dziedzeri var būt brīvi izvietoti ādā (bez saistības ar matu folikulu)?",
+    "correct": "Krūts dziedzeru oreolā, mazajās kaunuma lūpās, preputium, glans penis ādā, lūpu sarkanajā līnijā.",
+    "options": [
+      "Krūts dziedzeru oreolā, mazajās kaunuma lūpās, preputium, glans penis ādā, lūpu sarkanajā līnijā.",
+      "Plaukstas, pēdas, nagu pamatnes, cirkšņu ieloces un padušu apvidū.",
+      "Galvas ādā, mugurā, krūškurvja priekšpusē un plecu rajonā.",
+      "Uz plakstiņiem, deguna spārniņiem, aiz ausīm un zoda apvidū."
+    ]
+  },
+  {
+    "q": "Ko satur tauku dziedzeru sekrēts (sebums)?",
+    "correct": "Piesātinātas un nepiesātinātas taukskābes, Holesterīns, Ergosterīns, E vitamīns, A vitamīns.",
+    "options": [
+      "Piesātinātas un nepiesātinātas taukskābes, Holesterīns, Ergosterīns, E vitamīns, A vitamīns.",
+      "Glikoze, fruktoze, aminoskābes, kalcija joni, D vitamīns un nātrija hlorīds.",
+      "Urīnviela, pienskābe, nātrija hlorīds, kālija joni, C vitamīns un amonijs.",
+      "Kolagēns, elastīns, hialuronskābe, fibronektīns, K vitamīns un keratīns."
+    ]
+  },
+  {
+    "q": "Kāda ir aknes definīcija?",
+    "correct": "Slimība, kas skar mata folikulu un tam piegulošo tauku dziedzeri.",
+    "options": [
+      "Slimība, kas skar mata folikulu un tam piegulošo tauku dziedzeri.",
+      "Slimība, kas skar tikai sviedru dziedzerus un limfātiskos kapilārus.",
+      "Slimība, kas skar tikai epidermas virsējo raga slāni un melanocītus.",
+      "Slimība, kas skar dermas asinsvadus un zemādas taukaudus."
+    ]
+  },
+  {
+    "q": "Kāds ir aknes vecuma pīķis un kuram dzimumam ir smagāka forma?",
+    "correct": "Vecuma pīķis 15–18 gadi, vīriešiem bieži ir smagākas aknes formas.",
+    "options": [
+      "Vecuma pīķis 15–18 gadi, vīriešiem bieži ir smagākas aknes formas.",
+      "Vecuma pīķis 25–35 gadi, sievietēm bieži ir smagākas aknes formas.",
+      "Vecuma pīķis 5–10 gadi, abiem dzimumiem ir vienādi smaga forma.",
+      "Vecuma pīķis 40–50 gadi, vīriešiem biežāk ir vieglāka aknes forma."
+    ]
+  },
+  {
+    "q": "Kā sauc smagākās aknes formas?",
+    "correct": "Nodulocistiskā akne.",
+    "options": [
+      "Nodulocistiskā akne.",
+      "Acne comedonica.",
+      "Acne papulopustulosa.",
+      "Acne cosmetica."
+    ]
+  },
+  {
+    "q": "Kuri produkti palielina sebuma un insulīna produkciju, veicinot akni?",
+    "correct": "Piena produkti un saldumi.",
+    "options": [
+      "Piena produkti un saldumi.",
+      "Dārzeņi un augļi.",
+      "Pilngraudu produkti un rieksti.",
+      "Zivis un olīveļļa."
+    ]
+  },
+  {
+    "q": "Kuram mikrofloras elementam jābūt organismā vairāk aknes gadījumā?",
+    "correct": "Cutibacterium acnes (C. acnes).",
+    "options": [
+      "Cutibacterium acnes (C. acnes).",
+      "Staphylococcus epidermidis.",
+      "Malassezia furfur.",
+      "Streptococcus pyogenes."
+    ]
+  },
+  {
+    "q": "Bez kura elementa nav aknes?",
+    "correct": "Bez komedoniem.",
+    "options": [
+      "Bez komedoniem.",
+      "Bez pustulām.",
+      "Bez papulām.",
+      "Bez eritēmas."
+    ]
+  },
+  {
+    "q": "Nosauc aknes klīniskos elementus!",
+    "correct": "Mikrokomedons, Komedons, Papula, Pustula, Nodus, Cista, Rēta.",
+    "options": [
+      "Mikrokomedons, Komedons, Papula, Pustula, Nodus, Cista, Rēta.",
+      "Macula, Urtica, Vesicula, Bulla, Squama, Crusta, Lihenifikācija.",
+      "Eritēma, Petehija, Purpura, Hematoma, Ekhimoze, Teleangiektāzija.",
+      "Ulcus, Fisūra, Atrofija, Erozija, Ekskoriācija, Nekroze, Keloīds."
+    ]
+  },
+  {
+    "q": "Nosauc aknes klīniskās formas!",
+    "correct": "Acne comedonica, Acne papulopustulosa, Acne nodulocystica s. conglobata, Acne fulminans.",
+    "options": [
+      "Acne comedonica, Acne papulopustulosa, Acne nodulocystica s. conglobata, Acne fulminans.",
+      "Acne rosacea, Acne mechanica, Acne medicamentosa, Acne cosmetica.",
+      "Acne neonatorum, Acne infantum, Acne excoriée, Acne tropicalis.",
+      "Acne inversa, Acne aestivalis, Acne steroidica, Acne venenata."
+    ]
+  },
+  {
+    "q": "Kas ir aknes terapijas pamatā?",
+    "correct": "Salicilskābe, arī Retinoīdi.",
+    "options": [
+      "Salicilskābe, arī Retinoīdi.",
+      "Hialuronskābe, arī Niacinamīds.",
+      "Glikolskābe, arī Pantenols.",
+      "Pienskābe, arī Ceramīdi."
+    ]
+  },
+  {
+    "q": "Kāda ir Rozācijas definīcija?",
+    "correct": "Bieži sastopama hroniska iekaisīga ādas dermatoze, kuru pamatā novēro pieaugušajiem un kuru raksturo patstāvīga sejas eritēma un dažādi izsitumi.",
+    "options": [
+      "Bieži sastopama hroniska iekaisīga ādas dermatoze, kuru pamatā novēro pieaugušajiem un kuru raksturo patstāvīga sejas eritēma un dažādi izsitumi.",
+      "Reta akūta infekcioza ādas slimība, ko izraisa baktērijas un kuru raksturo strutaini izsitumi uz ekstremitātēm un strutošanās.",
+      "Autoimūna sistēmiska slimība, kas galvenokārt skar iekšējos orgānus un reti izpaužas uz ādas ar specifiskiem izsitumiem.",
+      "Bieži sastopama akūta alerģiska ādas reakcija, kuru pamatā novēro bērniem un kuru raksturo ķermeņa nātrene un angioedēma."
+    ]
+  },
+  {
+    "q": "Kāda elementa saslimšana ir Rozācija?",
+    "correct": "Asinsvadu (vaskulāra) saslimšana.",
+    "options": [
+      "Asinsvadu (vaskulāra) saslimšana.",
+      "Tauku dziedzeru (glandulāra) saslimšana.",
+      "Nervu galu (neiroloģiska) saslimšana.",
+      "Matu folikulu (folikulāra) saslimšana."
+    ]
+  },
+  {
+    "q": "Kādi ir Rozācijas veicinošie faktori?",
+    "correct": "UV starojums, Stress, krasas temperatūras maiņas, Vējš un mitrums, smaga fiziska slodze, Alkohols (sarkanvīns), Karsti dzērieni, Asi ēdieni.",
+    "options": [
+      "UV starojums, Stress, krasas temperatūras maiņas, Vējš un mitrums, smaga fiziska slodze, Alkohols (sarkanvīns), Karsti dzērieni, Asi ēdieni.",
+      "Augsts holesterīna līmenis, mazkustīgs dzīvesveids, pārmērīga ūdens dzeršana, dzelzs deficīts, B12 vitamīna trūkums.",
+      "Antibiotiku lietošana, vakcinācija, imūnsupresīvi medikamenti, hormonālā kontracepcija, antihistamīnu pārdozēšana.",
+      "Zems gaisa mitrums, tumša telpa, sēdošs darbs, augļu un dārzeņu diēta, biežas acu vingrojumi un meditācija."
+    ]
+  },
+  {
+    "q": "Nosauc Acne Rosacea apakštipus!",
+    "correct": "Eritemoteleangiektātiskā rozācija, Papulopustulozā rozācija, Fimatozā rozācija, Okulārā rozācija.",
+    "options": [
+      "Eritemoteleangiektātiskā rozācija, Papulopustulozā rozācija, Fimatozā rozācija, Okulārā rozācija.",
+      "Nodulocistiskā rozācija, Komedonu rozācija, Atrofiskā rozācija, Granulomatozā rozācija.",
+      "Eksfoliātīvā rozācija, Hipertrofiskā rozācija, Ulceratīvā rozācija, Nekrotiskā rozācija.",
+      "Pustulozā rozācija, Seborejiskā rozācija, Diseminētā rozācija, Juvenīlā rozācija."
+    ]
+  }
+];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
