@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Injekciju tests</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Injekciju tests">
+    <div class="header">
+      <div class="title">Injekciju tests</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied "Pildīt vēlreiz".</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Nosauc pieci \"Pareizi\" (five rights) medikamentu ievadē!",
+    "correct": "Pareiza deva, Pareizs medikaments, Pareizs pacients, Pareizs laiks, Pareizs ievadīšanas veids.",
+    "options": [
+      "Pareiza deva, Pareizs medikaments, Pareizs pacients, Pareizs laiks, Pareizs ievadīšanas veids.",
+      "Pareiza deva, Pareizs medikaments, Pareiza diagnoze, Pareizs ārstēšanas ilgums, Pareiza dokumentācija.",
+      "Pareizs pacients, Pareizs laiks, Pareiza temperatūra, Pareizs šķīdinātājs, Pareiza adatas garums.",
+      "Pareiza deva, Pareizs medikaments, Pareizs pacients, Pareiza diagnoze, Pareizs ārsts."
+    ]
+  },
+  {
+    "q": "Kā un cik reizes jāpārbauda medikamenta etiķete?",
+    "correct": "3 reizes – izņemot no skapja, pirms medikamenta sagatavošanas lietošanai, pēc medikamenta sagatavošanas lietošanai.",
+    "options": [
+      "3 reizes – izņemot no skapja, pirms medikamenta sagatavošanas lietošanai, pēc medikamenta sagatavošanas lietošanai.",
+      "2 reizes – pirms medikamenta sagatavošanas un tieši pirms ievadīšanas pacientam.",
+      "1 reizi – tikai izņemot medikamentu no skapja un pārbaudot derīguma termiņu.",
+      "4 reizes – izņemot no skapja, sagatavojot, pirms ievades un pēc ievades pacientam."
+    ]
+  },
+  {
+    "q": "Kādi ir medikamentu lietošanas galvenie principi?",
+    "correct": "Pārbaudīt visas jaunās ordinācijas lapas vēlreiz, pārdomāt devas, ievades veidus un mijiedarbības, pārbaudīt medikamentu derīguma laiku.",
+    "options": [
+      "Pārbaudīt visas jaunās ordinācijas lapas vēlreiz, pārdomāt devas, ievades veidus un mijiedarbības, pārbaudīt medikamentu derīguma laiku.",
+      "Ievadīt medikamentu pēc iespējas ātrāk, nedomājot par mijiedarbībām, lai sasniegtu tūlītēju terapeitisko efektu.",
+      "Pārbaudīt tikai medikamenta nosaukumu un devu, bet ievades veids un mijiedarbības nav būtiskas drošībai.",
+      "Lietot medikamentus tikai tad, ja pacients pats pieprasa, neņemot vērā ordinācijas lapu norādījumus."
+    ]
+  },
+  {
+    "q": "Kā novērtē pacientu pirms iekšķīgu medikamentu lietošanas?",
+    "correct": "Pacienta orientēšanās medicīnā, diētas īpatnības, mutes dobuma stāvoklis, iespēja norīt medikamentu.",
+    "options": [
+      "Pacienta orientēšanās medicīnā, diētas īpatnības, mutes dobuma stāvoklis, iespēja norīt medikamentu.",
+      "Pacienta ķermeņa svars, augums, asinsspiediens un ķermeņa temperatūra pirms katras zāļu devas.",
+      "Pacienta vecums, dzimums, asins grupa un hemoglobīna līmenis pirms medikamenta ievades.",
+      "Pacienta izglītības līmenis, darbavieta, dzīvesvieta un sociālais stāvoklis sabiedrībā."
+    ]
+  },
+  {
+    "q": "Kas ir aseptika?",
+    "correct": "Novērš infekcijas iekļūšanu, uzsvars uz sterilitāti.",
+    "options": [
+      "Novērš infekcijas iekļūšanu, uzsvars uz sterilitāti.",
+      "Iznīcina vai kavē jau esošus mikroorganismus, uzsvars uz dezinfekciju.",
+      "Mazgā rokas ar ūdeni un ziepēm, uzsvars uz higiēnu un tīrību.",
+      "Lieto antibiotikas pret infekcijām, uzsvars uz ārstēšanu."
+    ]
+  },
+  {
+    "q": "Kas ir antiseptika?",
+    "correct": "Iznīcina vai kavē jau esošus mikroorganismus, uzsvars uz dezinfekciju.",
+    "options": [
+      "Iznīcina vai kavē jau esošus mikroorganismus, uzsvars uz dezinfekciju.",
+      "Novērš infekcijas iekļūšanu, uzsvars uz sterilitāti un steriliem materiāliem.",
+      "Lieto antibiotikas, lai iznīcinātu patogēnus sistēmiski asinīs un audos.",
+      "Veic sterilizāciju ar autoklāvu, uzsvars uz instrumentu apstrādi augstā temperatūrā."
+    ]
+  },
+  {
+    "q": "Kuram injekcijas veidam ir raksturīgs: infiltrēt ādas virsmā lokālās anestēzijas līdzekļus, noteikt antivielas pret patogēniem, noteikt alergēnus?",
+    "correct": "Intrakutānai injekcijai.",
+    "options": [
+      "Intrakutānai injekcijai.",
+      "Subkutānai injekcijai.",
+      "Intramuskulārai injekcijai.",
+      "Intravenozai injekcijai."
+    ]
+  },
+  {
+    "q": "Kāds ir adatas garums, leņķis un medikamenta daudzums intrakutānai injekcijai?",
+    "correct": "Adatas garums 0,5–1 cm, leņķis 5–10 grādi, lai tiktu pārsniegts tikai adatas lūmens, med. daudzums 0,1–0,3 ml.",
+    "options": [
+      "Adatas garums 0,5–1 cm, leņķis 5–10 grādi, lai tiktu pārsniegts tikai adatas lūmens, med. daudzums 0,1–0,3 ml.",
+      "Adatas garums 2–4 cm, leņķis 45 grādi, med. daudzums 1–3 ml, ievada zemādas taukaudos.",
+      "Adatas garums 4,5–6 cm, leņķis 90 grādi, med. daudzums 1–5 ml, ievada muskulī.",
+      "Adatas garums 4–6 cm, leņķis 10 grādi, med. daudzums 5–10 ml, ievada vēnā."
+    ]
+  },
+  {
+    "q": "Kādas ir intrakutānās ievades vietas?",
+    "correct": "Uz apakšdelma iekšējās virsmas, augšdelma ārējās virsmas, krūškurvja augšējās daļas, skausta.",
+    "options": [
+      "Uz apakšdelma iekšējās virsmas, augšdelma ārējās virsmas, krūškurvja augšējās daļas, skausta.",
+      "Vēdera priekšējā siena, augšstilbu laterālā virsma, gluteālais rajons, deltveida muskulis.",
+      "Dorsogluteālais rajons, deltveida muskulis, augšstilba laterālā daļa, vastus lateralis.",
+      "Elkoņa locītavas iekšējā virsma, plaukstu virsma, kāju pēdas, ceļgala iekšpuse."
+    ]
+  },
+  {
+    "q": "Kas parādās apkārt adatas galam pēc intrakutānās injekcijas ievades?",
+    "correct": "Balts mezgliņš jeb citrona miziņa.",
+    "options": [
+      "Balts mezgliņš jeb citrona miziņa.",
+      "Sarkans pietūkums jeb hematoma.",
+      "Zilgana plankums jeb ekhimoze.",
+      "Dzeltena pūslīte jeb pustula."
+    ]
+  },
+  {
+    "q": "Kādas ir visu injekciju kontrindikācijas?",
+    "correct": "Ādas un zemādas iekaisumi, infiltrāti, hematomas. Kustību un jušanas traucējumi, tūska plānotajā injekcijas vietā, alerģiska reakcija pret medikamentu, pacienta stāvoklis aizliedz noteiktu zāļu lietošanu.",
+    "options": [
+      "Ādas un zemādas iekaisumi, infiltrāti, hematomas. Kustību un jušanas traucējumi, tūska plānotajā injekcijas vietā, alerģiska reakcija pret medikamentu, pacienta stāvoklis aizliedz noteiktu zāļu lietošanu.",
+      "Pacienta vecums virs 65 gadiem, ķermeņa masa zem 50 kg, paaugstināts asinsspiediens un ģenētiska predispozīcija uz alerģijām.",
+      "Tikai alerģiska reakcija pret medikamentu, citas kontrindikācijas injekcijām nav, ja ārsts ir apstiprinājis ordināciju un medikaments ir derīgs.",
+      "Pacienta atteikums no procedūras, vakara stundas, brīvdienas un svētku dienas, māsas pieredzes trūkums ar konkrēto medikamentu."
+    ]
+  },
+  {
+    "q": "Kāds ir adatas garums, leņķis un medikamenta daudzums subkutānai injekcijai?",
+    "correct": "Adatas garums 2–4 cm, leņķis 45 grādi, med. daudzums 1–3 ml.",
+    "options": [
+      "Adatas garums 2–4 cm, leņķis 45 grādi, med. daudzums 1–3 ml.",
+      "Adatas garums 0,5–1 cm, leņķis 5–10 grādi, med. daudzums 0,1–0,3 ml.",
+      "Adatas garums 4,5–6 cm, leņķis 90 grādi, med. daudzums 1–5 ml.",
+      "Adatas garums 6–8 cm, leņķis 60 grādi, med. daudzums 5–10 ml."
+    ]
+  },
+  {
+    "q": "Kādas ir subkutānās injekcijas vietas?",
+    "correct": "Vēdera priekšējā siena zemādā (ātrākā uzsūkšanās), augšstilbu priekšējā vidējā un laterālā trešdaļa, augšdelma augšējā trešdaļa (deltveida muskuļa apvidus), gluteālo muskuļu ārējie augšējie kvadranti.",
+    "options": [
+      "Vēdera priekšējā siena zemādā (ātrākā uzsūkšanās), augšstilbu priekšējā vidējā un laterālā trešdaļa, augšdelma augšējā trešdaļa (deltveida muskuļa apvidus), gluteālo muskuļu ārējie augšējie kvadranti.",
+      "Uz apakšdelma iekšējās virsmas, augšdelma ārējās virsmas, krūškurvja augšējās daļas un skausta apvidū.",
+      "Tikai vēdera priekšējā siena ap nabas apvidu, citas vietas subkutānām injekcijām nav piemērotas.",
+      "Dorsogluteālais rajons dziļi muskulī, deltveida muskuļa centrālā daļa un vastus lateralis muskulī."
+    ]
+  },
+  {
+    "q": "Kāda medikamenta ievadei visplašāk izmanto subkutāno injekcijas veidu?",
+    "correct": "Insulīna ievadei.",
+    "options": [
+      "Insulīna ievadei.",
+      "Antibiotiku ievadei.",
+      "Pretsāpju līdzekļu ievadei.",
+      "Kortikosteroīdu ievadei."
+    ]
+  },
+  {
+    "q": "Kā notiek pacienta novērtēšana pirms injekcijas?",
+    "correct": "Pārbauda rakstisko ordināciju pirms katras injekcijas. Dokumentē procedūru un iegūto efektu, pacienta reakciju. Pārbauda, vai nav hematomas u.c.",
+    "options": [
+      "Pārbauda rakstisko ordināciju pirms katras injekcijas. Dokumentē procedūru un iegūto efektu, pacienta reakciju. Pārbauda, vai nav hematomas u.c.",
+      "Tikai jautā pacientam, vai viņš jūtas labi, un tad uzreiz veic injekciju bez papildu pārbaudēm.",
+      "Pārbauda pacienta ķermeņa temperatūru, veic EKG un nosūta uz RTG pirms katras injekcijas ievades.",
+      "Novērtē tikai pacienta asinsspiedienu un pulsu, bet ordinācijas lapu nepārbauda, jo tā nav māsas pienākums."
+    ]
+  },
+  {
+    "q": "Kas ir un kas raksturīgs īsas darbības insulīnam?",
+    "correct": "Injicē pirms katras ēdienreizes; darbība sākas pēc 10–20 minūtēm.",
+    "options": [
+      "Injicē pirms katras ēdienreizes; darbība sākas pēc 10–20 minūtēm.",
+      "Injicē 1 vai 2 reizes dienā; darbība sākas 2–3 stundas pēc injekcijas.",
+      "Injicē reizi nedēļā; darbība sākas pēc 24 stundām un ilgst visu nedēļu.",
+      "Injicē tikai pirms gulētiešanas; darbība sākas pēc 1 stundas un ilgst 6 stundas."
+    ]
+  },
+  {
+    "q": "Kas ir un kas raksturīgs garas darbības insulīnam?",
+    "correct": "Injicē 1 vai 2 reizes dienā; darbība sākas 2–3 stundas pēc injekcijas.",
+    "options": [
+      "Injicē 1 vai 2 reizes dienā; darbība sākas 2–3 stundas pēc injekcijas.",
+      "Injicē pirms katras ēdienreizes; darbība sākas pēc 10–20 minūtēm.",
+      "Injicē 3–4 reizes dienā; darbība sākas uzreiz pēc injekcijas ievades.",
+      "Injicē reizi mēnesī; darbība sākas pēc 12 stundām un ilgst 30 dienas."
+    ]
+  },
+  {
+    "q": "Vai katrai insulīna ievadei nepieciešama jauna adata?",
+    "correct": "Jā, katrai insulīna injekcijai nepieciešama jauna adata. Pirms adatas izvilkšanas nogaidīt 10 sekundes.",
+    "options": [
+      "Jā, katrai insulīna injekcijai nepieciešama jauna adata. Pirms adatas izvilkšanas nogaidīt 10 sekundes.",
+      "Nē, vienu adatu var lietot atkārtoti līdz 5 reizēm, ja to dezinficē ar spirtu starp injekcijām.",
+      "Jā, bet adatu maina tikai reizi dienā, neatkarīgi no injekciju skaita un ievades vietas.",
+      "Nē, adatu maina tikai tad, ja tā ir redzami deformēta vai nosprostota ar medikamenta atliekām."
+    ]
+  },
+  {
+    "q": "Kuras ir insulīna ievades vietas un kāda insulīna tipa ievadei tās izmanto?",
+    "correct": "Augšstilbi, gluteālais rajons – lēnas darbības insulīniem. Vēdera priekšējā siena – ātras darbības insulīniem.",
+    "options": [
+      "Augšstilbi, gluteālais rajons – lēnas darbības insulīniem. Vēdera priekšējā siena – ātras darbības insulīniem.",
+      "Vēdera priekšējā siena – lēnas darbības insulīniem. Augšstilbi, gluteālais rajons – ātras darbības insulīniem.",
+      "Deltveida muskulis, apakšdelms – abiem insulīna tipiem neatkarīgi no darbības ilguma.",
+      "Tikai vēdera priekšējā siena – abiem insulīna tipiem, citas vietas nav piemērotas insulīna ievadei."
+    ]
+  },
+  {
+    "q": "Kāda ir cukura līmeņa asinīs norma cilvēkam, kas neslimo ar diabētu?",
+    "correct": "3,3 līdz 6,1 mmol/l.",
+    "options": [
+      "3,3 līdz 6,1 mmol/l.",
+      "6,5 līdz 10,0 mmol/l.",
+      "1,5 līdz 3,0 mmol/l.",
+      "7,0 līdz 11,5 mmol/l."
+    ]
+  },
+  {
+    "q": "Kas ir Heparīns?",
+    "correct": "Heparīns ir tiešas darbības antikoagulants, kas ietekmē recēšanas faktorus tieši asinīs.",
+    "options": [
+      "Heparīns ir tiešas darbības antikoagulants, kas ietekmē recēšanas faktorus tieši asinīs.",
+      "Heparīns ir netiešas darbības antikoagulants, kas darbojas caur K vitamīna bloķēšanu aknās.",
+      "Heparīns ir trombocītu agregācijas inhibitors, kas bloķē tromboksāna A2 sintēzi trombocītos.",
+      "Heparīns ir fibrinolītisks līdzeklis, kas šķīdina jau izveidojušos trombus asinsvados."
+    ]
+  },
+  {
+    "q": "Mini dažas indikācijas Heparīna lietošanai!",
+    "correct": "Vēnu trombozes un plaušu artēriju embolijas profilakse un terapija, trombozes profilakse ķirurģijā.",
+    "options": [
+      "Vēnu trombozes un plaušu artēriju embolijas profilakse un terapija, trombozes profilakse ķirurģijā.",
+      "Augsta asinsspiediena ārstēšana, koronārās sirds slimības profilakse un aritmiju kontrole.",
+      "Cukura diabēta terapija, glikozes līmeņa regulēšana un insulīna rezistences samazināšana.",
+      "Akūtu sāpju kontrole, iekaisuma mazināšana un drudža pazemināšana pēcoperācijas periodā."
+    ]
+  },
+  {
+    "q": "Kādas ir Heparīna kontrindikācijas?",
+    "correct": "Paaugstināta jutība pret heparīnu, akūtas nekontrolējamas asiņošanas gadījumā, grūtniecības laikā terapija pilnīgi jāpārtrauc 6 h pirms dzemdībām.",
+    "options": [
+      "Paaugstināta jutība pret heparīnu, akūtas nekontrolējamas asiņošanas gadījumā, grūtniecības laikā terapija pilnīgi jāpārtrauc 6 h pirms dzemdībām.",
+      "Paaugstināts asinsspiediens, galvassāpes, viegla anēmija un ķermeņa temperatūra virs 37,5 °C pirms injekcijas ievades.",
+      "Cukura diabēts, nieru mazspēja, paaugstināts holesterīna līmenis un hroniska obstruktīva plaušu slimība.",
+      "Alerģija pret lateksu, vecums virs 70 gadiem, ķermeņa masa zem 60 kg un pazemināts asinsspiediens."
+    ]
+  },
+  {
+    "q": "Kas jādara pēc injekciju ievades (par ko jāinformē pacients)?",
+    "correct": "Atkarībā no injekcijas – ka var sāpēt injekcijas vieta; heparīna gadījumā – ka var izveidoties hematoma.",
+    "options": [
+      "Atkarībā no injekcijas – ka var sāpēt injekcijas vieta; heparīna gadījumā – ka var izveidoties hematoma.",
+      "Pacientam jāguļ vismaz 2 stundas pēc jebkuras injekcijas un jālieto pretsāpju medikaments.",
+      "Nav nepieciešams informēt pacientu par iespējamām blaknēm, jo tā ir standarta medicīniskā procedūra.",
+      "Pacientam uzreiz pēc injekcijas jāveic fiziskas aktivitātes, lai veicinātu medikamenta uzsūkšanos."
+    ]
+  },
+  {
+    "q": "Kas ir APTL?",
+    "correct": "Aktivētais parciālais tromboplastīna laiks – laiks, cik ātri sarec asinis.",
+    "options": [
+      "Aktivētais parciālais tromboplastīna laiks – laiks, cik ātri sarec asinis.",
+      "Arteriālā parciālā trombocītu izlīdzināšana – trombocītu skaita noteikšanas metode asinīs.",
+      "Antitrombīna plazmas terapeitiskais līmenis – antitrombīna koncentrācija asins plazmā.",
+      "Akūtā pēcinjekcijas trombocitopēnijas klasifikācija – trombocītu skaita kritums pēc injekcijas."
+    ]
+  },
+  {
+    "q": "Kāds ir adatas garums, leņķis un medikamenta daudzums intramuskulārai injekcijai?",
+    "correct": "Adatas garums 4,5–6 cm, leņķis 90 grādi, med. daudzums 1–5 ml. Ātra iedarbība 5–20 min.",
+    "options": [
+      "Adatas garums 4,5–6 cm, leņķis 90 grādi, med. daudzums 1–5 ml. Ātra iedarbība 5–20 min.",
+      "Adatas garums 2–4 cm, leņķis 45 grādi, med. daudzums 1–3 ml. Iedarbība pēc 30–60 min.",
+      "Adatas garums 0,5–1 cm, leņķis 5–10 grādi, med. daudzums 0,1–0,3 ml. Lokāla iedarbība.",
+      "Adatas garums 6–10 cm, leņķis 60 grādi, med. daudzums 10–20 ml. Iedarbība pēc 1–2 stundām."
+    ]
+  },
+  {
+    "q": "Kādas ir intramuskulārās injekcijas iespējamās ievades vietas?",
+    "correct": "Dorsogluteālajā rajonā, deltveida muskuļa rajonā.",
+    "options": [
+      "Dorsogluteālajā rajonā, deltveida muskuļa rajonā.",
+      "Apakšdelma iekšējā virsmā, krūškurvja augšējā daļā.",
+      "Vēdera priekšējā sienā, augšstilba priekšpusē.",
+      "Elkoņa locītavas virsmā, plaukstas ārpusē."
+    ]
+  },
+  {
+    "q": "Kādas kontrindikācijas ir intramuskulārai (i/m) ievades veidam?",
+    "correct": "Kopējās kā citām injekcijām, bet nedrīkst ievadīt vielas, kas var radīt audu nekrozi, piemēram, kalcija hlorīdu.",
+    "options": [
+      "Kopējās kā citām injekcijām, bet nedrīkst ievadīt vielas, kas var radīt audu nekrozi, piemēram, kalcija hlorīdu.",
+      "Tikai alerģija pret medikamentu, citu kontrindikāciju i/m ievadei nav un tā ir pilnīgi droša metode.",
+      "Kopējās kā citām injekcijām, bet papildus – nedrīkst ievadīt insulīnu un heparīnu intramuskulāri.",
+      "I/m ievade ir kontrindicēta tikai bērniem līdz 12 gadu vecumam un grūtniecēm pirmajā trimestrī."
+    ]
+  },
+  {
+    "q": "Kāds ir adatas garums un leņķis intravenozai injekcijai?",
+    "correct": "10 grādu leņķis, adatas garums 4–6 cm.",
+    "options": [
+      "10 grādu leņķis, adatas garums 4–6 cm.",
+      "90 grādu leņķis, adatas garums 4,5–6 cm.",
+      "45 grādu leņķis, adatas garums 2–4 cm.",
+      "5–10 grādu leņķis, adatas garums 0,5–1 cm."
+    ]
+  },
+  {
+    "q": "Kā novērtē pacientu pirms injekcijām?",
+    "correct": "Novērtē pacienta vitālos rādītājus un vai pacientam anamnēzē nav minēta alerģiska reakcija pret medikamentiem.",
+    "options": [
+      "Novērtē pacienta vitālos rādītājus un vai pacientam anamnēzē nav minēta alerģiska reakcija pret medikamentiem.",
+      "Novērtē tikai pacienta ārējo izskatu un emocionālo stāvokli, bet vitālos rādītājus nepārbauda.",
+      "Veic pilnu asins analīzi, urīna analīzi un EKG pirms katras injekcijas ievadīšanas pacientam.",
+      "Jautā tikai, vai pacients ir ēdis, jo injekcijas vienmēr jāievada tukšā dūšā pirms maltītem."
+    ]
+  }
+];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
