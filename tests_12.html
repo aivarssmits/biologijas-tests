@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dermatoloģijas tests III</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Dermatoloģijas tests III">
+    <div class="header">
+      <div class="title">Dermatoloģijas tests III</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied "Pildīt vēlreiz".</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Kas ir baktērijām (uzbūves pamatkomponenti)?",
+    "correct": "Šūnapvalks, citoplazma un kodols.",
+    "options": [
+      "Šūnapvalks, citoplazma un kodols.",
+      "Mitohondriji, ribosomas un endoplazmatiskais tīkls.",
+      "Kodols, Golgi aparāts un lizosomas.",
+      "Šūnas membrāna, hloroplasti un vakuolas."
+    ]
+  },
+  {
+    "q": "Kas ir Piodermijas?",
+    "correct": "Ādas slimības, ko ierosina strutas radošie mikroorganismi (visbiežāk baktērijas – Staphylococcus aureus un Streptococcus pyogenes).",
+    "options": [
+      "Ādas slimības, ko ierosina strutas radošie mikroorganismi (visbiežāk baktērijas – Staphylococcus aureus un Streptococcus pyogenes).",
+      "Ādas slimības, ko ierosina sēnīšu infekcijas (visbiežāk dermatofīti – Trichophyton rubrum un Candida albicans).",
+      "Ādas slimības, ko ierosina vīrusi (visbiežāk herpes simplex vīruss un cilvēka papilomas vīruss).",
+      "Ādas slimības, ko ierosina parazīti (visbiežāk ektoparazīti – Sarcoptes scabiei un Pediculus humanus)."
+    ]
+  },
+  {
+    "q": "Kā rodas primārās Piodermijas?",
+    "correct": "Rodas uz nebojātas ādas, parasti izraisa vienas sugas baktērijas – impetigo, folikulīts, furunkuls, karbunkuls.",
+    "options": [
+      "Rodas uz nebojātas ādas, parasti izraisa vienas sugas baktērijas – impetigo, folikulīts, furunkuls, karbunkuls.",
+      "Rodas uz bojātas ādas (izsitumi, apdegumi, nobrāzumi), un ierosinātāji ir vairākas baktēriju sugas.",
+      "Rodas tikai pēc ķirurģiskām operācijām, un tās vienmēr izraisa Pseudomonas aeruginosa baktērija.",
+      "Rodas tikai imūnsupresētiem pacientiem, un tās vienmēr izraisa sēnīšu un baktēriju koinfekcija."
+    ]
+  },
+  {
+    "q": "Kā rodas sekundārās Piodermijas?",
+    "correct": "Rodas uz bojātas ādas (izsitumi, apdegumi, nobrāzumi, atopiskais dermatīts, hidradenīts, izgulējumi) un ierosinātāji ir vairākas sugas.",
+    "options": [
+      "Rodas uz bojātas ādas (izsitumi, apdegumi, nobrāzumi, atopiskais dermatīts, hidradenīts, izgulējumi) un ierosinātāji ir vairākas sugas.",
+      "Rodas uz nebojātas ādas, parasti izraisa vienas sugas baktērijas – impetigo, folikulīts, furunkuls.",
+      "Rodas tikai uz gļotādām (mutes dobumā, dzimumorgānos), un tās izraisa tikai streptokoku infekcija.",
+      "Rodas tikai bērniem līdz 5 gadu vecumam, un tās vienmēr izraisa Staphylococcus epidermidis."
+    ]
+  },
+  {
+    "q": "Kas ir Folikulīts?",
+    "correct": "Matu maisiņa (folikula) iekaisums, ko visbiežāk izraisa S. aureus. Veicina ādas aizsargspēju pavājināšanās endogēnu faktoru ietekmē.",
+    "options": [
+      "Matu maisiņa (folikula) iekaisums, ko visbiežāk izraisa S. aureus. Veicina ādas aizsargspēju pavājināšanās endogēnu faktoru ietekmē.",
+      "Sviedru dziedzeru iekaisums, ko visbiežāk izraisa Streptococcus pyogenes. Veicina pārmērīga svīšana un ādas macerācija.",
+      "Tauku dziedzeru iekaisums, ko visbiežāk izraisa Candida albicans. Veicina hormonālas izmaiņas pubertātes laikā.",
+      "Dermas dziļo slāņu iekaisums, ko visbiežāk izraisa Pseudomonas aeruginosa. Veicina ilgstoša antibiotiku lietošana."
+    ]
+  },
+  {
+    "q": "Kuru folikulītu neizraisa baktērija?",
+    "correct": "Svešķermeņa radītu iekaisumu ap ieaugušu matiņu, kas rodas skūšanās rezultātā, ja matiņš tiek iesprostots zem ādas (matiņa ieaugšana).",
+    "options": [
+      "Svešķermeņa radītu iekaisumu ap ieaugušu matiņu, kas rodas skūšanās rezultātā, ja matiņš tiek iesprostots zem ādas (matiņa ieaugšana).",
+      "Stafilokoku folikulītu, kas rodas ādas aizsargspēju pavājināšanās rezultātā un izraisa strutainas pustulas.",
+      "Dermatofītu folikulītu, kas rodas sēnīšu infekcijas rezultātā un parasti skar galvas matainoādas zonu.",
+      "Kandidozo folikulītu, kas rodas rauga sēņu infekcijas rezultātā un skar galvenokārt ādas krokas."
+    ]
+  },
+  {
+    "q": "Kas ir Furunkuls?",
+    "correct": "Stafilokoku ierosināts matu maisiņa, tauku dziedzera un apkārtējo audu iekaisums.",
+    "options": [
+      "Stafilokoku ierosināts matu maisiņa, tauku dziedzera un apkārtējo audu iekaisums.",
+      "Streptokoku ierosināts virspusējs epidermas iekaisums, kas izpaužas ar sarkanu plankumu.",
+      "Stafilokoku ierosināts vairāku matu maisiņu un apkārtējo audu iekaisums vienlaicīgi.",
+      "Sēnīšu ierosināts nagu un apkārtējo audu iekaisums, kas izplatās uz pirkstiem."
+    ]
+  },
+  {
+    "q": "Kas ir Karbunkuls?",
+    "correct": "Stafilokoku ierosināts vairāku matu maisiņu un apkārtējo audu iekaisums.",
+    "options": [
+      "Stafilokoku ierosināts vairāku matu maisiņu un apkārtējo audu iekaisums.",
+      "Stafilokoku ierosināts viena matu maisiņa, tauku dziedzera un apkārtējo audu iekaisums.",
+      "Streptokoku ierosināts virspusējs ādas iekaisums ar pūšļiem un kreveli uz sejas.",
+      "Sēnīšu ierosināts dziļš ādas un zemādas audu iekaisums ar abscesu veidošanos."
+    ]
+  },
+  {
+    "q": "Kas ir Impetigo?",
+    "correct": "Bieži sastopama virspusēja, bakteriāla ādas infekcija, ko izraisa galvenokārt stafilokoki (pamatā bērniem).",
+    "options": [
+      "Bieži sastopama virspusēja, bakteriāla ādas infekcija, ko izraisa galvenokārt stafilokoki (pamatā bērniem).",
+      "Reta dziļa ādas infekcija, ko izraisa galvenokārt dermatofīti (pamatā pieaugušajiem).",
+      "Bieži sastopama vīrusu ādas infekcija, ko izraisa galvenokārt herpes simplex vīruss (pamatā pusaudžiem).",
+      "Reta virspusēja ādas infekcija, ko izraisa galvenokārt Pseudomonas aeruginosa (pamatā vecāka gadagājuma cilvēkiem)."
+    ]
+  },
+  {
+    "q": "Kas veicina Impetigo rašanos?",
+    "correct": "Bērniem – atopiskais dermatīts; pieaugušajiem – biežāk no koplietošanas priekšmetiem.",
+    "options": [
+      "Bērniem – atopiskais dermatīts; pieaugušajiem – biežāk no koplietošanas priekšmetiem.",
+      "Bērniem – pārmērīga saules ekspozīcija; pieaugušajiem – biežāk no pārtikas alerģēniem.",
+      "Bērniem – autoimūni procesi organismā; pieaugušajiem – biežāk no medikamentu blaknēm.",
+      "Bērniem – D vitamīna deficīts uzturā; pieaugušajiem – biežāk no hormonālām izmaiņām."
+    ]
+  },
+  {
+    "q": "Kas ir Ektīma?",
+    "correct": "Galvenokārt stafilokoku (reti streptokoku) ierosināts dziļš, čūlains ādas bojājums (dziļa, izčūlojusi impetigo forma).",
+    "options": [
+      "Galvenokārt stafilokoku (reti streptokoku) ierosināts dziļš, čūlains ādas bojājums (dziļa, izčūlojusi impetigo forma).",
+      "Galvenokārt dermatofītu ierosināts virspusējs ādas bojājums ar zvīņošanos (virspusēja mikozes forma).",
+      "Galvenokārt vīrusu ierosināts pūšļains ādas bojājums ar grupētām vezīkulām (herpes infekcijas forma).",
+      "Galvenokārt Candida sēņu ierosināts virspusējs gļotādu bojājums ar baltu aplikumu (kandidozes forma)."
+    ]
+  },
+  {
+    "q": "Ar ko sākas Ektīma?",
+    "correct": "Sākas ar vezīkulu vai pustulu, kas aug plašumā un dziļumā → pustulai atveroties, redzama čūla, ko pārklāj cieši piestiprināta pelēcīga, tumša krevele.",
+    "options": [
+      "Sākas ar vezīkulu vai pustulu, kas aug plašumā un dziļumā → pustulai atveroties, redzama čūla, ko pārklāj cieši piestiprināta pelēcīga, tumša krevele.",
+      "Sākas ar sarkanu plankumu, kas paliek plakans un nemainās → plankumam izzūdot, paliek viegla hiperpigmentācija bez rētas.",
+      "Sākas ar niezošu urticāriālu papulu, kas spontāni izzūd 24 stundu laikā → pēc izzušanas ādā nav redzamu izmaiņu.",
+      "Sākas ar sausu zvīņojošu plankumu, kas lobās un izplatās perifēriski → plankumam regresējot, veidojas atrofiska rēta."
+    ]
+  },
+  {
+    "q": "Kas ir Hidradenīts?",
+    "correct": "Stafilokoku ierosināts strutains apokrīno sviedru dziedzeru un apkārtējo audu iekaisums, galvenokārt padusēs.",
+    "options": [
+      "Stafilokoku ierosināts strutains apokrīno sviedru dziedzeru un apkārtējo audu iekaisums, galvenokārt padusēs.",
+      "Streptokoku ierosināts ekrīno sviedru dziedzeru un apkārtējo audu iekaisums, galvenokārt uz plaukstām.",
+      "Sēnīšu ierosināts tauku dziedzeru un apkārtējo audu iekaisums, galvenokārt uz sejas un muguras.",
+      "Vīrusu ierosināts matu folikulu un apkārtējo audu iekaisums, galvenokārt uz galvas matainās daļas."
+    ]
+  },
+  {
+    "q": "Ar ko sākas Roze (Erysipelas)?",
+    "correct": "Sākas akūti ar drebuļiem, drudzi, galvassāpēm, sliktu pašsajūtu, sliktu dūšu, vemšanu.",
+    "options": [
+      "Sākas akūti ar drebuļiem, drudzi, galvassāpēm, sliktu pašsajūtu, sliktu dūšu, vemšanu.",
+      "Sākas pakāpeniski ar sausu niezi, zvīņošanos un lēnu ādas sabiezēšanu bez drudža.",
+      "Sākas ar nelielu papulu, kas lēni aug un pēc mēneša kļūst par sāpīgu nodulu.",
+      "Sākas ar hroniskām sāpēm locītavās, pēc tam parādās izsitumi uz ādas virsmas."
+    ]
+  },
+  {
+    "q": "Kas ir Roze (Erysipelas)?",
+    "correct": "Akūts, bakteriāls ādas virsējo slāņu (iekļaujot dermas papillāro slāni) iekaisums ar izteiktu limfātiskās sistēmas bojājumu uz ekstremitātēm (80% gadījumu).",
+    "options": [
+      "Akūts, bakteriāls ādas virsējo slāņu (iekļaujot dermas papillāro slāni) iekaisums ar izteiktu limfātiskās sistēmas bojājumu uz ekstremitātēm (80% gadījumu).",
+      "Hronisks, sēnīšu ierosināts ādas dziļo slāņu iekaisums ar izteiktu asinsvadu bojājumu uz stumbra daļas (80% gadījumu).",
+      "Akūts, vīrusu ierosināts ādas un gļotādu iekaisums ar izteiktu nervu sistēmas bojājumu uz sejas rajonā (80% gadījumu).",
+      "Hronisks, autoimūns ādas virsējo slāņu iekaisums ar izteiktu locītavu bojājumu uz pirkstu rajona (80% gadījumu)."
+    ]
+  },
+  {
+    "q": "Nosauc komplicētās Rozes infekcijas!",
+    "correct": "Flegmonozā, Nekrotiskā.",
+    "options": [
+      "Flegmonozā, Nekrotiskā.",
+      "Eritematozā, Bullozā.",
+      "Hemorāģiskā, Eritematozā.",
+      "Bullozā, Hemorāģiskā."
+    ]
+  },
+  {
+    "q": "Nosauc nekomplicētās Rozes infekcijas!",
+    "correct": "Eritematozā (biežākā forma), Bullozā, Hemorāģiskā.",
+    "options": [
+      "Eritematozā (biežākā forma), Bullozā, Hemorāģiskā.",
+      "Flegmonozā (biežākā forma), Nekrotiskā, Gangrenozā.",
+      "Pustulozā (biežākā forma), Ulcerozā, Abscedējošā.",
+      "Nodulārā (biežākā forma), Fimatozā, Granulomatozā."
+    ]
+  },
+  {
+    "q": "Kas raksturīgs Eritematozai Rozei?",
+    "correct": "Eritēma, Tūska, Āda asi norobežota no veselajiem audiem.",
+    "options": [
+      "Eritēma, Tūska, Āda asi norobežota no veselajiem audiem.",
+      "Pustulas, Kreveles, Āda pakāpeniski pāriet veselajos audos.",
+      "Vezīkulas, Čūlas, Āda ar neskaidrām robežām un difūzu izplatību.",
+      "Papulas, Zvīņas, Āda ar simetrisku bojājumu uz abām pusēm."
+    ]
+  },
+  {
+    "q": "Kādi ir Celulīta simptomi?",
+    "correct": "Tādi paši kā pie Rozes (Erysipelas) infekcijas, taču celulīta gadījumā ādas bojājums (iekaisums) ir dziļāk lokalizēts nekā rozes gadījumā.",
+    "options": [
+      "Tādi paši kā pie Rozes (Erysipelas) infekcijas, taču celulīta gadījumā ādas bojājums (iekaisums) ir dziļāk lokalizēts nekā rozes gadījumā.",
+      "Atšķirīgi no Rozes – ādas bojājums ir virspusējs, skar tikai epidermu un neizraisa drudzi vai vispārēju pašsajūtas pasliktināšanos.",
+      "Līdzīgi kā pie sēnīšu infekcijām – raksturīga lēna zvīņošanās un nieze bez apsārtuma vai pietūkuma.",
+      "Atšķirīgi no Rozes – skar tikai gļotādas, nevis ādu, un izpaužas ar baltu aplikumu un sāpēm."
+    ]
+  },
+  {
+    "q": "Kas parasti ir pirms Celulīta attīstības?",
+    "correct": "Ādas mikrotraumatizācija, kosta brūce, durts ievainojums.",
+    "options": [
+      "Ādas mikrotraumatizācija, kosta brūce, durts ievainojums.",
+      "Ilgstoša antibiotiku lietošana, imūnsupresīva terapija.",
+      "Pārmērīga saules ekspozīcija, sauļošanās apdegumi.",
+      "Hormonālas izmaiņas, menopauze vai pubertāte."
+    ]
+  },
+  {
+    "q": "Kas nepieder pie Piodermijām?",
+    "correct": "Punktveida keratolīze – virspusēja (epidermas) neiekaisīga palmoplantāra bakteriāla infekcija, ko izraisa baktērija Corynebacterium.",
+    "options": [
+      "Punktveida keratolīze – virspusēja (epidermas) neiekaisīga palmoplantāra bakteriāla infekcija, ko izraisa baktērija Corynebacterium.",
+      "Impetigo – virspusēja bakteriāla ādas infekcija, ko izraisa galvenokārt Staphylococcus aureus baktērija.",
+      "Folikulīts – matu maisiņa iekaisums, ko visbiežāk izraisa Staphylococcus aureus baktērija.",
+      "Furunkuls – stafilokoku ierosināts matu maisiņa un apkārtējo audu iekaisums ar strutošanos."
+    ]
+  },
+  {
+    "q": "Kas ir kārpu ierosinātājs un kā var inficēties?",
+    "correct": "HPV – cilvēka papilomas vīruss; inficēšanās notiek tieša ādas kontakta ceļā vai caur priekšmetiem.",
+    "options": [
+      "HPV – cilvēka papilomas vīruss; inficēšanās notiek tieša ādas kontakta ceļā vai caur priekšmetiem.",
+      "HSV – herpes simplex vīruss; inficēšanās notiek tikai caur gļotādu kontaktu un siekalām.",
+      "VZV – varicella zoster vīruss; inficēšanās notiek gaisa pilienu ceļā un caur elpošanas traktu.",
+      "EBV – Epšteina–Bāras vīruss; inficēšanās notiek caur asins pārliešanu un šļirču koplietošanu."
+    ]
+  },
+  {
+    "q": "Kādi ir vīrusu kārpu veidi?",
+    "correct": "Parastās, Plantārās, Plakanās, Dzimumorgānu.",
+    "options": [
+      "Parastās, Plantārās, Plakanās, Dzimumorgānu.",
+      "Nodulārās, Papulārās, Makulārās, Vestikulārās.",
+      "Virspusējās, Dziļās, Subkutānās, Invazīvās.",
+      "Primārās, Sekundārās, Terciārās, Kvartārās."
+    ]
+  },
+  {
+    "q": "Kādi ir kārpu veicinošie faktori?",
+    "correct": "Ādas macerācija (baseins, pirts) un mikrotraumas.",
+    "options": [
+      "Ādas macerācija (baseins, pirts) un mikrotraumas.",
+      "Pārmērīga saules ekspozīcija un UV starojums.",
+      "Augsts holesterīna līmenis un mazkustīgs dzīvesveids.",
+      "Hormonālas izmaiņas un vairogdziedzera darbības traucējumi."
+    ]
+  },
+  {
+    "q": "Kāda ir atšķirība starp kārpām un varžacīm?",
+    "correct": "Varžacīm nav saistības ar HPV un tās nav lipīgas.",
+    "options": [
+      "Varžacīm nav saistības ar HPV un tās nav lipīgas.",
+      "Varžacis vienmēr izraisa HPV un tās ir ļoti lipīgas.",
+      "Kārpas nav saistītas ar HPV un tās nav lipīgas.",
+      "Starp kārpām un varžacīm nav nekādas atšķirības."
+    ]
+  },
+  {
+    "q": "Kas ir Molluscum contagiosum?",
+    "correct": "Kontagiozais jeb lipīgais molusks – bieža ādas saslimšana, ko izraisa vīrusi no poxvīrusu grupas, kas viegli tiek pārnests tieša kontakta ceļā.",
+    "options": [
+      "Kontagiozais jeb lipīgais molusks – bieža ādas saslimšana, ko izraisa vīrusi no poxvīrusu grupas, kas viegli tiek pārnests tieša kontakta ceļā.",
+      "Kontagiozais jeb lipīgais ekzantēms – reta ādas saslimšana, ko izraisa baktērijas no streptokoku grupas, kas pārnesas gaisa pilienu ceļā.",
+      "Kontagiozā jeb lipīgā impetigo – bieža ādas saslimšana, ko izraisa sēnītes no dermatofītu grupas, kas pārnesas caur priekšmetiem.",
+      "Kontagiozais jeb lipīgais herpes – reta ādas saslimšana, ko izraisa vīrusi no herpesvīrusu grupas, kas pārnesas caur asins kontaktu."
+    ]
+  },
+  {
+    "q": "Kas ir HSV-1 (Herpes Simplex)?",
+    "correct": "Galvenokārt saistīts ar orofaciālām izpausmēm (izraisa herpes labialis = lūpu herpes = \"aukstumpūce\").",
+    "options": [
+      "Galvenokārt saistīts ar orofaciālām izpausmēm (izraisa herpes labialis = lūpu herpes = \"aukstumpūce\").",
+      "Galvenokārt saistīts ar ģenitāliju apvidus izpausmēm (izraisa herpes urogenitalis = dzimumorgānu herpes).",
+      "Galvenokārt saistīts ar acu rajona izpausmēm (izraisa herpes ophthalmicus = acu herpes keratītu).",
+      "Galvenokārt saistīts ar jostas rozes izpausmēm (izraisa herpes zoster = jostas rozi)."
+    ]
+  },
+  {
+    "q": "Kas ir HSV-2 (Herpes Simplex)?",
+    "correct": "Galvenokārt saistīts ar izpausmēm ģenitāliju apvidū (izraisa herpes urogenitalis).",
+    "options": [
+      "Galvenokārt saistīts ar izpausmēm ģenitāliju apvidū (izraisa herpes urogenitalis).",
+      "Galvenokārt saistīts ar orofaciālām izpausmēm (izraisa herpes labialis = lūpu herpes).",
+      "Galvenokārt saistīts ar jostas rozes izpausmēm (izraisa herpes zoster = jostas rozi).",
+      "Galvenokārt saistīts ar ādas pūšļu izpausmēm (izraisa varicella = vējbakas)."
+    ]
+  },
+  {
+    "q": "Kā parasti notiek inficēšanās ar HSV-1?",
+    "correct": "Parasti notiek bērnībā – vīruss organismā iekļūst caur gļotādām vai savainotu ādu.",
+    "options": [
+      "Parasti notiek bērnībā – vīruss organismā iekļūst caur gļotādām vai savainotu ādu.",
+      "Parasti notiek pieaugušā vecumā – vīruss organismā iekļūst caur gremošanas traktu.",
+      "Parasti notiek pusaudžu vecumā – vīruss organismā iekļūst caur asins kontaktu.",
+      "Parasti notiek jaundzimušā periodā – vīruss organismā iekļūst caur placentu."
+    ]
+  },
+  {
+    "q": "Kas ir HHV-3?",
+    "correct": "Varicella zoster vīruss, kas izraisa Vējbakas (varicella) un jostas rozi (herpes zoster).",
+    "options": [
+      "Varicella zoster vīruss, kas izraisa Vējbakas (varicella) un jostas rozi (herpes zoster).",
+      "Herpes simplex vīruss, kas izraisa lūpu herpes (labialis) un ģenitālo herpes (urogenitalis).",
+      "Epšteina–Bāras vīruss, kas izraisa infekciozā mononukleozi un dažus limfomas veidus.",
+      "Citomegalovīruss, kas izraisa iedzimtas infekcijas un komplikācijas imūnsupresētiem pacientiem."
+    ]
+  },
+  {
+    "q": "Kas ir mokošs simptoms, kas var saglabāties pēc jostas rozes izārstēšanas?",
+    "correct": "Postherpētiskā neiralģija – sāpes vietā, kur ir bijušas ādas izpausmes.",
+    "options": [
+      "Postherpētiskā neiralģija – sāpes vietā, kur ir bijušas ādas izpausmes.",
+      "Postherpētiskā hiperpigmentācija – pastāvīga tumšu plankumu veidošanās visā ķermenī.",
+      "Postherpētiskā alopēcija – matu izkrišana vietā, kur ir bijušas ādas izpausmes.",
+      "Postherpētiskā keratoze – pastāvīga raga slāņa sabiezēšana jostas rozes perēkļu rajonā."
+    ]
+  },
+  {
+    "q": "Kā klasificē sēnītes?",
+    "correct": "Dermatofīti (Tinea) – Trichophyton rubrum, Rauga sēnes – Candida albicans, Pelējuma sēnes – Aspergillus spp.",
+    "options": [
+      "Dermatofīti (Tinea) – Trichophyton rubrum, Rauga sēnes – Candida albicans, Pelējuma sēnes – Aspergillus spp.",
+      "Stafilokoki – S. aureus, Streptokoki – S. pyogenes, Enterokoki – E. faecalis.",
+      "Herpesvīrusi – HSV-1, Papilomas vīrusi – HPV, Poxvīrusi – Molluscum.",
+      "Ektoparazīti – Sarcoptes scabiei, Intradermālie – Pediculus humanus, Endoparazīti – Demodex."
+    ]
+  },
+  {
+    "q": "Kāda ir klīniskā mikožu klasifikācija?",
+    "correct": "Keratomikoze (skar tikai epidermas raga slāni), Dermatofitoze, Kandidoze (ierosina rauga sēnes Candida).",
+    "options": [
+      "Keratomikoze (skar tikai epidermas raga slāni), Dermatofitoze, Kandidoze (ierosina rauga sēnes Candida).",
+      "Piodermija (skar matu folikulus), Celulīts (skar dermas dziļos slāņus), Impetigo (skar epidermu).",
+      "Folikulīts (skar matu maisiņus), Furunkuls (skar tauku dziedzerus), Karbunkuls (skar vairākus folikulus).",
+      "Eritroderma (skar visu ķermeņa ādu), Ekzēma (skar epidermu), Psoriāze (skar dermu)."
+    ]
+  },
+  {
+    "q": "Kas raksturīgs Dermatofītu izraisītām mikozēm uz ādas?",
+    "correct": "Anulārs elements – apaļas/ovālas formas eritematozi elementi ar valnīti perifērijā, smalka ādas lobīšanās, nieze.",
+    "options": [
+      "Anulārs elements – apaļas/ovālas formas eritematozi elementi ar valnīti perifērijā, smalka ādas lobīšanās, nieze.",
+      "Lineārs elements – garas svītras formas eritematozi elementi ar čūlu centrā, izteiktas sāpes un strutošanās.",
+      "Retikulārs elements – tīklveida formas hiperpigmentēti elementi ar atrofiju centrā, bez niezes.",
+      "Difūzs elements – vienmērīgi izplatīti pustulozi elementi bez skaidras formas, ar drudzi."
+    ]
+  },
+  {
+    "q": "Nosauc Dermatofītu infekcijas!",
+    "correct": "Tinea faciei, Tinea Barbae, Tinea Capitis, Tinea Pedis, Tinea Cruris, Tinea Manuum.",
+    "options": [
+      "Tinea faciei, Tinea Barbae, Tinea Capitis, Tinea Pedis, Tinea Cruris, Tinea Manuum.",
+      "Candida oris, Candida vaginalis, Candida cutis, Candida unguium, Candida interdigitalis.",
+      "Herpes labialis, Herpes genitalis, Herpes zoster, Herpes ophthalmicus, Herpes neonatalis.",
+      "Impetigo vulgaris, Impetigo bullosa, Impetigo herpetiformis, Impetigo neonatalis."
+    ]
+  },
+  {
+    "q": "Kas izraisa Onihomikozi?",
+    "correct": "Dermatofīti 60–90%, bet Rauga sēnes un Pelējuma sēnes 10–40%.",
+    "options": [
+      "Dermatofīti 60–90%, bet Rauga sēnes un Pelējuma sēnes 10–40%.",
+      "Rauga sēnes 60–90%, bet Dermatofīti un Pelējuma sēnes 10–40%.",
+      "Pelējuma sēnes 60–90%, bet Dermatofīti un Rauga sēnes 10–40%.",
+      "Baktērijas 60–90%, bet Sēnītes un Vīrusi 10–40%."
+    ]
+  },
+  {
+    "q": "Kādi ir Onihomikozes pamatsimptomi?",
+    "correct": "Naga krāsas izmaiņas, Virsmas izmaiņas, Hiperkeratoze, Oniholīze, Palēlināta naga augšana, Sāpes un diskomforts.",
+    "options": [
+      "Naga krāsas izmaiņas, Virsmas izmaiņas, Hiperkeratoze, Oniholīze, Palēlināta naga augšana, Sāpes un diskomforts.",
+      "Naga sabiezēšana, Paātrināta naga augšana, Naga spīdīgums, Vienmērīga pigmentācija, Elastības palielināšanās.",
+      "Naga plānināšanās, Virsmas gludums, Hipopigmentācija, Nieze naga apkārtnē, Strutaini izdalījumi no naga gultnes.",
+      "Naga izmēra samazināšanās, Paātrināta augšana, Pigmenta izzušana, Naga formas nemainīšanās."
+    ]
+  },
+  {
+    "q": "Kas nepieciešams Candida albicans augšanai uz ādas?",
+    "correct": "Mitrums.",
+    "options": [
+      "Mitrums.",
+      "Sausa āda.",
+      "UV starojums.",
+      "Aukstums."
+    ]
+  },
+  {
+    "q": "Kas veicina Candida augšanu?",
+    "correct": "Imūnkompromitēti stāvokļi, liekais svars, cukura diabēts u.c.",
+    "options": [
+      "Imūnkompromitēti stāvokļi, liekais svars, cukura diabēts u.c.",
+      "Intensīva fiziskā aktivitāte, zems svars, hipertensija u.c.",
+      "Pārmērīga D vitamīna uzņemšana, anēmija, hipotensija u.c.",
+      "Augsta ķermeņa temperatūra, dehidratācija, hiperholesterinēmija u.c."
+    ]
+  },
+  {
+    "q": "Ar ko norit ādas sēnīšu pamata ārstēšana?",
+    "correct": "Ar lokāliem pretsēņu preparātiem (ketokonazols, klotrimazols, terbinafīna hidrohlorīds, izkonazola nitrāts).",
+    "options": [
+      "Ar lokāliem pretsēņu preparātiem (ketokonazols, klotrimazols, terbinafīna hidrohlorīds, izkonazola nitrāts).",
+      "Ar sistēmiskiem antibiotiku preparātiem (amoksicilīns, ciprofloksacīns, doksiciklīns, azitromicīns).",
+      "Ar lokāliem kortikosteroīdu preparātiem (hidrokortizons, betametazons, mometazons, klobetazols).",
+      "Ar sistēmiskiem pretvīrusu preparātiem (aciklovīrs, valaciklovīrs, famciklovīrs, ganciklovīrs)."
+    ]
+  },
+  {
+    "q": "Kāda ir parazītu klasifikācija dermatoloģijā?",
+    "correct": "Ektoparazīti parazitē ādas virsmu (utis, blusas, odi, ērces); Intradermālie nokļūst dziļāk ādā (Sarcoptes scabiei, dažu tārpu kāpuri).",
+    "options": [
+      "Ektoparazīti parazitē ādas virsmu (utis, blusas, odi, ērces); Intradermālie nokļūst dziļāk ādā (Sarcoptes scabiei, dažu tārpu kāpuri).",
+      "Primārie parazīti izraisa tikai virsēju niezi (baktērijas, sēnītes); Sekundārie parazīti izraisa dziļas infekcijas (vīrusi).",
+      "Aerobie parazīti dzīvo ādas virsējā slānī (dermatofīti); Anaerobie parazīti dzīvo dziļi ādā (stafilokoki, streptokoki).",
+      "Makroparazīti parazitē tikai iekšējos orgānos (helminiti); Mikroparazīti parazitē tikai asinīs (plazmodiji)."
+    ]
+  },
+  {
+    "q": "Kas ir efektīvākais līdzeklis pret kašķi?",
+    "correct": "Sēra ziede.",
+    "options": [
+      "Sēra ziede.",
+      "Salicilskābe.",
+      "Ketokonazols.",
+      "Hidrokortizons."
+    ]
+  },
+  {
+    "q": "Kāds ir primārais līdzeklis galvas utu ārstēšanai?",
+    "correct": "Permetrīna ziede.",
+    "options": [
+      "Permetrīna ziede.",
+      "Sēra ziede.",
+      "Klotrimazola krēms.",
+      "Betametazona losions."
+    ]
+  },
+  {
+    "q": "Kas ir Laima Borelioze un kas ir tās ierosinātājs?",
+    "correct": "Laima slimība; ierosinātājs ir Borrelia burgdorferi – baktērijas, kas galvenokārt dzīvo ērces zarnu traktā.",
+    "options": [
+      "Laima slimība; ierosinātājs ir Borrelia burgdorferi – baktērijas, kas galvenokārt dzīvo ērces zarnu traktā.",
+      "Laima slimība; ierosinātājs ir Rickettsia prowazekii – baktērijas, kas galvenokārt dzīvo utu siekalās.",
+      "Laima slimība; ierosinātājs ir Treponema pallidum – baktērijas, kas galvenokārt dzīvo cilvēka asinīs.",
+      "Laima slimība; ierosinātājs ir Bartonella henselae – baktērijas, kas galvenokārt dzīvo kaķu asinīs."
+    ]
+  },
+  {
+    "q": "Kādam elementam jāpiemīt, lai to uzskatītu par migrējošo eritēmu (Erythema migrans)?",
+    "correct": "Parādās 3–30 dienas pēc ērces koduma; sārtajam elementam jābūt lielākam par 5 cm, lai to uzskatītu par migrējošo eritēmu.",
+    "options": [
+      "Parādās 3–30 dienas pēc ērces koduma; sārtajam elementam jābūt lielākam par 5 cm, lai to uzskatītu par migrējošo eritēmu.",
+      "Parādās 1–3 stundas pēc ērces koduma; sārtajam elementam jābūt lielākam par 1 cm, lai to uzskatītu par migrējošo eritēmu.",
+      "Parādās 3–6 mēnešus pēc ērces koduma; sārtajam elementam jābūt lielākam par 10 cm, lai to uzskatītu par migrējošo eritēmu.",
+      "Parādās uzreiz pēc ērces koduma; sārtajam elementam jābūt lielākam par 15 cm, lai to uzskatītu par migrējošo eritēmu."
+    ]
+  },
+  {
+    "q": "Kā iedala psoriāzes tipus?",
+    "correct": "1. tips – līdz 40 gadu vecumam ar pozitīvu ģimenes anamnēzi; 2. tips – pēc 40 gadu vecuma, ģimenē nav bijusi un norit vieglāk.",
+    "options": [
+      "1. tips – līdz 40 gadu vecumam ar pozitīvu ģimenes anamnēzi; 2. tips – pēc 40 gadu vecuma, ģimenē nav bijusi un norit vieglāk.",
+      "1. tips – pēc 50 gadu vecumam bez ģimenes anamnēzes; 2. tips – līdz 20 gadu vecumam ar pozitīvu ģimenes anamnēzi.",
+      "1. tips – tikai vīriešiem ar smagu klīnisko norisi; 2. tips – tikai sievietēm ar vieglu klīnisko norisi.",
+      "1. tips – skar tikai nagus un locītavas; 2. tips – skar tikai ādu un gļotādas bez locītavu iesaistes."
+    ]
+  },
+  {
+    "q": "Kā iedala psoriāzes tipus pēc norises?",
+    "correct": "Vasaras tips – ādas stāvoklis ievērojami pasliktinās UV starojuma ietekmē; Ziemas tips – ādas stāvoklis ievērojami pasliktinās ziemas periodā.",
+    "options": [
+      "Vasaras tips – ādas stāvoklis ievērojami pasliktinās UV starojuma ietekmē; Ziemas tips – ādas stāvoklis ievērojami pasliktinās ziemas periodā.",
+      "Vasaras tips – ādas stāvoklis uzlabojas UV starojuma ietekmē; Ziemas tips – ādas stāvoklis uzlabojas ziemas periodā.",
+      "Akūtais tips – ilgst līdz 2 nedēļām un izzūd spontāni; Hroniskais tips – ilgst visu mūžu bez remisijām.",
+      "Lokālais tips – skar tikai vienu ādas rajonu; Ģeneralizētais tips – skar tikai gļotādas un locītavas."
+    ]
+  },
+  {
+    "q": "Kāda ir psoriāzes definīcija?",
+    "correct": "Autoimūna hroniska, recidivējoša papuloskvamoza saslimšana, kas skar ādu, tās derivātus un locītavas.",
+    "options": [
+      "Autoimūna hroniska, recidivējoša papuloskvamoza saslimšana, kas skar ādu, tās derivātus un locītavas.",
+      "Infekcioza akūta, nerecidivējoša pustuloza saslimšana, kas skar tikai gļotādas un iekšējos orgānus.",
+      "Alerģiska hroniska, recidivējoša vezīkuloza saslimšana, kas skar tikai ādas virsējo slāni.",
+      "Traumatiska akūta, pašlimitējoša nodulāra saslimšana, kas skar tikai zemādas taukaudus."
+    ]
+  },
+  {
+    "q": "Kas ir Kēbnera fenomens?",
+    "correct": "Slimībai raksturīgu ādas bojājumu parādīšanās traumas vietā.",
+    "options": [
+      "Slimībai raksturīgu ādas bojājumu parādīšanās traumas vietā.",
+      "Slimībai raksturīgu ādas bojājumu spontāna izzušana bez ārstēšanas.",
+      "Slimībai raksturīgu ādas bojājumu parādīšanās tikai UV starojuma vietā.",
+      "Slimībai raksturīgu ādas bojājumu simetriska izplatīšanās uz abām ekstremitātēm."
+    ]
+  },
+  {
+    "q": "Kas ir izplatītākā psoriāzes forma?",
+    "correct": "Psoriasis vulgaris.",
+    "options": [
+      "Psoriasis vulgaris.",
+      "Psoriasis guttata.",
+      "Psoriasis pustulosa.",
+      "Psoriasis intertriginosa."
+    ]
+  },
+  {
+    "q": "Nosauc psoriāzes stadijas un kas katrai stadijai raksturīgs!",
+    "correct": "Progresīvā stadija (rodas jauni elementi), Stacionārā stadija (perifēriska elementu augšana apstājas), Regresīvā stadija (papulu izsūkšanās, izzūd pilnībā).",
+    "options": [
+      "Progresīvā stadija (rodas jauni elementi), Stacionārā stadija (perifēriska elementu augšana apstājas), Regresīvā stadija (papulu izsūkšanās, izzūd pilnībā).",
+      "Akūtā stadija (parādās strutaini elementi), Subakūtā stadija (elementi pāriet čūlās), Hroniskā stadija (veidojas rētas).",
+      "Latentā stadija (nav redzamu simptomu), Aktīvā stadija (parādās eritēma), Terminālā stadija (skar iekšējos orgānus).",
+      "Primārā stadija (parādās viens elements), Sekundārā stadija (elements izplatās lokāli), Terciārā stadija (skar gļotādas)."
+    ]
+  },
+  {
+    "q": "Nosauc psoriāzes klīniskās formas un kur tās izpaužas!",
+    "correct": "Psoriasis vulgaris (lielo locītavu apvidus), Psoriasis Guttata (rumpis, ekstremitātes), Psoriasis intertriginosa (lielās ādas krokās), Psoriasis palmarem et plantarum (plaukstas, pēdas), Onychia psoriatica (nagi), Psoriasis mucosae (mutes, lūpu gļotāda), Erythrodermia psoriatica (ķermenis, ekstremitātes), Psoriasis pustulosa (pēdas), Arthritis psoriatica (locītavas).",
+    "options": [
+      "Psoriasis vulgaris (lielo locītavu apvidus), Psoriasis Guttata (rumpis, ekstremitātes), Psoriasis intertriginosa (lielās ādas krokās), Psoriasis palmarem et plantarum (plaukstas, pēdas), Onychia psoriatica (nagi), Psoriasis mucosae (mutes, lūpu gļotāda), Erythrodermia psoriatica (ķermenis, ekstremitātes), Psoriasis pustulosa (pēdas), Arthritis psoriatica (locītavas).",
+      "Psoriasis simplex (tikai sejas āda), Psoriasis nodularis (tikai muguras āda), Psoriasis linearis (tikai ekstremitāšu āda), Psoriasis universalis (tikai galvas āda).",
+      "Psoriasis acuta (tikai akūtā formā uz plaukstas), Psoriasis chronica (tikai hroniskā formā uz pēdām), Psoriasis recurrens (tikai recidivējošā formā uz locītavām)."
+    ]
+  },
+  {
+    "q": "Kura infekcija biežāk rodas bērniem pēc streptokoku infekcijas?",
+    "correct": "Psoriasis Guttata.",
+    "options": [
+      "Psoriasis Guttata.",
+      "Psoriasis vulgaris.",
+      "Psoriasis pustulosa.",
+      "Psoriasis intertriginosa."
+    ]
+  },
+  {
+    "q": "Kādu terapiju iesaka psoriāzes ārstēšanā?",
+    "correct": "Primārā izvēle – Darvas šampūns galvas matainai daļai; sabiezējumu noņemšanai – Salicilskābe.",
+    "options": [
+      "Primārā izvēle – Darvas šampūns galvas matainai daļai; sabiezējumu noņemšanai – Salicilskābe.",
+      "Primārā izvēle – Antibiotiku krēms sejas ādai; sabiezējumu noņemšanai – Hialuronskābe.",
+      "Primārā izvēle – Kortikosteroīdu losions visam ķermenim; sabiezējumu noņemšanai – Pienskābe.",
+      "Primārā izvēle – Pretsēņu ziede galvas matainai daļai; sabiezējumu noņemšanai – Glikolskābe."
+    ]
+  }
+];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
