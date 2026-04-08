@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dermatoloģijas tests IV</title>
+  <style>/* ---------------------- */
+/*  TUMŠĀ TĒMA / GLOBALI  */
+/* ---------------------- */
+
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* ---------------------- */
+/*       LAYOUT           */
+/* ---------------------- */
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ---------------------- */
+/*        CARD            */
+/* ---------------------- */
+
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------------------- */
+/*       BUTTONS          */
+/* ---------------------- */
+
+.btn,
+.option-btn {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+
+.btn.primary:hover { background: #15803d; }
+
+.btn:hover:not(.primary) { background: #374151; }
+
+.btn.ghost { background: transparent; }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+
+.option-btn:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Dermatoloģijas tests IV">
+    <div class="header">
+      <div class="title">Dermatoloģijas tests IV</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">30</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <!-- START SCREEN -->
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Tests katru reizi uzdod <b>30</b> jautājumus pēc gadījuma principa, un atbilžu secība tiek sajaukta.
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Padoms: ja vēlies pildīt vēlreiz, spied "Pildīt vēlreiz".</div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">30</span></div>
+        <div id="questionText" class="question-text"></div>
+
+        <div id="options" class="options"></div>
+
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">30</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi un atbildes tiek sajaukti.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Nosauc 3 pigmentācijas traucējumus!",
+    "correct": "Hipopigmentācija – āda kļūst gaišāka; Depigmentācija – pilnīgs ādas krāsas zudums; Hiperpigmentācija – ādas krāsa kļūst tumšāka.",
+    "options": [
+      "Hipopigmentācija – āda kļūst gaišāka; Depigmentācija – pilnīgs ādas krāsas zudums; Hiperpigmentācija – ādas krāsa kļūst tumšāka.",
+      "Eritrodermija – āda kļūst sarkana; Cianoze – āda kļūst zilgana; Ikteruss – āda kļūst dzeltena.",
+      "Melanocītiskā hipertrofija – āda sabiezē; Keratinizācija – āda lobās; Atrofija – āda kļūst plānāka.",
+      "Leikoderma – āda zaudē elastību; Melanoderma – āda kļūst raupja; Poikiloderma – āda kļūst sarkana."
+    ]
+  },
+  {
+    "q": "Kas nosaka ādas krāsu?",
+    "correct": "Melanīna graudiņu lielums, skaits un to izvietojums.",
+    "options": [
+      "Melanīna graudiņu lielums, skaits un to izvietojums.",
+      "Kolagēna šķiedru blīvums, elastīna daudzums un dermas biezums.",
+      "Hemoglobīna koncentrācija, asinsrites ātrums un asinsvadu skaits.",
+      "Keratīna daudzums, epidermas biezums un tauku dziedzeru aktivitāte."
+    ]
+  },
+  {
+    "q": "Kas ir bronzas slimība?",
+    "correct": "Virsnieru garozas hormonu (hidrokortizona un aldosterona) pilnīgs vai daļējs trūkums.",
+    "options": [
+      "Virsnieru garozas hormonu (hidrokortizona un aldosterona) pilnīgs vai daļējs trūkums.",
+      "Vairogdziedzera hormonu (tiroksīna un trijodtironīna) pilnīgs vai daļējs trūkums.",
+      "Aizkuņģa dziedzera hormonu (insulīna un glukagona) pilnīgs vai daļējs pārpalikums.",
+      "Hipofīzes hormonu (augšanas hormona un prolaktīna) pilnīgs vai daļējs trūkums."
+    ]
+  },
+  {
+    "q": "Kas ir Ephelides?",
+    "correct": "Vasaras raibumi.",
+    "options": [
+      "Vasaras raibumi.",
+      "Saules pigmentplankumi.",
+      "Dzimumzīmes.",
+      "Ķiršu angiomas."
+    ]
+  },
+  {
+    "q": "Kas ir Solar Lentigo?",
+    "correct": "Saules pigmentplankums – dzīves laikā iegūtas 3–20 mm lielas, tumši brūnas makulas.",
+    "options": [
+      "Saules pigmentplankums – dzīves laikā iegūtas 3–20 mm lielas, tumši brūnas makulas.",
+      "Vasaras raibumi – iedzimtas 1–3 mm lielas, gaiši brūnas makulas uz sejas un pleciem.",
+      "Neviendabīga pigmentācija – dzimšanas laikā iegūtas 20–50 mm lielas, melnas makulas.",
+      "Saules keratoze – dzīves laikā iegūtas 5–15 mm lielas, sarkanas papulas ar zvīņām."
+    ]
+  },
+  {
+    "q": "Kas ir Lentigo Maligna?",
+    "correct": "Neviendabīga pigmentācija, no tā progresē Lentigo Maligna melanoma.",
+    "options": [
+      "Neviendabīga pigmentācija, no tā progresē Lentigo Maligna melanoma.",
+      "Viendabīga hipopigmentācija, no tā progresē vitiligo universalis.",
+      "Neviendabīga depigmentācija, no tā progresē bazālo šūnu karcinoma.",
+      "Viendabīga hiperpigmentācija, no tā progresē plakanšūnu karcinoma."
+    ]
+  },
+  {
+    "q": "Kas ir Melasma s. Hloasma un kas ir tā pamatā?",
+    "correct": "Iegūta ierobežota melanoze, kuru biežāk novēro sievietēm, iegūst grūtniecības laikā. Pamatā – iekaisums.",
+    "options": [
+      "Iegūta ierobežota melanoze, kuru biežāk novēro sievietēm, iegūst grūtniecības laikā. Pamatā – iekaisums.",
+      "Iedzimta ģeneralizēta melanoze, kuru biežāk novēro vīriešiem, parādās pubertātes laikā. Pamatā – autoimunitāte.",
+      "Iegūta difūza leikoderma, kuru biežāk novēro bērniem, iegūst pēc saules apdegumiem. Pamatā – melanocītu bojāeja.",
+      "Iedzimta ierobežota depigmentācija, kuru biežāk novēro sievietēm, parādās menopauzes laikā. Pamatā – hormonāls trūkums."
+    ]
+  },
+  {
+    "q": "Nosauc Melasmas tipus!",
+    "correct": "Epidermālā – gaiši brūns pigments; Dermālā – pelēcīgs, zilpelēks pigments; Jaukts tips – pelēcīgs, zilgi pelēks pigments.",
+    "options": [
+      "Epidermālā – gaiši brūns pigments; Dermālā – pelēcīgs, zilpelēks pigments; Jaukts tips – pelēcīgs, zilgi pelēks pigments.",
+      "Virspusējā – sarkans pigments; Dziļā – violets, tumši zils pigments; Jaukts tips – oranžs, brūngans pigments.",
+      "Primārā – tumši melns pigments; Sekundārā – gaiši rozā pigments; Terciārā – dzeltens, zaļgans pigments.",
+      "Akūtā – koši sarkans pigments; Hroniskā – pelēks, brūns pigments; Subakūtā – bāli rozā pigments."
+    ]
+  },
+  {
+    "q": "Kāda ir galvenā aizsardzība pret Melasmu?",
+    "correct": "Saules aizsargkrēms.",
+    "options": [
+      "Saules aizsargkrēms.",
+      "Kortikosteroīdu ziede.",
+      "Pretsēņu preparāts.",
+      "Antibiotiku krēms."
+    ]
+  },
+  {
+    "q": "Cik % no visām hiperpigmentācijām izraisa medikamenti?",
+    "correct": "10–20%.",
+    "options": [
+      "10–20%.",
+      "1–5%.",
+      "40–50%.",
+      "70–80%."
+    ]
+  },
+  {
+    "q": "Kāda slimība ir iegūta, idiopātiska, multifaktoriāla ar komplicētu patoģenēzi?",
+    "correct": "Vitiligo.",
+    "options": [
+      "Vitiligo.",
+      "Psoriāze.",
+      "Albīnisms.",
+      "Melasma."
+    ]
+  },
+  {
+    "q": "Kāds ir visbiežāk sastopamais iedzimtais ģeneralizētas hipopigmentācijas stāvoklis?",
+    "correct": "Albīnisms.",
+    "options": [
+      "Albīnisms.",
+      "Vitiligo.",
+      "Piebaldisms.",
+      "Halo nēvuss."
+    ]
+  },
+  {
+    "q": "Kas ir Nēvuss?",
+    "correct": "Dzimumzīme – labi norobežota depigmentēta vai hipopigmentēta makula.",
+    "options": [
+      "Dzimumzīme – labi norobežota depigmentēta vai hipopigmentēta makula.",
+      "Pigmentplankums – slikti norobežota hiperpigmentēta vai eritematoza papula.",
+      "Asinsvadu veidojums – labi norobežota koši sarkana vai violeta makula.",
+      "Saistaudu audzējs – slikti norobežota cieta vai elastīga nodula."
+    ]
+  },
+  {
+    "q": "Kas ir Seborejas keratoze?",
+    "correct": "Biežāk sastopamais labdabīgais keratinocītu audzējs, biežāk pēc 40 gadu vecuma.",
+    "options": [
+      "Biežāk sastopamais labdabīgais keratinocītu audzējs, biežāk pēc 40 gadu vecuma.",
+      "Biežāk sastopamais ļaundabīgais melanocītu audzējs, biežāk pēc 60 gadu vecuma.",
+      "Retāk sastopamais labdabīgais asinsvadu audzējs, biežāk pēc 20 gadu vecuma.",
+      "Biežāk sastopamais labdabīgais saistaudu audzējs, biežāk pēc 50 gadu vecuma."
+    ]
+  },
+  {
+    "q": "Vai Seborejas keratoze pārvēršas par ļaundabīgiem audzējiem?",
+    "correct": "Nē.",
+    "options": [
+      "Nē.",
+      "Jā, vienmēr.",
+      "Jā, 50% gadījumu.",
+      "Jā, ja ir ilgstoša UV ekspozīcija."
+    ]
+  },
+  {
+    "q": "Kas ir bieži sastopami, labdabīgi, mīksti, ādas krāsas veidojumi uz šauras pamatnes (\"kājiņas\")?",
+    "correct": "Fibroepiteliāli polipi.",
+    "options": [
+      "Fibroepiteliāli polipi.",
+      "Seborejas keratozes.",
+      "Dermatofibromas.",
+      "Piogēnās granulomas."
+    ]
+  },
+  {
+    "q": "Kāda ir melanocītu nēvusu klasifikācija pēc klīniskajiem kritērijiem?",
+    "correct": "Iedzimtie – indivīdiem jau no dzimšanas, reti parādās pēc dzimšanas vai pirmo 2 dzīves gadu laikā; Iegūtie.",
+    "options": [
+      "Iedzimtie – indivīdiem jau no dzimšanas, reti parādās pēc dzimšanas vai pirmo 2 dzīves gadu laikā; Iegūtie.",
+      "Primārie – parādās tikai bērnībā līdz 5 gadu vecumam; Sekundārie – parādās tikai pēc 50 gadu vecuma.",
+      "Virspusējie – lokalizējas tikai epidermā un nekad nemainās; Dziļie – lokalizējas tikai hipodermā un vienmēr aug.",
+      "Aktīvie – vienmēr palielinās izmērā un mainās krāsā; Neaktīvie – nekad nemainās un vienmēr paliek nemainīgi."
+    ]
+  },
+  {
+    "q": "Kā sauc nēvusu, kurā nēvusu šūnu sakopojumi atrodas epidermas–dermas robežā, epidermas pusē uz bazālās membrānas?",
+    "correct": "Pierobežas nēvuss.",
+    "options": [
+      "Pierobežas nēvuss.",
+      "Intradermālais nēvuss.",
+      "Kombinētais nēvuss.",
+      "Halo nēvuss."
+    ]
+  },
+  {
+    "q": "Kā sauc nēvusu, kurā nēvus šūnas atrodas dermas kārpiņu slānī (papillās) un nēvus šūnu sakopojumi atrodas gan intraepidermāli, gan dermāli?",
+    "correct": "Kombinēts nēvuss.",
+    "options": [
+      "Kombinēts nēvuss.",
+      "Pierobežas nēvuss.",
+      "Intradermālais nēvuss.",
+      "Rekurents nēvuss."
+    ]
+  },
+  {
+    "q": "Kā sauc nēvusu, kurā nēvus šūnas atrodas dermā?",
+    "correct": "Intradermālais nēvuss.",
+    "options": [
+      "Intradermālais nēvuss.",
+      "Pierobežas nēvuss.",
+      "Kombinētais nēvuss.",
+      "Halo nēvuss."
+    ]
+  },
+  {
+    "q": "Kurš nēvuss ir īpaši raksturīgs bērniem un gados jauniem cilvēkiem ar multipliem melanocītu nēvusiem?",
+    "correct": "Halo nēvuss.",
+    "options": [
+      "Halo nēvuss.",
+      "Pierobežas nēvuss.",
+      "Intradermālais nēvuss.",
+      "Rekurents nēvuss."
+    ]
+  },
+  {
+    "q": "Kuram nēvusam raksturīga ierobežota hiperpigmentācija, lokalizēta rētas apvidū, kur veikta iepriekšējā procedūra nēvusa noņemšanai?",
+    "correct": "Rekurents nēvuss.",
+    "options": [
+      "Rekurents nēvuss.",
+      "Halo nēvuss.",
+      "Pierobežas nēvuss.",
+      "Kombinētais nēvuss."
+    ]
+  },
+  {
+    "q": "Kas ir strauji augošs labdabīgs asinsvadu veidojums, kas rodas traumas ietekmē?",
+    "correct": "Piogēnā granuloma.",
+    "options": [
+      "Piogēnā granuloma.",
+      "Dermatofibroma.",
+      "Spider angioma.",
+      "Ķiršu angioma."
+    ]
+  },
+  {
+    "q": "Kas ir apaļas vai ovālas formas makulozi vai papulozi koši sarkani veidojumi, izmērā no 1–2 mm līdz 5 mm, rodas no 30/40 gadu vecuma?",
+    "correct": "Cherry (ķiršu) / senīlās angiomas.",
+    "options": [
+      "Cherry (ķiršu) / senīlās angiomas.",
+      "Spider angiomas ar centrālo arteriolu.",
+      "Piogēnās granulomas pēc traumām.",
+      "Fibroepiteliāli polipi uz kājiņas."
+    ]
+  },
+  {
+    "q": "Kas ir sarkans teleangektāzijas tīkls ar centrālo arteriolu (papulu)?",
+    "correct": "Spider angiomas.",
+    "options": [
+      "Spider angiomas.",
+      "Cherry (ķiršu) angiomas.",
+      "Piogēnās granulomas.",
+      "Kapilārās hemangiomas."
+    ]
+  },
+  {
+    "q": "Kas ir labdabīgs saistaudu veidojums – ciets mezgliņš, kurš visbiežāk rodas uz ekstremitātēm pēc ādas mikrotraumatizācijas (kukaiņu kodumiem, ieaugušiem matiņiem)?",
+    "correct": "Dermatofibroma.",
+    "options": [
+      "Dermatofibroma.",
+      "Piogēnā granuloma.",
+      "Fibroepiteliāls polips.",
+      "Seborejas keratoze."
+    ]
+  },
+  {
+    "q": "Kas ir papulozi elementi pēdas mediālajā, laterālajā vai mugurējā virsmā, kas rodas zemādā esošajiem taukaudiem izspīlējoties caur ādas vājākajām dermas vietām?",
+    "correct": "Piezogenic Pedal Papules.",
+    "options": [
+      "Piezogenic Pedal Papules.",
+      "Plantārās kārpas (Verrucae plantares).",
+      "Pēdu keratoderma (Keratosis palmoplantaris).",
+      "Plantārā fibromatoze (Ledderhose slimība)."
+    ]
+  },
+  {
+    "q": "Nosauc priekšvēža ādas veidojumus!",
+    "correct": "Aktīniskās (saules) keratozes (var pārveidoties plakanšūnu karcinomā) un Keratoakantoma – jādiferencē no plakanšūnu karcinomas.",
+    "options": [
+      "Aktīniskās (saules) keratozes (var pārveidoties plakanšūnu karcinomā) un Keratoakantoma – jādiferencē no plakanšūnu karcinomas.",
+      "Seborejas keratozes (var pārveidoties bazālo šūnu karcinomā) un Dermatofibromas – jādiferencē no melanomas.",
+      "Fibroepiteliāli polipi (var pārveidoties plakano šūnu karcinomā) un Cherry angiomas – jādiferencē no Kapoši sarkomas.",
+      "Spider angiomas (var pārveidoties angiosarkomā) un Piogēnās granulomas – jādiferencē no asinsvadu audzējiem."
+    ]
+  },
+  {
+    "q": "Kurš ir agresīvākais ļaundabīgais ādas audzējs?",
+    "correct": "Melanoma.",
+    "options": [
+      "Melanoma.",
+      "Bazālo šūnu karcinoma.",
+      "Plakanšūnu karcinoma.",
+      "Dermatofibrosarkoma."
+    ]
+  },
+  {
+    "q": "Kurš ir visbiežāk sastopamais ādas ļaundabīgais audzējs, bet ar vislabāko prognozi?",
+    "correct": "Bazālo šūnu karcinoma (Bazalioma).",
+    "options": [
+      "Bazālo šūnu karcinoma (Bazalioma).",
+      "Plakanšūnu karcinoma (SCC).",
+      "Melanoma (ļaundabīgā melanoma).",
+      "Merkela šūnu karcinoma (MCC)."
+    ]
+  },
+  {
+    "q": "Kādi ir aktīniskās keratozes riska faktori?",
+    "correct": "Ilgstošs UV starojums; Anamnēzē saules apdegumi; Saules aizsargkrēmu nelietošana; Gaišs ādas tips.",
+    "options": [
+      "Ilgstošs UV starojums; Anamnēzē saules apdegumi; Saules aizsargkrēmu nelietošana; Gaišs ādas tips.",
+      "Pārmērīgs mitrums; Anamnēzē sēnīšu infekcijas; Pretsēņu preparātu nelietošana; Tumšs ādas tips.",
+      "Ilgstoša aukstuma iedarbība; Anamnēzē apsaldējumi; Aizsargkrēmu pret aukstumu nelietošana; Jaukts ādas tips.",
+      "Pārmērīga mehāniska berze; Anamnēzē ādas traumas; Mitrinošu krēmu nelietošana; Sausas ādas tips."
+    ]
+  },
+  {
+    "q": "Kāda ir aktīnisko keratožu klīniskā aina?",
+    "correct": "Slikti norobežoti no veselās ādas, var savstarpēji saplūst, grūti nosakāmas veidojuma robežas.",
+    "options": [
+      "Slikti norobežoti no veselās ādas, var savstarpēji saplūst, grūti nosakāmas veidojuma robežas.",
+      "Labi norobežoti no veselās ādas, nekad nesaplūst, viegli nosakāmas veidojuma robežas.",
+      "Simetriski izvietoti uz abām ķermeņa pusēm, vienmērīgi pigmentēti, ar gludu virsmu.",
+      "Dziļi lokalizēti zemādas taukaudos, neskar epidermu, nav redzami bez palpācijas."
+    ]
+  },
+  {
+    "q": "Kādi ir bazālo šūnu karcinomas klīniskie varianti?",
+    "correct": "Nodulāra 60%, Virspusēja 30%, Infiltrējoša–sklerotizējoša 5–10%.",
+    "options": [
+      "Nodulāra 60%, Virspusēja 30%, Infiltrējoša–sklerotizējoša 5–10%.",
+      "Virspusēja 60%, Nodulāra 30%, Pigmentēta–ulcerozā 5–10%.",
+      "Infiltrējoša 60%, Nodulāra 25%, Virspusēja–fibroepiteliāla 5–10%.",
+      "Pigmentēta 60%, Ulcerozā 30%, Nodulāri–sklerotizējoša 5–10%."
+    ]
+  },
+  {
+    "q": "Nosauc keratinocītu ļaundabīgu audzēju!",
+    "correct": "Ādas plakanšūnu karcinoma (SCC). Vairumā gadījumu attīstās no priekšvēža patoloģijām – aktīniskajām keratozēm.",
+    "options": [
+      "Ādas plakanšūnu karcinoma (SCC). Vairumā gadījumu attīstās no priekšvēža patoloģijām – aktīniskajām keratozēm.",
+      "Ādas bazālo šūnu karcinoma (BCC). Vairumā gadījumu attīstās no priekšvēža patoloģijām – seborejas keratozēm.",
+      "Ādas melanoma (MM). Vairumā gadījumu attīstās no priekšvēža patoloģijām – pigmentētajiem nēvusiem.",
+      "Ādas Merkela šūnu karcinoma (MCC). Vairumā gadījumu attīstās no priekšvēža patoloģijām – dermatofibromām."
+    ]
+  },
+  {
+    "q": "Kur visbiežāk lokalizējas Melanoma?",
+    "correct": ">90% melanoma lokalizējas uz ādas, retos gadījumos primāri attīstās acī vai gļotādās.",
+    "options": [
+      ">90% melanoma lokalizējas uz ādas, retos gadījumos primāri attīstās acī vai gļotādās.",
+      ">90% melanoma lokalizējas iekšējos orgānos, retos gadījumos primāri attīstās uz ādas.",
+      ">90% melanoma lokalizējas limfmezglos, retos gadījumos primāri attīstās kaulos vai muskuļos.",
+      ">90% melanoma lokalizējas gļotādās, retos gadījumos primāri attīstās uz ādas vai acī."
+    ]
+  },
+  {
+    "q": "Kāds ir vidējais vecums Melanomas diagnosticēšanas brīdī?",
+    "correct": "60 gadi. Viena no biežākajām malignitātēm vecuma grupā 15–29 gadi.",
+    "options": [
+      "60 gadi. Viena no biežākajām malignitātēm vecuma grupā 15–29 gadi.",
+      "40 gadi. Viena no biežākajām malignitātēm vecuma grupā 50–70 gadi.",
+      "75 gadi. Viena no retākajām malignitātēm vecuma grupā 30–50 gadi.",
+      "25 gadi. Viena no biežākajām malignitātēm vecuma grupā 60–80 gadi."
+    ]
+  },
+  {
+    "q": "Nosauc Melanomas apakštipus!",
+    "correct": "Virspusēja melanoma (70%); Mezglveida (nodulāra) melanoma (15%) – biežāk uz rumpja, galvas, kakla; Lentigo maligna melanoma (13%) – visbiežāk uz sejas; Akrālā lentiginozā un zemnaga melanoma (2–3%); Bezpigmenta (amelanotiskā) melanoma.",
+    "options": [
+      "Virspusēja melanoma (70%); Mezglveida (nodulāra) melanoma (15%) – biežāk uz rumpja, galvas, kakla; Lentigo maligna melanoma (13%) – visbiežāk uz sejas; Akrālā lentiginozā un zemnaga melanoma (2–3%); Bezpigmenta (amelanotiskā) melanoma.",
+      "Nodulāra melanoma (70%); Virspusēja melanoma (15%) – biežāk uz ekstremitātēm; Akrālā melanoma (13%) – visbiežāk uz rokām; Lentigo maligna melanoma (2–3%); Desmoplastiskā melanoma.",
+      "Lentigo maligna melanoma (70%); Akrālā melanoma (15%) – biežāk uz pēdām un plaukstām; Virspusēja melanoma (13%) – visbiežāk uz muguras; Nodulāra melanoma (2–3%); Neirotrōpā melanoma.",
+      "Akrālā melanoma (70%); Lentigo maligna melanoma (15%) – biežāk uz sejas; Nodulāra melanoma (13%) – visbiežāk uz rumpja; Virspusēja melanoma (2–3%); Amelanotiskā melanoma."
+    ]
+  },
+  {
+    "q": "Nosauc 3 ādas ļaundabīgos audzējus!",
+    "correct": "Bazālo šūnu karcinoma (Bazalioma); Plakano šūnu karcinoma; Melanoma.",
+    "options": [
+      "Bazālo šūnu karcinoma (Bazalioma); Plakano šūnu karcinoma; Melanoma.",
+      "Dermatofibrosarkoma; Merkela šūnu karcinoma; Kapoši sarkoma.",
+      "Angiosarkoma; Seborejas karcinoma; Mikozīdā fungoīde.",
+      "Keratoakantoma; Aktīniskā keratoze; Piogēnā granuloma."
+    ]
+  },
+  {
+    "q": "Nosauc brīdinošos Melanomas simptomus!",
+    "correct": "Asimetrija, Nelīdzenas robežas, Nevienmērīgs krāsojums, Izmērs >6 mm, Veidojums laika gaitā mainās.",
+    "options": [
+      "Asimetrija, Nelīdzenas robežas, Nevienmērīgs krāsojums, Izmērs >6 mm, Veidojums laika gaitā mainās.",
+      "Simetrija, Līdzenas robežas, Vienmērīgs krāsojums, Izmērs <3 mm, Veidojums laika gaitā nemainās.",
+      "Nieze, Asiņošana, Sāpes, Strutošanās, Veidojums vienmēr ir vienādā krāsā un formā.",
+      "Kustīgs veidojums, Mīksta konsistence, Ādas krāsas pigments, Izmērs >20 mm, Veidojums nav redzams."
+    ]
+  },
+  {
+    "q": "No kā sastāv matu dziedzera vienība?",
+    "correct": "Mata, mata folikula, mata cēlējmuskuļa un tauku dziedzera.",
+    "options": [
+      "Mata, mata folikula, mata cēlējmuskuļa un tauku dziedzera.",
+      "Mata, sviedru dziedzera, naga un epidermas bazālā slāņa.",
+      "Mata folikula, apokrīnā dziedzera, kolagēna šķiedras un elastīna.",
+      "Mata, dermas papillas, melanocīta un ekrīnā sviedru dziedzera."
+    ]
+  },
+  {
+    "q": "Kas ir matu struktūras biezākais slānis?",
+    "correct": "Garoza – biezākais mata stiebra slānis, satur pigmentu un galvenokārt sastāv no gareniskiem, cietiem keratīna pavedieniem un aptver serdi.",
+    "options": [
+      "Garoza – biezākais mata stiebra slānis, satur pigmentu un galvenokārt sastāv no gareniskiem, cietiem keratīna pavedieniem un aptver serdi.",
+      "Kutikula – biezākais mata stiebra slānis, nesatur pigmentu un galvenokārt sastāv no pārklājošām šūnām un aptver garozu.",
+      "Serde (medulla) – biezākais mata stiebra slānis, satur melanīnu un galvenokārt sastāv no gaisa telpām un aptver kutikulu.",
+      "Iekšējā saknes maksts – biezākais mata stiebra slānis, satur keratīnu un galvenokārt sastāv no Henles un Hakslija slāņa."
+    ]
+  },
+  {
+    "q": "Kā iedala matu slimības?",
+    "correct": "Matu blīvuma pārmaiņas (pārmērīga matu augšana – hipertrihoze, hirsutisms / matu zudums – alopēcija); Mata stiebra patoloģijas.",
+    "options": [
+      "Matu blīvuma pārmaiņas (pārmērīga matu augšana – hipertrihoze, hirsutisms / matu zudums – alopēcija); Mata stiebra patoloģijas.",
+      "Matu krāsas pārmaiņas (pārmērīga melanīna produkcija – melanotrihoze / melanīna zudums – poliōze); Mata saknes patoloģijas.",
+      "Matu formas pārmaiņas (pārmērīga mata izliekšanās – trihokinēze / mata taisnošanās – tihomalaize); Mata folikula patoloģijas.",
+      "Matu garuma pārmaiņas (pārmērīga mata pagarināšanās – trihomegālija / mata saīsināšanās – trihomikrija); Mata kutikulas patoloģijas."
+    ]
+  },
+  {
+    "q": "Kāds ir alopēcijas iedalījums?",
+    "correct": "Nerētojošas (Alopecia areata, androgēna alopēcija, telogen effluvium); Rētojošas (Lichen planopilaris, folliculitis decalvans, atslāņojošais folikulīts).",
+    "options": [
+      "Nerētojošas (Alopecia areata, androgēna alopēcija, telogen effluvium); Rētojošas (Lichen planopilaris, folliculitis decalvans, atslāņojošais folikulīts).",
+      "Akūtas (Alopecia totalis, trakšūnu alopēcija, anagēna efflūvija); Hroniskas (Lupus erythematosus, dermatomiozīts, sklerodermija).",
+      "Primāras (Alopecia universalis, frontāla alopēcija, centrālā alopēcija); Sekundāras (Psoriātiskā alopēcija, seborejas alopēcija).",
+      "Lokalizētas (Alopecia diffusa, medikamentozā alopēcija, radiācijas alopēcija); Ģeneralizētas (Hipertrihoze, trihotillomānija)."
+    ]
+  },
+  {
+    "q": "Kā sauc pastiprinātu terminālo matu augšanu sievietēm androgēnu atkarīgos apvidos, kas rezultējas apmatojumā pēc vīrišķā tipa?",
+    "correct": "Hirsutisms.",
+    "options": [
+      "Hirsutisms.",
+      "Hipertrihoze.",
+      "Alopēcija.",
+      "Trihotillomānija."
+    ]
+  },
+  {
+    "q": "Kas ir Alopecia areata?",
+    "correct": "Autoimūna slimība, kas izraisa matu izkrišanu bērniem, sievietēm un vīriešiem.",
+    "options": [
+      "Autoimūna slimība, kas izraisa matu izkrišanu bērniem, sievietēm un vīriešiem.",
+      "Hormonāla slimība, kas izraisa pārmērīgu matu augšanu tikai pieaugušām sievietēm.",
+      "Infekcijas slimība, kas izraisa matu bojāeju tikai bērniem līdz 5 gadu vecumam.",
+      "Ģenētiska slimība, kas izraisa matu krāsas maiņu tikai vīriešiem pēc 50 gadiem."
+    ]
+  },
+  {
+    "q": "Kā iedala Alopecia areata?",
+    "correct": "Norobežota alopēcija – viens vai vairāki perēkļi; Totāla alopēcija – zūd visi skalpa mati; Alopecia areata universalis – zūd visi ķermeņa mati, tai skaitā uzacis un skropstas.",
+    "options": [
+      "Norobežota alopēcija – viens vai vairāki perēkļi; Totāla alopēcija – zūd visi skalpa mati; Alopecia areata universalis – zūd visi ķermeņa mati, tai skaitā uzacis un skropstas.",
+      "Akūtā alopēcija – ilgst līdz 2 nedēļām; Subakūtā alopēcija – ilgst līdz 3 mēnešiem; Hroniskā alopēcija – ilgst vairāk nekā 6 mēnešus.",
+      "Frontālā alopēcija – skar tikai pieres rajonu; Temporālā alopēcija – skar tikai deniņu rajonu; Okcipitālā alopēcija – skar tikai pakauša rajonu.",
+      "Simetriskā alopēcija – skar abas galvas puses vienādi; Asimetriskā alopēcija – skar tikai vienu pusi; Difūzā alopēcija – skar vienmērīgi."
+    ]
+  },
+  {
+    "q": "Kas līdz 70 gadu vecumam skar 80% gaišādainu vīriešu – skalpa matu paaugstināta jutība pret androgēniem izsauc pakāpenisku matu daudzuma samazināšanos?",
+    "correct": "Androgēna alopēcija.",
+    "options": [
+      "Androgēna alopēcija.",
+      "Alopecia areata.",
+      "Telogen effluvium.",
+      "Trakšūnu alopēcija."
+    ]
+  },
+  {
+    "q": "Kā sauc pastiprinātu matu zudumu sievietēm, kas saistās ar paaugstinātu androgēnu līmeni (policistisko olnīcu sindroms, olnīcu audzējs, virsnieru audzējs)?",
+    "correct": "Androgēnu inducēta alopēcija.",
+    "options": [
+      "Androgēnu inducēta alopēcija.",
+      "Telogen effluvium alopēcija.",
+      "Alopecia areata totalis.",
+      "Trakšūnu (cicatricial) alopēcija."
+    ]
+  },
+  {
+    "q": "Kā sauc stresa inducētu matu izkrišanu, fizisks vai emocionāls stress 2–4 mēnešus pirms simptomu sākuma?",
+    "correct": "Telogen effluvium.",
+    "options": [
+      "Telogen effluvium.",
+      "Alopecia areata.",
+      "Androgēna alopēcija.",
+      "Anagēna efflūvija."
+    ]
+  }
+];
+  </script>
+  <script>
+/* iOS/Safari drošs: globālas funkcijas + inline onclick */
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function pick30(all){
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(30, copy.length));
+}
+
+function qs(id){ return document.getElementById(id); }
+
+function setProgress(){
+  const p = deck.length ? Math.round((idx/deck.length)*100) : 0;
+  qs("bar").style.width = p + "%";
+}
+
+function renderStart(){
+  qs("screenStart").style.display = "";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "none";
+  qs("totalQ").textContent = ALL.length;
+  qs("askCount").textContent = Math.min(30, ALL.length);
+  qs("bar").style.width = "0%";
+}
+
+function startQuiz(){
+  deck = pick30(ALL).map(q => {
+    const opts = q.options.slice();
+    shuffle(opts);
+    return { q: q.q, correct: q.correct, options: opts };
+  });
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs("scoreNow").textContent = "0";
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "";
+  qs("screenEnd").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const item = deck[idx];
+  qs("qIndex").textContent = (idx+1);
+  qs("qTotal").textContent = deck.length;
+  qs("questionText").textContent = item.q;
+
+  const box = qs("options");
+  box.innerHTML = "";
+  item.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.setAttribute("onclick", "chooseAnswer(this)");
+    box.appendChild(btn);
+  });
+
+  qs("feedback").textContent = "";
+  qs("feedback").className = "feedback";
+  qs("nextBtn").style.display = "none";
+  setProgress();
+}
+
+function chooseAnswer(btn){
+  if(locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = btn.textContent;
+
+  const buttons = Array.from(qs("options").querySelectorAll("button"));
+  buttons.forEach(b => {
+    if(b.textContent === item.correct) b.classList.add("correct");
+    if(b === btn && picked !== item.correct) b.classList.add("wrong");
+    b.disabled = true;
+  });
+
+  if(picked === item.correct){
+    score += 1;
+    qs("scoreNow").textContent = String(score);
+    qs("feedback").textContent = "Pareizi!";
+    qs("feedback").classList.add("ok");
+  } else {
+    qs("feedback").textContent = "Nepareizi!";
+    qs("feedback").classList.add("bad");
+  }
+
+  qs("nextBtn").style.display = "";
+}
+
+function nextQuestion(){
+  idx += 1;
+  if(idx >= deck.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  qs("screenStart").style.display = "none";
+  qs("screenQuiz").style.display = "none";
+  qs("screenEnd").style.display = "";
+  qs("finalScore").textContent = String(score);
+  qs("finalTotal").textContent = String(deck.length);
+  qs("bar").style.width = "100%";
+}
+
+function restartQuiz(){
+  renderStart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ALL = window.__QUIZ__ || [];
+  renderStart();
+});
+</script>
+</body>
+</html>
