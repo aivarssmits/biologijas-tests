@@ -1,0 +1,2693 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Estētiskās kosmetoloģijas tests</title>
+  <style>
+:root {
+  --bg: #0b1020;
+  --card: #0f162b;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --border: #1f2937;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+.app {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  margin-top: 20px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+.badge {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 12px 0 14px;
+}
+.progress > div {
+  height: 100%;
+  background: var(--ok);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+.card {
+  background: #0b1220;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  contain: layout style;
+}
+.question-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.btn,
+.option-btn,
+.count-input {
+  border: 1px solid var(--border);
+  background: #1f2937;
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.btn.primary {
+  background: #16a34a;
+  border-color: #15803d;
+  font-weight: 700;
+}
+.btn.primary:hover { background: #15803d; }
+.btn:hover:not(.primary) { background: #374151; }
+.btn.ghost { background: transparent; }
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.option-btn {
+  width: 100%;
+  background: #0e1526;
+  font-size: 16px;
+  text-align: left;
+  transition: background-color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+.option-btn:hover:not(.correct):not(.wrong) { background: #1a2744; }
+.option-btn:focus-visible,
+.count-input:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 2px;
+}
+.option-btn.correct {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.22) inset;
+}
+.option-btn.wrong {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.35) inset;
+}
+.feedback {
+  font-weight: 800;
+  margin-top: 10px;
+  min-height: 20px;
+}
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 260px;
+  margin-top: 14px;
+}
+.count-input {
+  width: 100%;
+}
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+  min-height: 18px;
+}
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Estētiskās kosmetoloģijas tests">
+    <div class="header">
+      <div class="title">Estētiskās kosmetoloģijas tests</div>
+      <div class="meta">
+        <div class="badge">Jautājumi bāzē: <span id="totalQ">0</span></div>
+        <div class="badge">Testā: <span id="askCount">0</span></div>
+        <div class="badge">Rezultāts: <span id="scoreNow">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+
+    <div id="screenStart" class="card">
+      <div class="question-label">Instrukcija</div>
+      <div class="question-text" style="font-size:16px;font-weight:600;">
+        Ievadi, cik jautājumus izmantot testam. Katru reizi tiek sajaukti tikai jautājumi, bet atbilžu secība paliek kā dokumentā.
+      </div>
+      <div class="field">
+        <label for="questionCount" class="question-label">Jautājumu skaits</label>
+        <input id="questionCount" class="count-input" type="number" min="1" step="1" inputmode="numeric" />
+        <div id="countHint" class="hint"></div>
+      </div>
+      <div class="controls">
+        <button type="button" class="btn primary" onclick="startQuiz()">Sākt testu</button>
+      </div>
+      <div class="footer">
+        <div>Ja ievadītais skaits būs ārpus robežām, tests izmantos pieejamo maksimumu.</div>
+        <div></div>
+      </div>
+    </div>
+
+    <div id="screenQuiz" style="display:none;">
+      <div class="card">
+        <div class="question-label">Jautājums <span id="qIndex">1</span> / <span id="qTotal">0</span></div>
+        <div id="questionText" class="question-text"></div>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+        <div class="controls">
+          <button id="nextBtn" type="button" class="btn primary" style="display:none;" onclick="nextQuestion()">Tālāk</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Beigt un sākt no jauna</button>
+        </div>
+        <div class="footer">
+          <div>Izvēlies vienu atbildi; pēc izvēles uzreiz redzēsi, vai tā ir pareiza.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="screenEnd" style="display:none;">
+      <div class="card">
+        <div class="question-label">Rezultāts</div>
+        <div class="question-text" style="font-size:18px;">
+          Tu atbildēji pareizi uz <b><span id="finalScore">0</span></b> no <b><span id="finalTotal">0</span></b> jautājumiem.
+        </div>
+        <div class="controls">
+          <button type="button" class="btn primary" onclick="startQuiz()">Pildīt vēlreiz</button>
+          <button type="button" class="btn ghost" onclick="restartQuiz()">Sākuma ekrāns</button>
+        </div>
+        <div class="footer">
+          <div>Katru reizi jautājumi tiek sajaukti, bet atbilžu secība paliek kā dokumentā.</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__QUIZ__ = [
+  {
+    "q": "Patoloģiskais process ietver:",
+    "correct": "a+b+d,",
+    "options": [
+      "patoloģiskās,",
+      "aizsardzības,",
+      "apmaiņas,",
+      "piemērošanās reakcijas,",
+      "a+b+d,",
+      "a+b+c."
+    ]
+  },
+  {
+    "q": "Ārstēšanu izšķir:",
+    "correct": "etioloģisko,",
+    "options": [
+      "etioloģisko,",
+      "fizioterapeitisko,",
+      "patoģenētisko,",
+      "simptomātisko."
+    ]
+  },
+  {
+    "q": "Etioloģiskās ārstēšanas piemērs ir:",
+    "correct": "pneimonijas ārstēšana ar antibiotiskajiem līdzekļiem,",
+    "options": [
+      "pneimonijas ārstēšana ar antibiotiskajiem līdzekļiem,",
+      "iekaisuma ārstēšana ar siltajām kompresēm,",
+      "sāpju remdēšana ar analgīnu."
+    ]
+  },
+  {
+    "q": "Patoģenēzes galvenajam loceklim raksturīgs:",
+    "correct": "nosaka patoģenēzes galvenos virzienus un ir kopīgs vairākām slimībām,",
+    "options": [
+      "nosaka patoģenēzes galvenos virzienus un ir kopīgs vairākām slimībām,",
+      "nosaka patoģenēzes mehānisma beigas,",
+      "nosaka patoģenēzes sākumu,",
+      "ir specifisks dotajai slimībai.",
+      "viss."
+    ]
+  },
+  {
+    "q": "Simptomātiska terapija ir minēta piemērā:",
+    "correct": "sāpju kupēšana ļaundabīga audzēja gadījumā,",
+    "options": [
+      "infekcijas izraisītāja likvidēšana,",
+      "insulīna terapija diabēta gadījumā,",
+      "sāpju kupēšana ļaundabīga audzēja gadījumā,",
+      "visos,",
+      "visos, izņemot c."
+    ]
+  },
+  {
+    "q": "Slimības komplikācijas piemērs ir:",
+    "correct": "vēzis kuņģa čūlas slimniekam,",
+    "options": [
+      "lauzta kāja gripas slimniekam.",
+      "vēzis kuņģa čūlas slimniekam,",
+      "vidusauss iekaisums cukura diabēta slimniekam."
+    ]
+  },
+  {
+    "q": "Patoloģiskā reakcija ir:",
+    "correct": "neadekvāta atbildes reakcija uz adekvātu kairinājumu,",
+    "options": [
+      "atbildes reakcija uz neadekvātu kairinājumu,",
+      "atbildes reakcija uz adekvātu kairinājumu,",
+      "neadekvāta atbildes reakcija uz adekvātu kairinājumu,",
+      "atbildes reakcija uz jebkuru pietiekoši intensīvu kairinājumu."
+    ]
+  },
+  {
+    "q": "Slimības prodromālā stadija ir stadija:",
+    "correct": "no pirmajām slimības pazīmēm līdz izteiktai slimības ainai,",
+    "options": [
+      "no pirmajām slimības pazīmēm līdz izteiktai slimības ainai,",
+      "no etioloģiskā faktora darbības sākuma līdz pirmajām slimības pazīmēm,",
+      "no etioloģiskā faktora darbības sākuma līdz izteiktai slimības ainai,",
+      "visi."
+    ]
+  },
+  {
+    "q": "Patoģenētiskās terapija ir minēta piemērā:",
+    "correct": " insulīna terapija pie cukura diabeta;",
+    "options": [
+      "infekcijas izraisītāja likvidēšana;",
+      " insulīna terapija pie cukura diabeta;",
+      "sāpju mazināšna ļaundabīgā audzēja gadījumā;",
+      "visos;",
+      "visos, izņemot a."
+    ]
+  },
+  {
+    "q": "Slimības recidīvs",
+    "correct": "slimības jauna cikla attīstība pēc klīnisko simptomu pilnīgas izzušanas,",
+    "options": [
+      "slimības pāreja hroniskā formā,",
+      "komplikāciju attīstība,",
+      "slimības jauna cikla attīstība pēc klīnisko simptomu pilnīgas izzušanas,",
+      "slimības paasinājums."
+    ]
+  },
+  {
+    "q": "Slimības iznākums var būt:",
+    "correct": "visi.",
+    "options": [
+      "izveseļošanās,",
+      "recidīvs,",
+      "slimības pāreja hroniskā formā patoloģiskā stāvoklī,",
+      "nāve,",
+      "visi."
+    ]
+  },
+  {
+    "q": "Patoģenētiska terapija ir minēta piemērā:",
+    "correct": "visos, izņemot c.",
+    "options": [
+      "diēta pie laktozes nepanesības,",
+      "insulīna terapija diabēta gadījumā,",
+      "sāpju kupēšana ļaundabīgā audzēja gadījumā,",
+      "visos,",
+      "visos, izņemot c."
+    ]
+  },
+  {
+    "q": "Etioloģija ir mācība par",
+    "correct": "apstākļiem un cēloņiem,",
+    "options": [
+      "cēloņiem,",
+      "apstākļiem un cēloņiem,",
+      "attīstības mehānismu,",
+      "izveseļošanās mehānismu."
+    ]
+  },
+  {
+    "q": "Galvenās slimības stadijas visas, izņemot:",
+    "correct": "recidīvs,",
+    "options": [
+      "latentā,",
+      "prodromālā,",
+      "kulminācija,",
+      "recidīvs,",
+      "iznākums."
+    ]
+  },
+  {
+    "q": "Pavadošai slimībai raksturīgs:",
+    "correct": "norit vienlaikus ar pamatslimību, bet nav etioloģiski ar to saistīta,",
+    "options": [
+      "norit vienlaikus ar pamatslimību un ir etioloģiski ar to saistīta,",
+      "norit vienlaikus ar pamatslimību, bet nav etioloģiski ar to saistīta,",
+      "ir slimības jauna cikla attīstība pēc klīnisko simptomu pilnīgas izzušanas,",
+      "ir slimības paasinājums ar komplikāciju attīstību."
+    ]
+  },
+  {
+    "q": "Patoģenēzes vadošajiem locekļiem raksturīgs:",
+    "correct": "nosaka patoģenēzes galvenos virzienus un ir kopīgs vairākām slimībām,",
+    "options": [
+      "nosaka patoģenēzes galvenos virzienus un ir kopīgs vairākām slimībām,",
+      "nosaka patoģenēzes mehānisma beigas,",
+      "nosaka patoģenēzes sākumu,",
+      "ir specifisks dotajai slimībai."
+    ]
+  },
+  {
+    "q": "Galvenie mehānismi, kuri ir asinsreces pamatā, ir:",
+    "correct": "asinsvadu - trombocitārās un koagulācijas hemostāzes mehānismi,",
+    "options": [
+      "trombocītu agregācijas un koagulācijas hemostāzes mehānismi,",
+      "asinsvadu - trombocitārās un koagulācijas hemostāzes mehānismi,",
+      "vazokonstrikcijas un koagulācijas hemostāzes mehānismi,",
+      "trombocītu agregācijas un vazokonstrikcijas mehānismi,"
+    ]
+  },
+  {
+    "q": "Hipoksija nozīmē skābekļa samazināšanos:",
+    "correct": "audos,",
+    "options": [
+      "asinīs,",
+      "audos,",
+      "alveolārajā gaisā,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Ogļskābās gāzes paaugstinātu saturu asinīs sauc par:",
+    "correct": "hiperkapniju,",
+    "options": [
+      "hiperkapniju,",
+      "hiperkarboksēmiju,",
+      "hiperkarbonēmiju,",
+      "hiperoksiju,",
+      "hipoksēmiju."
+    ]
+  },
+  {
+    "q": "Asins skābekļa ietilpības norma ir:",
+    "correct": "18-21 vol %,",
+    "options": [
+      "9-12 vol %,",
+      "13-17 vol %,",
+      "18-21 vol %,",
+      "22-25 vol %,",
+      "26-30 vol %."
+    ]
+  },
+  {
+    "q": "Hemoglobīna skābekļa ietilpība asinīs var sasniegt:",
+    "correct": "100% HbO2,",
+    "options": [
+      "86% HbO2,",
+      "96% HbO2,",
+      "98% HbO2,",
+      "100% HbO2,",
+      "106% HbO2."
+    ]
+  },
+  {
+    "q": "Arteriālo asiņu pO2 norma ir ap:",
+    "correct": "100 mm Hg st.,",
+    "options": [
+      "90 mm Hg st.,",
+      "100 mm Hg st.,",
+      "110 mm Hg st.,",
+      "120 mm Hg st.,",
+      "130 mm Hg st.."
+    ]
+  },
+  {
+    "q": "Hemoglobīna piesātināšanās procenta ar skābekli norma ir:",
+    "correct": "ap 100%,",
+    "options": [
+      "85-96%,",
+      "95-96%,",
+      "ap 100%,",
+      "nenosakāma,",
+      "140%."
+    ]
+  },
+  {
+    "q": "Skābekļa satura arteriovenozās starpības norma ir:",
+    "correct": "5 vol %,",
+    "options": [
+      "4 vol %,",
+      "5 vol %,",
+      "6 vol %,",
+      "7 vol %,",
+      "8 vol %,",
+      "9 vol %."
+    ]
+  },
+  {
+    "q": "Cianoze iestājas, ja reducētā hemoglobīna saturs asinīs pārsniedz (g%):",
+    "correct": "5,",
+    "options": [
+      "3,",
+      "4,",
+      "5,",
+      "6,",
+      "7."
+    ]
+  },
+  {
+    "q": "Hipoksiskās hipoksijas patoģenēzes galvenais loceklis ir:",
+    "correct": "ārējās elpošanas traucējumi,",
+    "options": [
+      "pO2 samazināšanās ieelpojamajā gaisā,",
+      "plaušu ventilācijas traucējumi,",
+      "elpošanas ceļu patoloģija,",
+      "ārējās elpošanas traucējumi,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Hipobāriskā hipoksiskā hipoksija rodas:",
+    "correct": "retinātā atmosfērā,",
+    "options": [
+      "slikti ventilētās telpās,",
+      "retinātā atmosfērā,",
+      "dūmos un miglā,",
+      "elpošanas ceļu slimību gadījumos,",
+      "a+b,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Normobāriskā hiopksiskā hipoksija rodas:",
+    "correct": "a+c.",
+    "options": [
+      "slikti ventilētās telpās,",
+      "retinātā atmosfērā,",
+      "dūmos un miglā,",
+      "elpošanas ceļu slimību gadījumos,",
+      "a+b,",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Obstruktīvo ventilācijas traucējumu pamatā ir:",
+    "correct": "elpceļu sašaurinājums,",
+    "options": [
+      "elpceļu sašaurinājums,",
+      "elpceļu paplašinājums,",
+      "plaušu elpošanas virsmas samazināšanās,",
+      "plaušu elpošanas virsmas palielināšanās,",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Restriktīvo ventilācijas traucējumu pamatā ir:",
+    "correct": "plaušu elpošanas virsmas samazināšanās,",
+    "options": [
+      "elpceļu sašaurinājums,",
+      "elpceļu paplašinājums,",
+      "plaušu elpošanas virsmas samazināšanās,",
+      "plaušu elpošanas virsmas palielināšanās,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Galvenās organisma skābekļa budžeta rādītāju pārmaiņas slimniekam ar histotoksisko hipoksiju :",
+    "correct": "skābekļa satura arteriovenozās starpības samazināšanās,",
+    "options": [
+      "asins skābekļa ietilpības samazināšanās,",
+      "arteriālā hipoksēmija,",
+      "skābekļa satura arteriovenozās starpības samazināšanās,",
+      "skābekļa satura artetiovenozās starpības pieaugums,",
+      "a+b,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Respiratoriskās hipoksijas patoģenēzes galvenais loceklis ir:",
+    "correct": "plaušu ventilācijas traucējumi,",
+    "options": [
+      "pO2 samazināšanās ieelpojamajā gaisā,",
+      "plaušu ventilācijas traucējumi,",
+      "intrapulmonālā patoloģija,",
+      "ekstrapulmonālā patoloģija,",
+      "a+c,",
+      "a+d"
+    ]
+  },
+  {
+    "q": "Cirkulatoriskās hipoksijas patoģenēzes galvenais loceklis ir:",
+    "correct": "b+c.",
+    "options": [
+      "arteriālā hipoksēmija,",
+      "sirds mazspēja,",
+      "cirkulējošo asiņu tilpuma samazināšanās,",
+      "a+b+c,",
+      "a+b,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Hēmiskās hipoksijas patoģenēzes galvenais loceklis ir:",
+    "correct": "a+b,",
+    "options": [
+      "eritrocītu un hemoglobīna kvantitātes samazināšanās,",
+      "eritrocītu un hemoglobīna kvalitātes samazināšanās,",
+      "oksihemoglobīna disociācijas līknes nobīde pa labi,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Cianozi nenovēro slimniekiem:",
+    "correct": "pēc saindēšanās ar cianīdiem,",
+    "options": [
+      "ar sirds-asinsvadu sistēmas mazspēju,",
+      "pēc saindēšanās ar cianīdiem,",
+      "ar plausu ventilacijas traucejumiem,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Histotoksiskās hipoksijas patoģenēzes galvenais loceklis ir:",
+    "correct": "cirkulējošo asiņu tilpuma samazināšanās,",
+    "options": [
+      "arteriālā hipoksēmija,",
+      "cirkulējošo asiņu tilpuma samazināšanās,",
+      "oksihemoglobīna disociācijas līknes nobīde pa labi,",
+      "audu bioloģiskās oksidācijas traucējumi,",
+      "a+b,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Ar hiperbāriskās oksigenācijas palīdzību izdodas ievērojami:",
+    "correct": "palielināt fizikāli izšķīdušā O2 daudzumu asinīs,",
+    "options": [
+      "palielināt asiņu oksihemoglobīna procentu,",
+      "palielināt fizikāli izšķīdušā O2 daudzumu asinīs,",
+      "samazināt ogļskābās gāzes daudzumu sainīs,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Hipoksiju kompensācijas mehānismiem pieder:",
+    "correct": "viss minētai;",
+    "options": [
+      "asinsrites centralizācija;",
+      "asins iziešana no depo;",
+      "tahikardija;",
+      "elpošanas paātrināšanās;",
+      "viss minētai;",
+      "viss, izņemot  c ."
+    ]
+  },
+  {
+    "q": "Iekaisums ir:",
+    "correct": "tipveida patoloģiskais process,",
+    "options": [
+      "patoloģiskā reakcija,",
+      "tipveida patoloģiskais process,",
+      "patoloģiskais stāvoklis,",
+      "sindroms,",
+      "a+b,",
+      "c+d."
+    ]
+  },
+  {
+    "q": "Iekaisumam raksturīgas:",
+    "correct": "a+c+d.",
+    "options": [
+      "audu vielmaiņas un pārmaiņas funkcijas,",
+      "audu atrofijas,",
+      "saistaudu poliferācija,",
+      "perifērās asinsrites pārmaiņas,",
+      "a+b+d,",
+      "a+c+d."
+    ]
+  },
+  {
+    "q": "Iekaisumu sastop:",
+    "correct": "90-100% dažādu slimību gadījumos.",
+    "options": [
+      "40-50%,",
+      "50-60%,",
+      "60-70%,",
+      "70-80%,",
+      "80-90%,",
+      "90-100% dažādu slimību gadījumos."
+    ]
+  },
+  {
+    "q": "Iekaisumam vietējās pārmaiņas ir visas, izņemot:",
+    "correct": "leikocitozi,",
+    "options": [
+      "perifērās asinsrites traucējumus,",
+      "leikocitozi,",
+      "alterāciju,",
+      "leikocītu emigrāciju,",
+      "proliferāciju."
+    ]
+  },
+  {
+    "q": "Eksogēnajiem iekaisuma etioloģiskajiem faktoriem pieder viss, izņemot:",
+    "correct": "infarktus,",
+    "options": [
+      "traumatiskos aģentus,",
+      "termiskos aģentus,",
+      "vīrusus,",
+      "baktērijas,",
+      "infarktus,"
+    ]
+  },
+  {
+    "q": "Humorālie iekaisuma mediātori ir:",
+    "correct": "komplimenta sistēma un kinīnu sistēma,",
+    "options": [
+      "histamīns un bradikinīns,",
+      "serotonīns un histamīns,",
+      "komplimenta sistēma un kinīnu sistēma,",
+      "histamīns un postaglandīni."
+    ]
+  },
+  {
+    "q": "Iekaisuma cellulārie mediatori ir:",
+    "correct": "citokīni un prostaglandīni,",
+    "options": [
+      "histamīns un bradikinīns,",
+      "citokīni un prostaglandīni,",
+      "kinīni un postaglandīni,",
+      "bradikinīns un postaglandīni,",
+      "kallidīns un serotonīns."
+    ]
+  },
+  {
+    "q": "Fizikāli ķīmiskās pārmaiņas iekaisuma perēklī ir:",
+    "correct": "a+b,",
+    "options": [
+      "acidoze, hiperjonija un hiperosmija,",
+      "disjonija, hiperonkija un hipertermija,",
+      "acidoze, hiperosmija un eksudācija,",
+      "hiperosmija, eksudācija un acidoze,",
+      "a+b,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Disjonija iekaisuma perēklī nozīmē:",
+    "correct": "attiecību maiņu jonu starpā,",
+    "options": [
+      "jonu koncentrācijas samazināšanos,",
+      "jonu koncentrācijas pieaugumu,",
+      "attiecību maiņu jonu starpā,",
+      "attiecības K:Na samazināšanos,",
+      "a+d,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Par disjoniju sauc:",
+    "correct": "attiecību  maiņu jonu starpā;",
+    "options": [
+      "attiecību  maiņu jonu starpā;",
+      "attiecību izmaiņas olbaltumvielubfrakciju starpā;",
+      "normālas attiecības jonu starpā;",
+      "a+b+c;",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Acidozi iekaisuma perēklī izraisa viss, izņemot:",
+    "correct": "albumīni,",
+    "options": [
+      "laktātu,",
+      "ketonskābes,",
+      "albumīni,",
+      "sāļu disociācijas produktus,",
+      "Krebsa cikla starpproduktus,",
+      "c+d+e."
+    ]
+  },
+  {
+    "q": "Iekaisuma perēkļa hiperosmijas galvenie cēloņi ir:",
+    "correct": "a+b+c,",
+    "options": [
+      "pastiprināta sāļu disociācija un hiperjonija,",
+      "olbaltumvielu daudzuma pieaugums,",
+      "intensīvie hidrolīzes procesi,",
+      "a+b+c,",
+      "a+c,",
+      "a+b."
+    ]
+  },
+  {
+    "q": "Iekaisuma perēkļa hiperonkijas galvenie cēloņi ir:",
+    "correct": "a+c,",
+    "options": [
+      "sīki dispersās olbaltumvielas,",
+      "aminoskābes,",
+      "albumīni,",
+      "a+c,",
+      "b+c,",
+      "a+b+c."
+    ]
+  },
+  {
+    "q": "Perifērās asinsrites pārmaiņas iekaisuma perēklī notiek šādā secībā:",
+    "correct": "a+d,",
+    "options": [
+      "arteriolu spazma un arteriālā hiperēmija,",
+      "arteriālā hiperēmija un arteriolu spazma,",
+      "stāze un venozā hiperēmija,",
+      "venozā hiperēmija un stāze,",
+      "a+d,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Arteriolu spazma iekaisuma perēklī rodas:",
+    "correct": "iekaisuma etioloģisko aģentu ietekmē,",
+    "options": [
+      "acidozes ietekmē,",
+      "iekaisuma etioloģisko aģentu ietekmē,",
+      "lizosomu enzīmu ietekmē,",
+      "hiperjonijas ietekmē,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Arteriālās hiperēmijas pāreju venozajā veicina sekojoši intravazālie faktori:",
+    "correct": "a+b+d.",
+    "options": [
+      "formelementu uzbriešana un agregācija,",
+      "endotēlija uzbriešana,",
+      "venulu un limfvadu nospiedums ar eksudātu,",
+      "asins sabiezēšanās un trombu veidošanās,",
+      "a+b+d."
+    ]
+  },
+  {
+    "q": "Arteriālās hiperēmijas pāreju venozajā veicina sekojoši ekstravazālie faktori:",
+    "correct": "b+c.",
+    "options": [
+      "endotēlija uzbriešana,",
+      "venulu un limfvadu nospiedums ar eksudātu,",
+      "venulu un sīko vēnu struktūras traucējumi,",
+      "a+b,",
+      "a+b+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Perifērās asinsrites traucējumi virzienā no iekaisuma perēkļa centra uz perifēriju ir sekojoši:",
+    "correct": "b+a,",
+    "options": [
+      "venozā hiperēmija un arteriālā hiperēmija,",
+      "tromboze un venozā stāze,",
+      "a+b,",
+      "b+a,"
+    ]
+  },
+  {
+    "q": "Iekaisuma eksudācijas patoģenēzes galvenais faktors ir:",
+    "correct": "kapilāru un venulu sieniņu permeabilitātes pieaugums,",
+    "options": [
+      "kapilāru un venulu sieniņu permeabilitātes pieaugums,",
+      "iekaisuma perēkļa hiperosmija,",
+      "iekaisuma perēkļa hiperonkija,",
+      "šķidruma filtrācijas pārmaiņas kapilārā,",
+      "limfas atplūdes traucējumi."
+    ]
+  },
+  {
+    "q": "Iekaisuma ārstēšanas pamatmetodes ir:",
+    "correct": "visas,",
+    "options": [
+      "etioloģiskā,",
+      "patoģenētiskā;",
+      "simptomatiskā;",
+      "operativā;",
+      "visas,",
+      "visas, izņemot d."
+    ]
+  },
+  {
+    "q": "Normālā imunogēnā reaktivitāte izpaužas:",
+    "correct": "b+c.",
+    "options": [
+      "asins zaudējuma un bada apstākļos;",
+      "audu bioloģiskāas nesaderības reakcijās;",
+      "transplantācijas imunitātē;",
+      "a+b+c;",
+      "a+b;",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Vēlīna tipa alerģiskās reakcijas:",
+    "correct": "a+c,",
+    "options": [
+      "visbiežāk izpaužas vietēji,",
+      "ir humorālās imunitātes reakcijas,",
+      "to desensibilizācija ir neveiksmīga,",
+      "a+c,",
+      "b+c,",
+      "b+c+a."
+    ]
+  },
+  {
+    "q": "Alergēna izšķirošā deva tipiskos gadījumos:",
+    "correct": "100-200 reižu mazāka par sensibilizējošo devu,",
+    "options": [
+      "ir tāda pati kā sensibilizējošā deva,",
+      "10-100 reižu pārsniedz sensibilizējošo devu,",
+      "10-20 reižu mazāka par sensibilizējošo devu,",
+      "100-200 reižu mazāka par sensibilizējošo devu,",
+      "devas lielumam nav nozīmes."
+    ]
+  },
+  {
+    "q": "Vēlīna tipa hipersensibilitātes reakciju attīstībā galvenā loma ir:",
+    "correct": "citolītiskie Ly,",
+    "options": [
+      "imūnajiem kompleksiem,",
+      "Ig M un Ig G,",
+      "citolītiskie Ly,",
+      "komplementa sistēmai,",
+      "a+e."
+    ]
+  },
+  {
+    "q": "Vienkāršiem imunoloģiskās sistēmas funkcionālā stāvokļa izmeklēšanas testiem pieder:",
+    "correct": "d) imuonglobulīnu noteikšana asinīs,",
+    "options": [
+      "a) limfocītu blasttransformācijas noteikšana,",
+      "b) limfocītu citopatogēnās darbības noteikšana,",
+      "c) a+b,",
+      "d) imuonglobulīnu noteikšana asinīs,",
+      "e) a+b+d."
+    ]
+  },
+  {
+    "q": "Mūsdienu imunoterapijā izmanto:",
+    "correct": "aizvietojošās un stimulējošās metodes,",
+    "options": [
+      "aizvietojošās un stimulējošās metodes,",
+      "antibiotiku un hormonu terapiju,",
+      "antibiotiku un stimulējošās metodes,",
+      "atjaunojošās un stimulējošās metodes,",
+      "atjaunojošās un aizvietojošās metodes,",
+      "aizvietojošās, stimulējošās metodes un hormonu terapiju."
+    ]
+  },
+  {
+    "q": "Agrīnā tipa alerģiskajām reakcijām ir raksturīgs viss, izņemot:",
+    "correct": "visbiežāk to izpausme ir vietēja,",
+    "options": [
+      "tās ir humorālas imunitātes reakcijas,",
+      "tās iespējams desensibilizēt,",
+      "visbiežāk to izpausme ir vietēja,",
+      "tās sākas dažas minūtes pēc atkārtota kontakta ar alergēnu,",
+      "alergēna ietekmē pastiprinās cirkulējošo imunoglobulīnu veidošanās,",
+      "b+e."
+    ]
+  },
+  {
+    "q": "Kontakta alerģijas infiltrātā galvenokārt vēro:",
+    "correct": "sensibilizētos limfocitus",
+    "options": [
+      "sensibilizētos limfocitus",
+      "neitrofīlos leikocītus,",
+      "eozinofīlos leikocītus,",
+      "novirzi pa kreisi,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Transplantācijas pamatveidi ir:",
+    "correct": "autotransplantācija, allotransplantācija un ksenotransplantācija,",
+    "options": [
+      "singēna un nesingēna transplantācija,",
+      "autotransplantācija, allotransplantācija un ksenotransplantācija,",
+      "autotransplantācija, singēna un nesingēna transplantācija,",
+      "ksenotransplantācija, singēna un nesingēna transplantācija,",
+      "allotransplantācija, singēna un nesingēna transplantācija."
+    ]
+  },
+  {
+    "q": "Imunoloģiskā tolerance ir:",
+    "correct": "organisma nespēja ar imunoloģisko aizsargreakciju reaģēt pret antigēniem,",
+    "options": [
+      "organisma neuzņēmība pret svešiem antigēniem,",
+      "imunoloģiskā mazspēja,",
+      "organisma nespēja ar imunoloģisko aizsargreakciju reaģēt pret antigēniem,",
+      "imunodeficīts,",
+      "humorālās un celulārās imunoloģiskās sistēmas pārmantoti defekti,",
+      "b+e."
+    ]
+  },
+  {
+    "q": "Humorālajām imunoloģiskajām reakcijām pieskaitāmas:",
+    "correct": "a+b+c,",
+    "options": [
+      "anafilaktiskās reakcijas,",
+      "citotoksiskās reakcijas,",
+      "imūno kompleksu reakcijas,",
+      "vēlīnā tipa hipersensibilitātes reakcijas,",
+      "a+b+c,",
+      "a+b."
+    ]
+  },
+  {
+    "q": "Audu imunoloģiskais bojājums autoimūno slimību gadījumos var attīstīties saskaņā ar:",
+    "correct": "b+c+d.",
+    "options": [
+      "anafilaktisko reakciju mehānismu,",
+      "citotoksisko reakciju mehānismu,",
+      "imūno kompleksu reakciju mehānismu,",
+      "vēlīnā tipa hipersensibilitātes reakciju mehānismu,",
+      "a+b+c+d,",
+      "b+c+d."
+    ]
+  },
+  {
+    "q": "Pie sekundārās transplantācijas atgrūšanas reakcijas novēro sekojošas stadijas:",
+    "correct": "d) a+b+c,",
+    "options": [
+      "a) adaptācijas,",
+      "b) indukcijas,",
+      "c) proliferācijas,",
+      "d) kompensācijas,",
+      "d) a+b+c,",
+      "e) a+b,",
+      "f) viss minētais."
+    ]
+  },
+  {
+    "q": "Organisma desensibilizāciju alerģijas gadījumā veic, ievadot:",
+    "correct": "mazas antivielu devas,",
+    "options": [
+      "mazas antivielu devas,",
+      "specifiskos imunoglobulīnus,",
+      "antihistamīna preparātus,",
+      "mazas alergēna devas,",
+      "a+b,",
+      "c+d."
+    ]
+  },
+  {
+    "q": "Ievērojot patoģenēzes galveno locekli izšķir sekojošas alerģiskas reakcijas, izņemot:",
+    "correct": "agrīnā tipa hipersensibilitātes reakcijas,",
+    "options": [
+      "anafilaktiskās reakcijas,",
+      "citotoksiskās reakcijas,",
+      "imūno kompleksu reakcijas,",
+      "agrīnā tipa hipersensibilitātes reakcijas,",
+      "vēlīnā tipa hipersensibilitātes reakcijas."
+    ]
+  },
+  {
+    "q": "Celulārajām imunoliģiskajām reakcijām pieskaitāmas:",
+    "correct": "vēlīnā tipa hipersensibilitātes reakcijas.",
+    "options": [
+      "vēlīnā tipa hipersensibilitātes reakcijas.",
+      "imūno kompleksu reakcijas,",
+      "a+b,",
+      "citotoksiskās reakcijas,",
+      "a+b+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Imunoloģiskās reakcijas cilvēkam izpaužas no:",
+    "correct": "f) pareizā atbilde nav minēta.",
+    "options": [
+      "a) 1 mēneša vecuma,",
+      "b) 6 mēnešu vecuma,",
+      "c) 10 mēnešu vecuma,",
+      "d) 1 gada vecuma,",
+      "e) 3 gadu vecuma,",
+      "f) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Gremošanas sulu izdalīšanos kavē viss, izņemot:",
+    "correct": "parasimpātiskās nervu sistēmas aktivācija;",
+    "options": [
+      "simpatiskās nervu sistēmas aktivācija;",
+      "parasimpātiskās nervu sistēmas aktivācija;",
+      "negatīvas emocijas."
+    ]
+  },
+  {
+    "q": "Hipoksiju agrīniem kompensācijas mehānismiem pieder:",
+    "correct": "viss minētai;",
+    "options": [
+      "asinsrites centralizācija;",
+      "asins iziešana no depo;",
+      "tahikardija;",
+      "elpošanas paātrināšanās;",
+      "viss minētai;",
+      "viss, izņemot  c ."
+    ]
+  },
+  {
+    "q": "Hipoksiju vēlīnajiem kompensācijas mehānismiem pieder:",
+    "correct": "jaunu eritrocītu sintēze,",
+    "options": [
+      "asinsrites centralizācija;",
+      "asins iziešana no depo;",
+      "jaunu eritrocītu sintēze,",
+      "elpošanas paātrināšanās;",
+      "viss minētai;",
+      "viss, izņemot  c ."
+    ]
+  },
+  {
+    "q": "Arteriālā hiperēmija ir:",
+    "correct": "asins pildījuma palielināšanās, pavairojoties",
+    "options": [
+      "asins pildījuma palielināšanās, pavairojoties",
+      "pieplūstošo asiņu daudzumam,",
+      "asins pildījuma palielināšanās asiņu noplūdes traucējumu dēļ,",
+      "asinsapgādes samazināšanās,",
+      "asinsrites apstāšanās."
+    ]
+  },
+  {
+    "q": "Arteriālās hiperēmijas pamatveidi ir:",
+    "correct": " fiziolģiskā un patoloģiskā;",
+    "options": [
+      "kompreesijas un obturācijas;",
+      " fiziolģiskā un patoloģiskā;",
+      "fizioloģiskā un iekaisuma,",
+      "postišēmiskā un patoloģiskā."
+    ]
+  },
+  {
+    "q": "Patoloģisko arteriālo hiperemiju iedala:",
+    "correct": "iekaisuma,  postišemiskā, vakuūma;",
+    "options": [
+      "iekaisuma,  postišemiskā, vakuūma;",
+      "kompresijas, postišēmiskā,  iekaisuma;",
+      "iekaisuma, obturacijas,  postišēmiskā."
+    ]
+  },
+  {
+    "q": "Venozajai hiperēmijai ir raksturīgs viss, izņemot:",
+    "correct": "orgāna tilpuma samazināšanos,",
+    "options": [
+      "cianozi,",
+      "ādas temperatūras samazināšanos,",
+      "orgāna tilpuma samazināšanos,",
+      "orgāna funkciju pavājināšanos."
+    ]
+  },
+  {
+    "q": "Obturācijas išēmiju izraisa viss, izņemot:",
+    "correct": "artērijas ligatūru,",
+    "options": [
+      "artērijas ligatūru,",
+      "artērijas trombozi,",
+      "artērijas emboliju,",
+      "aterosklerozi."
+    ]
+  },
+  {
+    "q": "Sladža fenomens ir:",
+    "correct": "c+d.",
+    "options": [
+      "palēnināta asinsrite,",
+      "asinsrites apstāšanās,",
+      "formelementu kontūru izzušana,",
+      "viendabīga asins masa.",
+      "a+b,",
+      "c+d."
+    ]
+  },
+  {
+    "q": "Asinsvadu trombam raksturīgs viss, izņemot:",
+    "correct": "cirkulē asinīs,",
+    "options": [
+      "veidojas asinsvada bojājuma rezultātā,",
+      "cirkulē asinīs,",
+      "sastāv no asins komponentiem,",
+      "sašaurina asinsvada lūmenu."
+    ]
+  },
+  {
+    "q": "Baltie trombi sastāv galvenokārt no:",
+    "correct": "fibrīna un trombocītiem,",
+    "options": [
+      "trombocītiem un leikocītiem,",
+      "leikocītiem un fibrīna,",
+      "fibrīna un trombocītiem,",
+      "fibrīna un eritrocītiem,",
+      "trombocītiem un eritrocītiem."
+    ]
+  },
+  {
+    "q": "Asinsvadu embolija ir:",
+    "correct": "a+d,",
+    "options": [
+      "tādu daļiņu pārnešana ar asinīm, kādas parasti tur nesastop,",
+      "tādu daļiņu pārnešana ar asinīm, kādas parasti tur sastop,",
+      "asinsvada lūmena sašaurināšana,",
+      "asinsvada lūmena nosprostošana,",
+      "a+d,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Baltais infarkts veidojas:",
+    "correct": "a+c,",
+    "options": [
+      "miokardā,",
+      "plaušās,",
+      "smadzenēs un liesā,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Sarkanais infarkts veidojas:",
+    "correct": "plaušās,",
+    "options": [
+      "miokardā,",
+      "plaušās,",
+      "smadzenēs un liesā,",
+      "a+b,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Sarkanie trombi sastāv galvenokārt no:",
+    "correct": "baltā tromba bāzes, fibrīna un eritrocītiem,",
+    "options": [
+      "fibrīna un eritrocītiem,",
+      "trombocītiem un eritrocītiem,",
+      "fibrīna, trombocītiem un eritrocītiem,",
+      "baltā tromba bāzes un trombocītiem,",
+      "baltā tromba bāzes, fibrīna un eritrocītiem,",
+      "leikocītiem, trombocītiem un eritrocītiem."
+    ]
+  },
+  {
+    "q": "Artēriju tromboze izraisa:",
+    "correct": "išēmiju,",
+    "options": [
+      "arteriālo hiperēmiju,",
+      "venozo hiperēmiju,",
+      "išēmiju,",
+      "visu minēto,",
+      "a+b,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Vēnu tromboze izraisa:",
+    "correct": "venozo hiperēmiju,",
+    "options": [
+      "arteriālo hiperēmiju,",
+      "venozo hiperēmiju,",
+      "išēmiju,",
+      "visu minēto,",
+      "a+b,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Venozo hiperēmiju izraisa viss, izņemot:",
+    "correct": "artēriju tromboze,",
+    "options": [
+      "sirds mazspēja,",
+      "vēnu tromboze,",
+      "artēriju tromboze,",
+      "vēnu embolija,",
+      "vēnu nospiešana no ārpuses,",
+      "krūškurvja piesūcošās funkcijas samazināšanās."
+    ]
+  },
+  {
+    "q": "Išēmija ir:",
+    "correct": "vietēja mazasinība,",
+    "options": [
+      "asins plūsmas palēnināšanās,",
+      "asins plūsmas apstāšanās,",
+      "vietēja mazasinība,",
+      "sladža fenomena izpausme,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Išēmijai ir raksturīgs viss, izņemot:",
+    "correct": "cianozi,",
+    "options": [
+      "orgāna tilpuma samazināšanos,",
+      "ādas temperatūras samazināšanos,",
+      "orgāna funkciju pavājināšanos,",
+      "cianozi,",
+      "sāpes,",
+      "jušanas traucējumus."
+    ]
+  },
+  {
+    "q": "Išēmijas pamatveidi ir:",
+    "correct": "obturācijas, angiospastiskā un kompresijas",
+    "options": [
+      "fizioloģiskā un patoloģiskā išēmija,",
+      "arteriālā un venozā išēmija,",
+      "kompresijas, Sladža un venozā išēmija,",
+      "obturācijas, angiospastiskā un kompresijas"
+    ]
+  },
+  {
+    "q": "Emboliju iedala:",
+    "correct": "a+d.",
+    "options": [
+      "endogēnajā un eksogēnajā,",
+      "fizioloģiskajā un patoloģiskajā,",
+      "akūtajā un hroniskajā,",
+      "mazā, lielā asinsrites loka un vārtu vēnas",
+      "sistēmas embolijā,",
+      "a+c,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Kompresijas išēmiju izraisa viss, izņemot:",
+    "correct": "tromboze,",
+    "options": [
+      "tromboze,",
+      "audzējs,",
+      "artērijas ligatūra,",
+      "saaugumi,",
+      "žņaugs."
+    ]
+  },
+  {
+    "q": "Cianozes tiešais cēlonis ir:",
+    "correct": "reducētā hemoglobīna daudzuma pieaugums,",
+    "options": [
+      "išēmija,",
+      "venozā hiperēmija,",
+      "reducētā hemoglobīna daudzuma pieaugums,",
+      "viss minētais,",
+      "a+b,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Ekstracelulārās telpas galvenie joni ir:",
+    "correct": "nātrijs, kalcijs un hlors,",
+    "options": [
+      "nātrijs un hlors,",
+      "nātrijs, kalcijs un hlors,",
+      "nātrijs un fosfāta anjons,",
+      "kālijs un hlors,",
+      "kālijs, kalcijs un hlors,",
+      "kālijs un fosfāta anjons."
+    ]
+  },
+  {
+    "q": "Intracelulārās telpas galvenie joni ir:",
+    "correct": "nātrijs un fosfāta anjons,",
+    "options": [
+      "nātrijs un hlors,",
+      "nātrijs, kalcijs un hlors,",
+      "nātrijs un fosfāta anjons,",
+      "kālijs un hlors,",
+      "kālijs, kalcijs un hlors,",
+      "kālijs un fosfāta anjons."
+    ]
+  },
+  {
+    "q": "Asins osmolaritāres norma ir atkarīga no visa,izņemot:",
+    "correct": "hlora,",
+    "options": [
+      "nātrija,",
+      "hlora,",
+      "glikozes,",
+      "urīnvielas."
+    ]
+  },
+  {
+    "q": "Par antigēniem var būt jebkura viela, ja:",
+    "correct": "tā ir sveša, makromolekulāra un specifiska,",
+    "options": [
+      "tā ir sveša, makromolekulāra un specifiska,",
+      "tai piemīt afinitāte un aviditāte,",
+      "tā tiek ievadīta parenterāli,",
+      "a+b+c,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Haptēni ir:",
+    "correct": "nepilnvērtīgi antigēni,",
+    "options": [
+      "makromolekulāri antigēni,",
+      "antigēni, kuri izkļuvuši cauri hematohistocitārajai barjerai,",
+      "antigēni, kuriem piemīt afinitāte un aviditāte,",
+      "nepilnvērtīgi antigēni,",
+      "pilnvērtīgi antigēni,",
+      "a+b."
+    ]
+  },
+  {
+    "q": "Primārā kontakta gadījumā ar antigēnu organisma imunoloģiskās reakcijas iedala:",
+    "correct": "adaptācijas, indukcijas un proliferācijas stadijās.",
+    "options": [
+      "rezistences, proliferācijas un izsīkuma stadijās,",
+      "trauksmes, rezistences un izsīkuma stadijās,",
+      "trauksmes, proliferācijas un izsīkuma stadijās,",
+      "adaptācijas, proliferācijas un izsīkuma stadijās,",
+      "adaptācijas, indukcijas un izsīkuma stadijās,",
+      "adaptācijas, indukcijas un proliferācijas stadijās."
+    ]
+  },
+  {
+    "q": "Reagīni ir pieskaitāmi:",
+    "correct": "Ig E,",
+    "options": [
+      "Ig A,",
+      "Ig G,",
+      "Ig M,",
+      "Ig E,",
+      "Ig D,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Pilnīgas antivielas:",
+    "correct": "a+d,",
+    "options": [
+      "ir funkcionāli divvalentas,",
+      "ir funkcionāli vienvalentas,",
+      "antigēnu bloķē,",
+      "veido makroagregātu,",
+      "a+d,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Pilnīgām antivielām pieskaita:",
+    "correct": "precipitīnus, lizīnus in aglutinīnus.",
+    "options": [
+      "aglutinīnus un precipitīnus,",
+      "aglutinīnus un lizīnus,",
+      "lizīnus un precipitīnus,",
+      "antitoksīnus un citotoksīnus,",
+      "precipitīnus, antitoksīnus un lizīnus,",
+      "precipitīnus, lizīnus in aglutinīnus."
+    ]
+  },
+  {
+    "q": "Nepilnīgas antivielas:",
+    "correct": "b+c.",
+    "options": [
+      "ir funkcionāli divvalentas,",
+      "ir funkcionāli vienvalentas,",
+      "antigēnu bloķē,",
+      "veido makroagregātu,",
+      "a+d,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Makroglobulīni ir:",
+    "correct": "Ig M,",
+    "options": [
+      "Ig A,",
+      "Ig G,",
+      "Ig M,",
+      "Ig E,",
+      "Ig D,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Sarežģītākajiem imunoloģiskās sistēmas funkcionālā stāvokļa izmeklēšanas testiem pieder:",
+    "correct": "a+b,",
+    "options": [
+      "lumfocītu blasttransformācijas noteikšana,",
+      "limfocītu citopatogēnās darbības noteikšana,",
+      "a+b,",
+      "imuonglobulīnu noteikšana asinīs,",
+      "a+b+d,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Primāro imūnodeficīta slimību cēlonis ir:",
+    "correct": "ģenētiski noteikts kāda imunopoēzes posma bloks,",
+    "options": [
+      "iegūtais imunodeficīta sindroms,",
+      "ļaundabīgais audzējs,",
+      "badošanās un olbaltumvielu zaudējumi,",
+      "ģenētiski noteikts kāda imunopoēzes posma bloks,",
+      "infekciju slimības,",
+      "vielmaiņas slimības."
+    ]
+  },
+  {
+    "q": "Sekundāro imunodeficīta slimību cēlonis var būt viss, izņemot:",
+    "correct": "smago kombinēto imunodeficīta sindromu,",
+    "options": [
+      "infekciju slimības,",
+      "iegūto imunodeficīta sindromu,",
+      "smago kombinēto imunodeficīta sindromu,",
+      "barošanas traucējumus,",
+      "ļaundabīgos audzējus,",
+      "cukura diabētu."
+    ]
+  },
+  {
+    "q": "Imunogēnā reaktivitāte attīstās:",
+    "correct": "a+c+e,",
+    "options": [
+      "nesaderīgas audu transplantācijas gadījumā,",
+      "iekaisums,",
+      "audu bioloģiskās nesaderības reakcijās starp  māti un augli,",
+      "drudzis,",
+      "autoimūno slimību gadījumos,",
+      "a+c+e,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Zonas fenomens norāda, ka:",
+    "correct": "antigēnu un antivielu attiecības optimālā zona ir  1:10,",
+    "options": [
+      "antivielu un antigēnu attiecības optimālā zona ir 1:10,",
+      "antivielu un antigēnu attiecības aizkavēšanās zona ir 1:10,",
+      "antigēnu un antivielu attiecības optimālā zona ir  1:10,",
+      "optimālā zona nav uzrādīta."
+    ]
+  },
+  {
+    "q": "Spriedze ir:",
+    "correct": "nespecifisku neiroendokrīnu reakciju komplekss,",
+    "options": [
+      "specifisku aizsargreakciju komplekss,",
+      "specifisku neiroendokrīnu reakciju komplekss,",
+      "nespecifisku neiroendokrīnu reakciju komplekss,",
+      "patoloģisko reakciju komplekss,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Stresoriem pieskaita:",
+    "correct": "a+c+d.",
+    "options": [
+      "neparastus kairinātājus,",
+      "parastus kairinātājus, ja tie darbojas īslaicīgi,",
+      "parastus kairinātājus, ja tie darbojas ilgstoši,",
+      "parasto kairinājumu trūkumu,",
+      "a+b+d,",
+      "a+c+d."
+    ]
+  },
+  {
+    "q": "H.Seljē aprakstītajā spriedzes klīniskajā triādē  ietilpst viss, izņemot",
+    "correct": "simpātiskās nervu sistēmas aktivāciju,",
+    "options": [
+      "simpātiskās nervu sistēmas aktivāciju,",
+      "virsnieru garozas hipertrofiju,",
+      "asinsizplūdumus kuņģa zarnu traktā,",
+      "tīmiko - limfātiskās sistēmas involūciju."
+    ]
+  },
+  {
+    "q": "H.Seljē spriedzi iedalīja sekojošās stadijās:",
+    "correct": "trauksmes, rezistences in izsīkuma,",
+    "options": [
+      "trauksmes, šoka un rezistences,",
+      "trauksmes, rezistences in izsīkuma,",
+      "trauksmes, šoka un izsīkuma,",
+      "šoka, rezistences un izsīkuma,",
+      "somatiskajā, psihoemocionālajā un izsīkuma."
+    ]
+  },
+  {
+    "q": "Spriedzes trauksmes stadijai ir sekojošas galvenās apakšstadijas:",
+    "correct": "šoka un pretšoka,",
+    "options": [
+      "šoka un pretšoka,",
+      "iniciālā un trauksmes,",
+      "iniciālā un šoka,",
+      "iniciālā un pretšoka,",
+      "a+b,",
+      "iepriekš nav minētas."
+    ]
+  },
+  {
+    "q": "Virsnieru garozas hiperfunkcija attīstās spriedzes:",
+    "correct": "pretšoka apakšstadijā,",
+    "options": [
+      "iniciālajā apakšstadijā,",
+      "šoka apakšstadijā,",
+      "pretšoka apakšstadijā,",
+      "hiperglikēmiskajā stadijā,",
+      "a+d,",
+      "b+c+d."
+    ]
+  },
+  {
+    "q": "Spriedzes apstākļos vienmēr novēro:",
+    "correct": "trauksmes stadiju,",
+    "options": [
+      "trauksmes stadiju,",
+      "rezistences stadiju,",
+      "izsīkuma stadiju,",
+      "a+b+c,",
+      "a+b,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Tīmikolimfātiskās sistēmas involūcija attīstās spriedzes:",
+    "correct": "pretšoka apakšstadijā,",
+    "options": [
+      "izsīkuma stadijā,",
+      "iniciālajā apakšstadijā,",
+      "šoka apakšstadijā,",
+      "pretšoka apakšstadijā,",
+      "rezistences stadijā,",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Tīmikolimfātiskās sistēmas involūcija izpausme ir:",
+    "correct": "a+c,",
+    "options": [
+      "limfopēnija,",
+      "limfocitoze,",
+      "eozinopēnija,",
+      "eozinofīlija,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Nāve operācijas laikā ir pieskaitāma spriedzes:",
+    "correct": "šoka apakšstadijai,",
+    "options": [
+      "iniciālajai apakšstadijai,",
+      "šoka apakšstadijai,",
+      "pretšoka apakšstadijai,",
+      "rezistences stadijai,",
+      "izsīkuma stadijai,",
+      "b+e."
+    ]
+  },
+  {
+    "q": "Nāve pēcoperācijas perioda laikā ir pieskaitāma spriedzes:",
+    "correct": "izsīkuma stadijai,",
+    "options": [
+      "iniciālajai apakšstadijai,",
+      "šoka apakšstadijai,",
+      "pretšoka apakšstadijai,",
+      "rezistences stadijai,",
+      "izsīkuma stadijai,",
+      "b+e."
+    ]
+  },
+  {
+    "q": "Glikokortikosteroīdu terapija:",
+    "correct": "a+c.",
+    "options": [
+      "samazina organisma nespecifisko rezistenci,",
+      "izraisa virsnieru hiperplāziju,",
+      "veicina steroīdu diabēta izcelsmi,",
+      "a+b+c,",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Galvenās organisma skābekļa budžeta rādītāju pārmaiņas slimniekam ar hēmisko hipoksiju ir:",
+    "correct": "asins skābekļa ietilpības samazināšanās,",
+    "options": [
+      "asins skābekļa ietilpības samazināšanās,",
+      "arteriālā hipoksēmija,",
+      "skābekļa satura arteriovenozās starpības samazināšanās,",
+      "skābekļa satura artetiovenozās starpības pieaugums."
+    ]
+  },
+  {
+    "q": "Spriedzes bioloģiskā mērķtiecība ir:",
+    "correct": "b+d.",
+    "options": [
+      "organisma nespecifiskās rezistences stabilizācija,",
+      "homeostāzes pastāvīguma saglabāšana,",
+      "organisma specifiskās rezistences paaugstināšana,",
+      "organisma nespecifiskās rezistences paaugstināšana,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Stresa izsīkuma stadijai raksturīgs viss, izņemot:",
+    "correct": "paaugstināta ķermeņa t0,",
+    "options": [
+      "akūta virsnieru mazspēja,",
+      "pazemināts glikozes līmenis asinīs,",
+      "paaugstināta ķermeņa t0,",
+      "negatīva slāpekļa bilance,",
+      "a+b,",
+      "a+b+d."
+    ]
+  },
+  {
+    "q": "Specifiskās šūnu bojājuma izpausmes ir:",
+    "correct": "a+d.",
+    "options": [
+      "šūnas lipīdu struktūru koagulācija,",
+      "bojājuma acidoze,",
+      "sekundārā alterācija,",
+      "brīvo radikāļu veidošanās šūnā,",
+      "a+d."
+    ]
+  },
+  {
+    "q": "Nespecifiskās šūnu bojājuma izpausmes ir visas, izņemot:",
+    "correct": "alterāciju,",
+    "options": [
+      "alterāciju,",
+      "bojājuma acidozi,",
+      "brīvo radikāļu veidošanos,",
+      "šūnu sukņu darbības traucējumus,",
+      "membrānu caurlaides pārmaiņas"
+    ]
+  },
+  {
+    "q": "Primārā alterācija:",
+    "correct": "rodas etioloģiskā faktora ietekmē,",
+    "options": [
+      "rodas etioloģiskā faktora ietekmē,",
+      "izraisa hipoksiju un bioloģiski aktīvo vielu veidošanos,",
+      "rodas lizosomu enzīmu ietekmē,",
+      "ir plašāka par sekundārāro."
+    ]
+  },
+  {
+    "q": "Sekundārā alterācija:",
+    "correct": "b+d.",
+    "options": [
+      "rodas etioloģiskā faktora ietekmē,",
+      "ir plašāka par primāro,",
+      "to izraisa hipoksija un bioloģiski aktīvo vielu veidošanos,",
+      "rodas lizosomu enzīmu ietekmē,",
+      "a+b,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Transmineralizācijai raksturīgi:",
+    "correct": "nātrijs pastiprināti nokļūst šūnā un kālijs šūnu atstāj,",
+    "options": [
+      "nātrijs pastiprināti nokļūst šūnā un kālijs šūnu atstāj,",
+      "kālijs pastiprināti nokļūst šūnā un nātrijs šūnu atstāj,",
+      "šūnā pieaug fosfātu koncentrācija,",
+      "viss, izņemot a,",
+      "viss, izņemot b."
+    ]
+  },
+  {
+    "q": "Intracelulārās acidozes galvenie iemesli ir:",
+    "correct": "a+c,",
+    "options": [
+      "laktāta veidošanās,",
+      "asins atteces traucējumi,",
+      "transmineralizācija,",
+      "indikatorenzīmu aktivācija,",
+      "a+c,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Par šūnu bojājuma plašumu liecina sekojošu enzīmu līmeņa pieaugums asinīs:",
+    "correct": "visi.",
+    "options": [
+      "aldolāze,",
+      "AsAT un AlAT,",
+      "sārmainā fosfatāze,",
+      "glutamātdehidrogenāze,",
+      "laktātdehidrogenāze,",
+      "visi."
+    ]
+  },
+  {
+    "q": "Āda drudžu pirmajā stādijā ir:",
+    "correct": "bāla auksta sausa;",
+    "options": [
+      "mitra, auksta, bāla;",
+      "mitra, silta, bāla;",
+      "bāla auksta sausa;",
+      "sausa, silta, hiperemēta."
+    ]
+  },
+  {
+    "q": "Drudzim līdzīgās reakcijass izraisa:",
+    "correct": "a+b+c;",
+    "options": [
+      "aseptisks audu bojājums;",
+      "sāpes;",
+      "adrenalīna hiperprodukcija;",
+      "a+b+c;",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Paaugstinātas temperatūras stadijai raksturīgs viss,izņemot:",
+    "correct": "drebuļi;",
+    "options": [
+      "līdzsvars starp pastiprināto siltuma produkciju un atdevi;",
+      "sausa,karsta, sārta āda;",
+      "drebuļi;",
+      "samazinās izdalītā urīna daudzums;",
+      "paplašinās ādas asinsvadi."
+    ]
+  },
+  {
+    "q": "Pacientam āda drudža II stadijas laikā ir:",
+    "correct": "sausa, karsta, sārta;",
+    "options": [
+      "mitra, karsta, sārta;",
+      "sausa, karsta, sārta;",
+      "mitra, karsta, bāla."
+    ]
+  },
+  {
+    "q": "Drudža II stadijai raksturīgs:",
+    "correct": "izdalītā urīna daudzums samazināsnās;",
+    "options": [
+      "siltuma komforts;",
+      "pacienta  ir auksti;",
+      "izdalītā urīna daudzums samazināsnās;",
+      "izdalītā urīna daudzums palielnās."
+    ]
+  },
+  {
+    "q": "Ievērojot ķermeņa temperatūras paaugstināšanās pakāpi:",
+    "correct": "a+b.",
+    "options": [
+      "subfebrilu un augstu drudzi,",
+      "mērenu un hiperpirētisku  drudzi;",
+      "zemu, mērenu un augstu drudzi;",
+      "subfebrrilu, augstu un hiperpirētisku  drudzi,",
+      "a+b."
+    ]
+  },
+  {
+    "q": "Hiperpirētiskā drudža iemesls ir:",
+    "correct": "a+b+c",
+    "options": [
+      "siltuma atdeves mehānismu pavājināšanās;",
+      "kontrakciju termoģenēze,",
+      "termorgulācijas centru intoksikāsija;",
+      "a+b+c"
+    ]
+  },
+  {
+    "q": "Oksihemoglobīna disociācijas līknes nobīdi pa labi izraisa:",
+    "correct": "viss, izņemot c,",
+    "options": [
+      "paaugstināta ķermeņa to,",
+      "acidoze,",
+      "alkaloze",
+      "drudzis",
+      "viss, izņemot c,",
+      "viss, izņemot d."
+    ]
+  },
+  {
+    "q": "Hiperlipēmiju pamatveidi ir:",
+    "correct": "alimentārā , retences un lipoproteinēmiskā hiperlipēmija,",
+    "options": [
+      "alimentārā , retences un lipoproteinēmiskā hiperlipēmija,",
+      "alimentārā , retences un transporta hiperlipēmija,",
+      "alimentārā, transporta un lipoproteinēmiskā hiperlipēmija,",
+      "nieru, transporta un produkcijas hiperlipēmija,",
+      "produkcijas, retences un hiperazotēmiskā hiperlipēmija,",
+      "produkcijas, transporta un hiperazotēmiskā hiperlipēmija."
+    ]
+  },
+  {
+    "q": "Retences hiperlipēmija var attīstīties, ja:",
+    "correct": "samazinās lipoproteīdu lipāzes aktivitāte,",
+    "options": [
+      "aknās samazinās glikogēna krājumi,",
+      "asinīs samazinās albumīna saturs,",
+      "samazinās lipoproteīdu lipāzes aktivitāte,",
+      "pastāv hiperventilācija,",
+      "a+d,",
+      "b+c."
+    ]
+  },
+  {
+    "q": "Diabēta slimniekam ir traucēta:",
+    "correct": "ogļhidrātu, tauku un olbaltumvielu maiņa,",
+    "options": [
+      "ogļhidrātu maiņa,",
+      "ogļhidrātu un tauku maiņa,",
+      "ogļhidrātu un olbaltumvielu maiņa,",
+      "tauku on olbaltumvielu maiņa,",
+      "ogļhidrātu, tauku un olbaltumvielu maiņa,",
+      "neviena atbilde nav pareiza."
+    ]
+  },
+  {
+    "q": "Metabolajam sindromam raksturīgs viss, izņemot:",
+    "correct": "c) palielināts ABLP  līmenis asinīs,",
+    "options": [
+      "a) palielināts vidukļa apkārtmēs,",
+      "b) palielināts TG līmenis asinīs,",
+      "c) palielināts ABLP  līmenis asinīs,",
+      "d) paaugstināts TA,",
+      "e) hiperglikēmija tukšā dūšā."
+    ]
+  },
+  {
+    "q": "I tipa CD ir raksturīgs viss, izņemot:",
+    "correct": "aptaukošanās,",
+    "options": [
+      "absolūts insulīna trūkums,",
+      "aptaukošanās,",
+      "sastop galvenokārt jauniem ,",
+      "raksturīga ketonvielu veidošanās."
+    ]
+  },
+  {
+    "q": "II tipa cukura diabētam ir raksturīgs:",
+    "correct": "b+c,",
+    "options": [
+      "absolūts insulīna trūkums,",
+      "normāls vai paaugstināts insulīna līmenis asinīs,",
+      "biežāk sastop pieaugušiem un korpulentiem pacientiem,",
+      "b+c,",
+      "a+b+c."
+    ]
+  },
+  {
+    "q": "Diabētiskās komas patoģenēzē būtiska loma ir:",
+    "correct": "a+b,",
+    "options": [
+      "hipohidratācijai,",
+      "metaboliskajai acidozei,",
+      "a+b,",
+      "EC telpas hipoosmolaritātei,",
+      "a+b+d."
+    ]
+  },
+  {
+    "q": "Diabētiskās komas patoģenēzē būtiska loma ir:",
+    "correct": "a+c.",
+    "options": [
+      "hiperketonēmijai,",
+      "hipoosmolārajai hipohidratācijai,",
+      "metaboliskajai acidozei,",
+      "a+b+c,",
+      "a+b,",
+      "a+c."
+    ]
+  },
+  {
+    "q": "Diabēta vēlīnajām sekām pieder:",
+    "correct": "angiopātijas,",
+    "options": [
+      "angiopātijas,",
+      "poliurija,",
+      "hiperglikēmija,",
+      "polidipsija,",
+      "a+b,",
+      "a+b+c+d."
+    ]
+  },
+  {
+    "q": "Ja glikozes koncentrācija asinīs pārsniedz nieru slieksni, attīstās:",
+    "correct": "hiperglikēmiskā glikozurija,",
+    "options": [
+      "nieru glikozurija,",
+      "hiperglikēmiskā glikozurija,",
+      "nekaitīgais diabēts,",
+      "cukura diabēts,",
+      "bezcukura diabēts,",
+      "jauktā glikozurija."
+    ]
+  },
+  {
+    "q": "Attīstītam cukura diabētam raksturīga:",
+    "correct": "hiperglikēmiskā glikozurija,",
+    "options": [
+      "hiperglikēmiskā glikozurija,",
+      "nieru glikozurija,",
+      "jauktā glikozurija,",
+      "nav raksturīga glikozurija,",
+      "hiperazotēmiskā glikozurija."
+    ]
+  },
+  {
+    "q": "Disaharīdu malabsorbcijas sindromiem raksturīgs viss, izņemot:",
+    "correct": "laktozūriju.",
+    "options": [
+      "meteorismu,",
+      "onkotiskās caurejas,",
+      "borborigmus,",
+      "laktozūriju."
+    ]
+  },
+  {
+    "q": "Ogļhidrātu vielmaiņas traucējumu apstākļos vispirms vērojami:",
+    "correct": "nervu sistēmas,",
+    "options": [
+      "nervu sistēmas,",
+      "endokrīnās sistēmas,",
+      "asins sistēmas,",
+      "mononukleāro makrofāgu sistēmas funkciju traucējumi,",
+      "a+b,",
+      "c+d."
+    ]
+  },
+  {
+    "q": "Glikogenozēm ir raksturīga:",
+    "correct": "a+c,",
+    "options": [
+      "glikogēna patoloģiska uzkrāšanās orgānos,",
+      "glikoneoģenēzes enzīmu trūkums,",
+      "glikogenolīzes enzīmu trūkums,",
+      "glikogenoģenēzes traucējumi,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Glikogenozes pārmanto:",
+    "correct": "autosomāli recesīvi,",
+    "options": [
+      "autosomāli dominanti ar nepilnu penetranci,",
+      "autosomāli recesīvi,",
+      "gonosomāli recesīvi,",
+      "poligēni,",
+      "nepārmanto."
+    ]
+  },
+  {
+    "q": "Bez jauktās hiperazotēmijas izšķir sekojošus divus hiperazotēmijas veidus:",
+    "correct": "produkcijas un retences,",
+    "options": [
+      "produkcijas un renālo,",
+      "produkcijas un retences,",
+      "renālo un retences,",
+      "renālo un ekstrarenālo,",
+      "ekstrarenālo un reziduālo,",
+      "reziduālo un pulmonālo."
+    ]
+  },
+  {
+    "q": "EGĀ pieaugumu iekaisuma apstākļos izraisa:",
+    "correct": "b+d.",
+    "options": [
+      "acidoze,",
+      "albumīnu/globulīnu koeficienta izmaiņas,",
+      "samazināts ERY skaits,",
+      "C reaktīvais proteīns,",
+      "a+c,",
+      "b+d."
+    ]
+  },
+  {
+    "q": "Podagras attīstības pamatā ir:",
+    "correct": "urīnskābes maiņas traucējumi.",
+    "options": [
+      "atlieku slāpekļa maiņas traucējumi,",
+      "reziduālā slāpekļa maiņas traucējumi,",
+      "urīnvielas maiņas traucējumi,",
+      "urīnskābes maiņas traucējumi."
+    ]
+  },
+  {
+    "q": "Relatīva hipoproteinēmija attīstās:",
+    "correct": "hiperhidratāciju apstākļos,",
+    "options": [
+      "hiperhidratāciju apstākļos,",
+      "hipohidratāciju apstākļos,",
+      "izoosmolaritātes apstākļos,",
+      "ja samazinās kāda no olbaltumvielu frakcijām."
+    ]
+  },
+  {
+    "q": "Relatīva hiperproteinēmija attīstās:",
+    "correct": "hipohidratāciju apstākļos,",
+    "options": [
+      "hiperhidratāciju apstākļos,",
+      "hipohidratāciju apstākļos,",
+      "izoosmolaritātes apstākļos,",
+      "ja samazinās kāda no olbaltumvielu frakcijām."
+    ]
+  },
+  {
+    "q": "Holesterīns ir kodola sastāvdaļa:",
+    "correct": "c) ZBLP,",
+    "options": [
+      "a)  hilomikronam,",
+      "b) SZBLP,",
+      "c) ZBLP,",
+      "d) ABLP,",
+      "e) a+b,",
+      "f) c+d."
+    ]
+  },
+  {
+    "q": "Triglicerīni  ir kodola sastāvdaļa:",
+    "correct": "e)  a+b,",
+    "options": [
+      "a)  hilomikronam,",
+      "b) SZBLP,",
+      "c) ZBLP,",
+      "d) ABLP,",
+      "e)  a+b,",
+      "f) c+d."
+    ]
+  },
+  {
+    "q": "Anabolo hormonu darbības galvenie mehānismi ir:",
+    "correct": "d)  a+b+c,",
+    "options": [
+      "a) šūnu membrānu caurlaidības palielināšana aminoskābēm,",
+      "b) i-RNS stimulēšana,",
+      "c) ATF sintēzes stimulēšana,",
+      "d)  a+b+c,",
+      "e) a+b,",
+      "f) b+c."
+    ]
+  },
+  {
+    "q": "Kopējais asins olbaltuma daudzums ir:",
+    "correct": "b) 65-85 g/l,",
+    "options": [
+      "a) 33-55 g/l,",
+      "b) 65-85 g/l,",
+      "c) 75-90 g/l,",
+      "f) 60-70 %."
+    ]
+  },
+  {
+    "q": "Albumīni:",
+    "correct": "a) uztur asins plazmas onkotisko spiedienu,",
+    "options": [
+      "a) uztur asins plazmas onkotisko spiedienu,",
+      "b) uztur asins plazmas osmotisko spiedienu,",
+      "c) ir akūtās fāzes proteīns,",
+      "d) piedalās asins recēšanas procesā,",
+      "e) a+c,",
+      "f) a+b+c."
+    ]
+  },
+  {
+    "q": "Podagras gadījumā asinīs paaugstinās:",
+    "correct": "e) pareizā atbilde nav minēta.",
+    "options": [
+      "a) kreatinīna un kreatīna slāpeklis,",
+      "b) bilirubīna slāpeklis,",
+      "c) amonjaka slāpeklis,",
+      "d) urīnvielas slāpekli,",
+      "e) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Pie hiperurikēmijas asinīs paaugstinās:",
+    "correct": "d) urīnskābe,",
+    "options": [
+      "a) urīnviela ,",
+      "b) kreatinīns,",
+      "c) amonjaks,",
+      "d) urīnskābe,",
+      "e) a+b."
+    ]
+  },
+  {
+    "q": "Izšķir hiperproteīnēmijas veidus:",
+    "correct": "f) pareizā atbilde nav minēta.",
+    "options": [
+      "a) produkcijas un renālo,",
+      "b) produkcijas un retences,",
+      "c) renālo un retences,",
+      "d) renālo un ekstrarenālo,",
+      "e) visus minētos,",
+      "f) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Absolūta hiperglobulīnēmija attīstās:",
+    "correct": "e) ja veidojas paraproteīni,",
+    "options": [
+      "a) hiperhidratāciju apstākļos,",
+      "b) hipohidratāciju apstākļos,",
+      "c) izoosmolaritātes apstākļos,",
+      "d) ja samazinās kāda no olbaltumvielu frakcijām,",
+      "e) ja veidojas paraproteīni,",
+      "f) ja ir traucēta olbaltumvielu izvadīšana no organisma."
+    ]
+  },
+  {
+    "q": "Lipoproteīna lipāzes ( LPL) aktivizācijai nepieciešams:",
+    "correct": "e) b+d,",
+    "options": [
+      "a) apoproteīds BI,",
+      "b) heparīns,",
+      "c) hematokrīns,",
+      "d) apoproteīds CII,",
+      "e) b+d,",
+      "f) b+c+d."
+    ]
+  },
+  {
+    "q": "Klasiskās cukura diabēta klīniskās izpausmes:",
+    "correct": "d) poliūrija, polifāgija, polidipsija,",
+    "options": [
+      "a) poliūrija, polipnoja, polidipsija,",
+      "b) paroreksija, piūrija, polipnoja,",
+      "c) polifāgija, piūrija, polidipsija,",
+      "d) poliūrija, polifāgija, polidipsija,",
+      "e) polakisūrija, paroreksija, polifāgija."
+    ]
+  },
+  {
+    "q": "Diabēta agrīnām  komplikācijām pieder :",
+    "correct": "d) komatozs stāvoklis,",
+    "options": [
+      "a) diabēta pēda,",
+      "b) angiopātijas,",
+      "c) nieru bojājums,",
+      "d) komatozs stāvoklis,",
+      "e) b+c,",
+      "f) b+c+d."
+    ]
+  },
+  {
+    "q": "Diabētiskās komas patoģenēzē būtiska loma ir:",
+    "correct": "f) a+b+c.",
+    "options": [
+      "a) hipohidratācijai,",
+      "b) metaboliskajai acidozei,",
+      "c) EC telpas hipersmolaritātei,",
+      "d) a+b,",
+      "e) b+c,",
+      "f) a+b+c."
+    ]
+  },
+  {
+    "q": "Procesu, kad no olbaltumvielām un taukiem veido ogļhidrātus, sauc par:",
+    "correct": "c) glikoneoģenēzi,",
+    "options": [
+      "a) glikogenozi,",
+      "b) glikogenolīzi,",
+      "c) glikoneoģenēzi,",
+      "d) glikolīzi,",
+      "e) nav minēts."
+    ]
+  },
+  {
+    "q": "Holesterīns atrodas:",
+    "correct": "b) ZBLP un ABLP kodolā,",
+    "options": [
+      "a) SZBLP un hilomikrona kodolā,",
+      "b) ZBLP un ABLP kodolā,",
+      "c) ABLP un hilomokrona kodolā,",
+      "d) SZBLP, remnenta un hilomikrona kodolā."
+    ]
+  },
+  {
+    "q": "Galvenā apoproteina B funkcija ir:",
+    "correct": "c) nodrošina saistību  ar hepatocītu,",
+    "options": [
+      "a) aktivē LPL,",
+      "b) transporta ,",
+      "c) nodrošina saistību  ar hepatocītu,",
+      "d) a+b."
+    ]
+  },
+  {
+    "q": "Paaugstināts TG līmenis asinīs dod sekojošas klīniskas izmaiņas:",
+    "correct": "e) a+c.",
+    "options": [
+      "a) aptaukošanās,",
+      "b) cīpslu ksantomas ,",
+      "c) ateroskleroze,",
+      "d) a+b+c,",
+      "e) a+c."
+    ]
+  },
+  {
+    "q": "Globulīni:",
+    "correct": "f) c+d.",
+    "options": [
+      "a) uztur asins plazmas onkotisko spiedienu,",
+      "b) uztur asins plazmas osmotisko spiedienu,",
+      "c) nodrošina humorālo imūno reakciju,",
+      "d) ir akūtās fāzes proteīni pie iekaisuma",
+      "e) a+b,",
+      "f) c+d."
+    ]
+  },
+  {
+    "q": "Paaugstināts holesterīna līmenis asinīs dod sekojošas klīniskas izmaiņas:",
+    "correct": "e) b+c.",
+    "options": [
+      "a) aptaukošanās,",
+      "b) cīpslu ksantomas ,",
+      "c) ateroskleroze,",
+      "d) a+b+c,",
+      "e) b+c."
+    ]
+  },
+  {
+    "q": "Akūta iekaisuma gadījumā asinīs:",
+    "correct": "e) b+d,",
+    "options": [
+      "a) paaugstinās albumīnu līmenis,",
+      "b) ) paaugstinās globulīnu līmenis,",
+      "c) samazinās globulīnu līmenis,",
+      "d) paaugstinās C-reaktīvais olbaltums,",
+      "e) b+d,",
+      "f) a+d."
+    ]
+  },
+  {
+    "q": "C-reaktīvais olbaltums ir:",
+    "correct": "b) globulīni,",
+    "options": [
+      "a) albumīni,",
+      "b) globulīni,",
+      "c) paraproteīni,",
+      "d) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Disproteinēmija nozīmē:",
+    "correct": "f) pareizā atbilde nav minēta.",
+    "options": [
+      "a) olbaltumvielu frakciju relatīvu pieaugumu asinīs,",
+      "b) olbaltumvielu frakciju samazināšanos asinīs,",
+      "c) attiecību izmaiņas olbaltumvielu frakciju starpā urīnā,",
+      "d) normālas attiecības olbaltumvielu frakciju starpā,",
+      "e) olbaltumvielu frakciju disfunkciju,",
+      "f) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Disproteinēmija nozīmē:",
+    "correct": "c) attiecību izmaiņas olbaltumvielu frakciju starpā asinīs,",
+    "options": [
+      "a) olbaltumvielu frakciju relatīvu pieaugumu asinīs,",
+      "b) olbaltumvielu frakciju samazināšanos asinīs,",
+      "c) attiecību izmaiņas olbaltumvielu frakciju starpā asinīs,",
+      "d) normālas attiecības olbaltumvielu frakciju starpā,",
+      "e) olbaltumvielu frakciju disfunkciju,",
+      "f) pareizā atbilde nav minēta."
+    ]
+  },
+  {
+    "q": "Kwashiorkor raksturīgs:",
+    "correct": "f) a+c+d.",
+    "options": [
+      "a) novēro zīdaiņiem,",
+      "b) izteikts tauku un muskuļu masas deficīts ,",
+      "c) izteikta tūska,",
+      "d) rodas pie izteikta olbaltumu deficīta uzturā,",
+      "d) a+b+c,",
+      "f) a+c+d."
+    ]
+  },
+  {
+    "q": "Marasmam raksturīgs:",
+    "correct": "b) izteikts tauku un muskuļu masas deficīts ,",
+    "options": [
+      "a) novēro vecāka gadu gājuma pacientiem,",
+      "b) izteikts tauku un muskuļu masas deficīts ,",
+      "c) izteikta tūska,",
+      "d) rodas pie izteikta olbaltumu deficīta uzturā,",
+      "d) a+b,",
+      "f) c+d."
+    ]
+  },
+  {
+    "q": "Ogļhidrātu vielmaiņas traucējumu apstākļos vispirms vērojami sekojošu orgānu vai sistēmu traucējumi:",
+    "correct": "d) nervu sistēmas,",
+    "options": [
+      "a) endokrīnās sistēmas,",
+      "b) hemopoēzes sistēmas,",
+      "c) aknās,",
+      "d) nervu sistēmas,",
+      "e) a+b,",
+      "f) c+d."
+    ]
+  },
+  {
+    "q": "Hipergikēmijas pamatveidi ir visi, izņemot:",
+    "correct": "d) retences hiperglikēmiju,",
+    "options": [
+      "a) alimentāro hiperglikēmiju,",
+      "b) hiperglikēmiju endokrīnās regulācijas traucējumu dēļ,",
+      "c) centrālo hiperglikēmiju,",
+      "d) retences hiperglikēmiju,",
+      "e) c+d."
+    ]
+  },
+  {
+    "q": "Ilgstoša hipoglikēmja provocē vai izraisa:",
+    "correct": "e) neko no minētā,f) visu minēto.",
+    "options": [
+      "a) cukura diabētu,",
+      "b) pankreata hipoinsulīnismu,",
+      "c) izraisa akromegāliju,",
+      "d) izraisa hiperkorticismu,",
+      "e) neko no minētā,f) visu minēto."
+    ]
+  },
+  {
+    "q": "Adrenalīns veicina:",
+    "correct": "d) a+b,",
+    "options": [
+      "a) glikogenolīzi,",
+      "b) glikoneoģenēzi,",
+      "c) glikogenoģenēzi,",
+      "d) a+b,",
+      "e) a+b+c,",
+      "f) neko no minētā."
+    ]
+  },
+  {
+    "q": "Glikokortikosteroīdi veicina:",
+    "correct": "e) b+c,",
+    "options": [
+      "a) glikogenolīzi,",
+      "b) glikogēna sintēzi,",
+      "c) glikoneoģenēzi,",
+      "d) a+b+c,",
+      "e) b+c,",
+      "f) neko no minētā."
+    ]
+  },
+  {
+    "q": "Pie sekundāra cukura diabēta pieder:",
+    "correct": "e) a+b+c,",
+    "options": [
+      "a) endokrīnās vielmaiņas slimības,",
+      "b) aizkuņģa dziedzera slimības,",
+      "c) medikamentu, ķīmisku vielu radītas izmaiņas,",
+      "d) ģenētisks β šūnu deficīts,",
+      "e) a+b+c,",
+      "f) a+b."
+    ]
+  },
+  {
+    "q": "Diabētiskā pēdas attīstībā nozīme ir visam, izņemot:",
+    "correct": "b) hipolipidēmijai,",
+    "options": [
+      "a) išēmijai,",
+      "b) hipolipidēmijai,",
+      "c) imūnodeficītam,",
+      "d) neiropātijai."
+    ]
+  },
+  {
+    "q": "I tipa cukura diabētam ir raksturīgs:",
+    "correct": "e) a+d,",
+    "options": [
+      "a) absolūts insulīna trūkums,",
+      "b) normāls vai paaugstināts insulīna līmenis asinīs,",
+      "c) biežāk sastop pieaugušiem un korpulentiem pacientiem,",
+      "d) autoimmūns  beta-šūnu  bojājums,",
+      "e) a+d,",
+      "f) b+c.",
+      "f) b+c."
+    ]
+  },
+  {
+    "q": "Ar otrā tipa cukura diabētu slimo apmēram (no visiem CD slimniekiem):",
+    "correct": "e) 80-90%,",
+    "options": [
+      "a) 10-20%,",
+      "b) 20-30%,",
+      "c) 40-60%,",
+      "d) 60-70%,",
+      "e) 80-90%,",
+      "f) 90-100%."
+    ]
+  },
+  {
+    "q": "Ar pirmā tipa cukura diabētu slimo apmēram (no visiem CD slimniekiem):",
+    "correct": "a) 10-20%,",
+    "options": [
+      "a) 10-20%,",
+      "b) 20-30%,",
+      "c) 40-60%,",
+      "d) 60-70%,",
+      "e) 80-90%,",
+      "f) 90-100%.",
+      "."
+    ]
+  }
+];
+  </script>
+  <script>
+let ALL = [];
+let deck = [];
+let idx = 0;
+let score = 0;
+let locked = false;
+
+function shuffle(arr) {
+  for (let index = arr.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [arr[index], arr[swapIndex]] = [arr[swapIndex], arr[index]];
+  }
+  return arr;
+}
+
+function pickQuestions(all, count) {
+  const copy = all.slice();
+  shuffle(copy);
+  return copy.slice(0, Math.min(count, copy.length));
+}
+
+function qs(id) { return document.getElementById(id); }
+
+function normalizeRequestedCount() {
+  const max = ALL.length;
+  const raw = Number.parseInt(qs('questionCount').value, 10);
+  if (!Number.isFinite(raw) || raw < 1) {
+    return Math.min(30, max);
+  }
+  return Math.min(raw, max);
+}
+
+function updateCountHint() {
+  const max = ALL.length;
+  qs('questionCount').max = String(max);
+  if (!qs('questionCount').value) {
+    qs('questionCount').value = String(Math.min(30, max));
+  }
+  const chosen = normalizeRequestedCount();
+  qs('countHint').textContent = `Pieejami ${max} jautājumi. Testā tiks izmantoti ${chosen}.`;
+  qs('askCount').textContent = String(chosen);
+}
+
+function setProgress() {
+  const percent = deck.length ? Math.round((idx / deck.length) * 100) : 0;
+  qs('bar').style.width = percent + '%';
+}
+
+function renderStart() {
+  qs('screenStart').style.display = '';
+  qs('screenQuiz').style.display = 'none';
+  qs('screenEnd').style.display = 'none';
+  qs('totalQ').textContent = String(ALL.length);
+  updateCountHint();
+  qs('bar').style.width = '0%';
+}
+
+function startQuiz() {
+  const requestedCount = normalizeRequestedCount();
+  deck = pickQuestions(ALL, requestedCount).map((item) => ({
+    q: item.q,
+    correct: item.correct,
+    options: item.options.slice(),
+  }));
+  idx = 0;
+  score = 0;
+  locked = false;
+  qs('scoreNow').textContent = '0';
+  qs('askCount').textContent = String(deck.length);
+  qs('screenStart').style.display = 'none';
+  qs('screenQuiz').style.display = '';
+  qs('screenEnd').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  locked = false;
+  const item = deck[idx];
+  qs('qIndex').textContent = String(idx + 1);
+  qs('qTotal').textContent = String(deck.length);
+  qs('questionText').textContent = item.q;
+
+  const box = qs('options');
+  box.innerHTML = '';
+  item.options.forEach((option, optionIndex) => {
+    const button = document.createElement('button');
+    const hasLabel = /^[a-z]\)/i.test(option);
+    const label = `${String.fromCharCode(97 + optionIndex)}) `;
+    button.type = 'button';
+    button.className = 'option-btn';
+    button.dataset.value = option;
+    button.textContent = hasLabel ? option : label + option;
+    button.setAttribute('onclick', 'chooseAnswer(this)');
+    box.appendChild(button);
+  });
+
+  qs('feedback').textContent = '';
+  qs('feedback').className = 'feedback';
+  qs('nextBtn').style.display = 'none';
+  setProgress();
+}
+
+function chooseAnswer(button) {
+  if (locked) return;
+  locked = true;
+
+  const item = deck[idx];
+  const picked = button.dataset.value;
+  const buttons = Array.from(qs('options').querySelectorAll('button'));
+
+  buttons.forEach((optionButton) => {
+    if (optionButton.dataset.value === item.correct) optionButton.classList.add('correct');
+    if (optionButton === button && picked !== item.correct) optionButton.classList.add('wrong');
+    optionButton.disabled = true;
+  });
+
+  if (picked === item.correct) {
+    score += 1;
+    qs('scoreNow').textContent = String(score);
+    qs('feedback').textContent = 'Pareizi!';
+    qs('feedback').classList.add('ok');
+  } else {
+    qs('feedback').textContent = 'Nepareizi!';
+    qs('feedback').classList.add('bad');
+  }
+
+  qs('nextBtn').style.display = '';
+}
+
+function nextQuestion() {
+  idx += 1;
+  if (idx >= deck.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  qs('screenStart').style.display = 'none';
+  qs('screenQuiz').style.display = 'none';
+  qs('screenEnd').style.display = '';
+  qs('finalScore').textContent = String(score);
+  qs('finalTotal').textContent = String(deck.length);
+  qs('bar').style.width = '100%';
+}
+
+function restartQuiz() {
+  renderStart();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ALL = window.__QUIZ__ || [];
+  qs('questionCount').addEventListener('input', updateCountHint);
+  renderStart();
+});
+  </script>
+</body>
+</html>
